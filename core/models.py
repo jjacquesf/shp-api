@@ -6,7 +6,9 @@ from django.contrib.auth.models import (
     AbstractBaseUser,
     BaseUserManager,
     PermissionsMixin,
+    Group
 )
+from django.contrib.auth import get_user_model
 
 class UserManager(BaseUserManager):
     """Manager for users"""
@@ -40,3 +42,10 @@ class User(AbstractBaseUser, PermissionsMixin):
     objects = UserManager()
 
     USERNAME_FIELD = 'email'
+
+class Profile(models.Model):
+    user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE)
+    job_position = models.CharField(max_length=255)
+
+class CustomGroup(Group):
+    description = models.TextField(blank=True)

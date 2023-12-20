@@ -22,7 +22,6 @@ services:
       - SECRET_KEY=!crCG/e:iwYA{b5_8TaVT4y*d0%_uLn9tqv&X9LqYCt:;mWf,55666_@FC1Z
     depends_on:
       - db
-
   db:
     image: postgres:13-alpine
     volumes:

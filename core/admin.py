@@ -3,9 +3,15 @@ Django admin customization
 """
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+
+from django.contrib.auth.admin import GroupAdmin
+from django.contrib.auth.models import Group
+
 from django.utils.translation import gettext_lazy as _
 
 from core import models
+
+admin.site.unregister(Group)
 
 class UserAdmin(BaseUserAdmin):
     """Define the admin pages for users"""
@@ -41,4 +47,11 @@ class UserAdmin(BaseUserAdmin):
         }),
     )
 
+class CustomGroupAdmin(GroupAdmin):
+    fieldsets = (
+        (None, {'fields': ('name', 'permissions')}),
+        (_('Description'), {'fields': ('description',)}),
+    )
+
 admin.site.register(models.User, UserAdmin)
+admin.site.register(models.CustomGroup, CustomGroupAdmin)
