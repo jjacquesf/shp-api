@@ -31,3 +31,4 @@ urlpatterns = [
     ),
     path('api/user/', include('user.urls')),
 ]
+
