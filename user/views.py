@@ -13,7 +13,8 @@ from user.serializers import (
 class CreateUserView(generics.CreateAPIView):
     """Create a new user in the system"""
     serializer_class = UserSerializer
-
+    # authentication_classes = [authentication.TokenAuthentication]
+    # permission_classes = [permissions.IsAuthenticated]
 
 class CreateTokenView(ObtainAuthToken):
     """Create a new auth token for user."""

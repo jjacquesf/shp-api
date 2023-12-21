@@ -8,6 +8,7 @@ from django.contrib.auth import (
 from django.utils.translation import gettext as _
 
 from rest_framework import serializers
+from core import models
 
 class UserSerializer(serializers.ModelSerializer):
     """Serializer for the user object"""
@@ -19,7 +20,12 @@ class UserSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         """Creare and return a user with encrypted password"""
-        return get_user_model().objects.create_user(**validated_data)
+        user = get_user_model().objects.create_user(**validated_data)
+        
+        # default_group = models.CustomGroup.objects.get(name='admin')
+        # default_group.user_set.add(user)
+
+        return user
 
     def update(self, instance, validated_data):
         """Update and return user"""
