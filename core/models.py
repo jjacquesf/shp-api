@@ -49,3 +49,7 @@ class Profile(models.Model):
 
 class CustomGroup(Group):
     description = models.TextField(blank=True)
+
+    class Meta:
+        verbose_name = 'Group'
+        verbose_name_plural = 'Groups'
