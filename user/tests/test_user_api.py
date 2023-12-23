@@ -8,9 +8,17 @@ from django.urls import reverse
 from rest_framework.test import APIClient
 from rest_framework import status
 
+from user.serializers import (
+    UserSerializer,
+)
+
+LIST_USER_URL = reverse('user:list')
 CREATE_USER_URL = reverse('user:create')
 TOKEN_URL = reverse('user:token')
 ME_URL = reverse('user:me')
+
+def get_retrive_url(user_id):
+    return reverse('user:retrieve', args=[user_id])
 
 def create_user(**params):
     """Create an return a new user"""
@@ -37,7 +45,7 @@ class PublicUserApiTest(TestCase):
         self.assertNotIn('password', res.data)
 
     def test_user_with_email_exists_error(self):
-        """test error returned if user with email exists."""
+        """Test error returned if user with email exists."""
         payload = {
             'email': 'test@example.com',
             'password': 'testpass123',
@@ -136,3 +144,58 @@ class PrivateUserApiTests(TestCase):
         self.assertEqual(self.user.name, payload['name'])
         self.assertTrue(self.user.check_password(payload['password']))
         self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+    def test_list_user_not_allowed(self):
+        """Test get all users."""
+        payload = {
+            'email': 'test2@example.com',
+            'password': 'testpass123',
+            'name': 'Test Name',
+        }
+        create_user(**payload)
+        res = self.client.get(LIST_USER_URL)
+
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+
+        users = get_user_model().objects.all().order_by('-id')
+        serializer = UserSerializer(users, many=True)
+
+        self.assertEqual(res.data, serializer.data)
+
+    def test_list_user(self):
+        """Test get all users."""
+        payload = {
+            'email': 'test2@example.com',
+            'password': 'testpass123',
+            'name': 'Test Name',
+        }
+        create_user(**payload)
+        res = self.client.get(LIST_USER_URL)
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        users = get_user_model().objects.all().order_by('-id')
+        serializer = UserSerializer(users, many=True)
+
+        self.assertEqual(res.data, serializer.data)
+
+    def test_retrieve_user_not_allowed(self):
+        """Test retrieve user."""
+        res = self.client.get(get_retrive_url(self.user.id))
+
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+        
+
+
+    def test_retrieve_user(self):
+        """Test retrieve user."""
+        res = self.client.get(get_retrive_url(self.user.id))
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        user = get_user_model().objects.get(email='test@example.com')
+
+        serializer = UserSerializer(user)
+
+        self.assertEqual(res.data, serializer.data)
+        
