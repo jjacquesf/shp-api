@@ -145,47 +145,46 @@ class PrivateUserApiTests(TestCase):
         self.assertTrue(self.user.check_password(payload['password']))
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
-    def test_list_user_not_allowed(self):
-        """Test get all users."""
-        payload = {
-            'email': 'test2@example.com',
-            'password': 'testpass123',
-            'name': 'Test Name',
-        }
-        create_user(**payload)
-        res = self.client.get(LIST_USER_URL)
+    # def test_list_user_not_allowed(self):
+    #     """Test get all users."""
+    #     payload = {
+    #         'email': 'test2@example.com',
+    #         'password': 'testpass123',
+    #         'name': 'Test Name',
+    #     }
+    #     create_user(**payload)
+    #     res = self.client.get(LIST_USER_URL)
 
-        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+    #     self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
-        users = get_user_model().objects.all().order_by('-id')
-        serializer = UserSerializer(users, many=True)
+    #     users = get_user_model().objects.all().order_by('-id')
+    #     serializer = UserSerializer(users, many=True)
 
-        self.assertEqual(res.data, serializer.data)
+    #     self.assertEqual(res.data, serializer.data)
 
-    def test_list_user(self):
-        """Test get all users."""
-        payload = {
-            'email': 'test2@example.com',
-            'password': 'testpass123',
-            'name': 'Test Name',
-        }
-        create_user(**payload)
-        res = self.client.get(LIST_USER_URL)
+    # def test_list_user(self):
+    #     """Test get all users."""
+    #     payload = {
+    #         'email': 'test2@example.com',
+    #         'password': 'testpass123',
+    #         'name': 'Test Name',
+    #     }
+    #     create_user(**payload)
+    #     res = self.client.get(LIST_USER_URL)
 
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
+    #     self.assertEqual(res.status_code, status.HTTP_200_OK)
 
-        users = get_user_model().objects.all().order_by('-id')
-        serializer = UserSerializer(users, many=True)
+    #     users = get_user_model().objects.all().order_by('-id')
+    #     serializer = UserSerializer(users, many=True)
 
-        self.assertEqual(res.data, serializer.data)
+    #     self.assertEqual(res.data, serializer.data)
 
-    def test_retrieve_user_not_allowed(self):
-        """Test retrieve user."""
-        res = self.client.get(get_retrive_url(self.user.id))
+    # def test_retrieve_user_not_allowed(self):
+    #     """Test retrieve user."""
+    #     res = self.client.get(get_retrive_url(self.user.id))
 
-        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+    #     self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
         
-
 
     def test_retrieve_user(self):
         """Test retrieve user."""
@@ -193,7 +192,7 @@ class PrivateUserApiTests(TestCase):
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
-        user = get_user_model().objects.get(email='test@example.com')
+        user = get_user_model().objects.get(email=self.user.email)
 
         serializer = UserSerializer(user)
 

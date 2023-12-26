@@ -1,6 +1,8 @@
 """
 Views frot he user API
 """
+import logging
+
 from rest_framework import generics, authentication, permissions
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.settings import api_settings
@@ -41,17 +43,15 @@ class ManageUserView(generics.RetrieveUpdateAPIView):
 class ListUserView(generics.ListAPIView):
     """List users"""
     authentication_classes = [authentication.TokenAuthentication]
-    permission_classes = [permissions.IsAuthenticated, ViewUserPermission]
+    # permission_classes = [permissions.IsAuthenticated, ViewUserPermission]
+    permission_classes = [permissions.IsAuthenticated]
     serializer_class = UserSerializer
     queryset = get_user_model().objects.all().order_by('-id')
 
 class RetrieveUserView(generics.RetrieveAPIView):
-    """Retrieve user"""
-    authentication_classes = [authentication.TokenAuthentication]
-    permission_classes = [permissions.IsAuthenticated, ViewUserPermission]
+    """Get user detail"""
     serializer_class = UserSerializer
-
-    def retrieve(request, *args, **kwargs):
-        # return get_user_model().objects.get(id=1)
-        return get_user_model().objects.get(email='test@example.com')
-
+    permission_classes = [permissions.IsAuthenticated, ViewUserPermission]
+    # authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+    queryset = get_user_model().objects.all()
