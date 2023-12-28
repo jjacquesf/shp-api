@@ -16,6 +16,9 @@ from group.serializers import (
 LIST_URL = reverse('group:list')
 CREATE_URL = reverse('group:create')
 
+def get_change_url(id):
+    return reverse('group:change', args=[id])
+
 def create_user(**params):
     """Create an return a new user"""
     return get_user_model().objects.create_user(**params)
@@ -62,10 +65,10 @@ class PrivateForbiddenGroupApiTests(TestCase):
             name='Test Name'
         )
 
-        self.user = user
+        self.group = user
 
         self.client = APIClient()
-        self.client.force_authenticate(user=self.user)
+        self.client.force_authenticate(user=user)
 
     def test_list_groups_forbidden(self):
         """Test get all groups forbidden."""
@@ -97,12 +100,12 @@ class PrivateGroupApiTests(TestCase):
         group, created = models.CustomGroup.objects.get_or_create(name='test')
         
         vperm = Permission.objects.get(codename='view_customgroup')
-        aperm = Permission.objects.get(codename='add_user')
-        # cperm = Permission.objects.get(codename='change_user')
+        aperm = Permission.objects.get(codename='add_customgroup')
+        cperm = Permission.objects.get(codename='change_customgroup')
 
         group.permissions.add(vperm)
         group.permissions.add(aperm)
-        # group.permissions.add(cperm)
+        group.permissions.add(cperm)
 
         user = create_user(
             email='test@example.com',
@@ -125,10 +128,10 @@ class PrivateGroupApiTests(TestCase):
         # user_permission = Permission.objects.filter(Q(content_type=content_type) | Q(content_type=content_type2))
         # print(user_permission)
 
-        self.user = user
+        self.group = group
 
         self.client = APIClient()
-        self.client.force_authenticate(user=self.user)
+        self.client.force_authenticate(user=user)
 
     def test_list_groups_success(self):
         """Test get all groups success."""
@@ -156,6 +159,19 @@ class PrivateGroupApiTests(TestCase):
         res = self.client.post(CREATE_URL, payload)
 
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        group = models.CustomGroup.objects.get(name=payload['name'])
+        serializer = GroupSerializer(group)
+
+        self.assertEqual(res.data, serializer.data)
+
+    def test_change_success(self):
+        """Test creating a group is successfull"""
+        payload = {
+            'name': 'newtest'
+        }
+        res = self.client.patch(get_change_url(self.group.id), payload)
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
         group = models.CustomGroup.objects.get(name=payload['name'])
         serializer = GroupSerializer(group)
 

@@ -10,4 +10,5 @@ app_name = 'group'
 urlpatterns = [
     path('create/', views.CreateGroupView.as_view(), name='create'),
     path('list/', views.ListGroupView.as_view(), name='list'),
+    path('<int:pk>/', views.UpdateGroupView.as_view(), name='change'),
 ]

@@ -13,3 +13,9 @@ class GroupSerializer(serializers.ModelSerializer):
         """Create and return a group"""
         group = models.CustomGroup.objects.create(**validated_data)
         return group
+
+    def update(self, instance, validated_data):
+        """Update and return group"""
+        group = super().update(instance, validated_data)
+
+        return group

@@ -17,13 +17,13 @@ class AddGroupsPermission(permissions.BasePermission):
     message = 'Sorry change groups is not permitted'
 
     def has_permission(self, request, view):
-        return request.user.has_perm('core.add_user')
+        return request.user.has_perm('core.add_customgroup')
 
 class ChangeGroupsPermission(permissions.BasePermission):
     message = 'Sorry change groups is not permitted'
 
     def has_permission(self, request, view):
-        return request.user.has_perm('core.change_user') 
+        return request.user.has_perm('core.change_customgroup') 
     
 class ListGroupView(generics.ListAPIView):
     """List users"""
@@ -38,3 +38,9 @@ class CreateGroupView(generics.CreateAPIView):
     authentication_classes = [authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated, AddGroupsPermission]
 
+class UpdateGroupView(generics.UpdateAPIView):
+    """Update a new user in the system"""
+    serializer_class = GroupSerializer
+    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated, ChangeGroupsPermission]
+    queryset = models.CustomGroup.objects.all()
