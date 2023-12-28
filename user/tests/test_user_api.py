@@ -8,6 +8,9 @@ from django.urls import reverse
 from rest_framework.test import APIClient
 from rest_framework import status
 
+from core import models
+from django.contrib.auth.models import Group, Permission
+
 from user.serializers import (
     UserSerializer,
 )
@@ -86,17 +89,40 @@ class PublicUserApiTest(TestCase):
         user = create_user(**payload)
         res = self.client.get(get_retrive_url(user.id))
 
-        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
 class PrivateUserApiTests(TestCase):
     """Test API requets that require authentication"""
 
     def setUp(self):
-        self.user = create_user(
+
+        group, created = models.CustomGroup.objects.get_or_create(name='admin')
+        
+        vperm = Permission.objects.get(codename='view_user')
+        aperm = Permission.objects.get(codename='add_user')
+        cperm = Permission.objects.get(codename='change_user')
+
+        group.permissions.add(vperm)
+        group.permissions.add(aperm)
+        group.permissions.add(cperm)
+
+        user = create_user(
             email='test@example.com',
             password='testpass123',
             name='Test Name'
         )
+
+        # print("======Assign a group to a user========")
+        # user.groups.add(group.pk)
+        # print("======Add user to a group========")
+        group.user_set.add(user)
+
+        # print("===user group permissions===")
+        # print(user.get_group_permissions())
+        # print("==============")
+
+        self.user = user
+
         self.client = APIClient()
         self.client.force_authenticate(user=self.user)
 

@@ -13,17 +13,23 @@ from user.serializers import (
     AuthTokenSerializer
 )
 
-class ViewUserPermission(permissions.BasePermission):
+class ViewUsersPermission(permissions.BasePermission):
     message = 'Sorry User is not permitted'
 
     def has_permission(self, request, view):
-        return request.user.has_perm('core.user.view_user')
+        return request.user.has_perm('core.view_user')
+
+class WriteUsersPermission(permissions.BasePermission):
+    message = 'Sorry User is not permitted'
+
+    def has_permission(self, request, view):
+        return request.user.has_perm('core.add_user') or request.user.has_perm('core.change_user') 
 
 class CreateUserView(generics.CreateAPIView):
     """Create a new user in the system"""
     serializer_class = UserSerializer
     authentication_classes = [authentication.TokenAuthentication]
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, WriteUsersPermission]
 
 class CreateTokenView(ObtainAuthToken):
     """Create a new auth token for user."""
@@ -42,16 +48,14 @@ class ManageUserView(generics.RetrieveUpdateAPIView):
 
 class ListUserView(generics.ListAPIView):
     """List users"""
-    authentication_classes = [authentication.TokenAuthentication]
-    # permission_classes = [permissions.IsAuthenticated, ViewUserPermission]
-    permission_classes = [permissions.IsAuthenticated]
     serializer_class = UserSerializer
+    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated, ViewUsersPermission]
     queryset = get_user_model().objects.all().order_by('-id')
 
 class RetrieveUserView(generics.RetrieveAPIView):
     """Get user detail"""
     serializer_class = UserSerializer
-    permission_classes = [permissions.IsAuthenticated, ViewUserPermission]
-    # authentication_classes = [authentication.TokenAuthentication]
-    permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated, ViewUsersPermission]
     queryset = get_user_model().objects.all()
