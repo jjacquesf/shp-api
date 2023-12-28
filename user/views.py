@@ -14,22 +14,28 @@ from user.serializers import (
 )
 
 class ViewUsersPermission(permissions.BasePermission):
-    message = 'Sorry User is not permitted'
+    message = 'Sorry user is not permitted'
 
     def has_permission(self, request, view):
         return request.user.has_perm('core.view_user')
 
-class WriteUsersPermission(permissions.BasePermission):
-    message = 'Sorry User is not permitted'
+class AddUsersPermission(permissions.BasePermission):
+    message = 'Sorry add users is not permitted'
 
     def has_permission(self, request, view):
-        return request.user.has_perm('core.add_user') or request.user.has_perm('core.change_user') 
+        return request.user.has_perm('core.add_user')
+
+class ChangeUsersPermission(permissions.BasePermission):
+    message = 'Sorry change users is not permitted'
+
+    def has_permission(self, request, view):
+        return request.user.has_perm('core.change_user') 
 
 class CreateUserView(generics.CreateAPIView):
     """Create a new user in the system"""
     serializer_class = UserSerializer
     authentication_classes = [authentication.TokenAuthentication]
-    permission_classes = [permissions.IsAuthenticated, WriteUsersPermission]
+    permission_classes = [permissions.IsAuthenticated, AddUsersPermission]
 
 class CreateTokenView(ObtainAuthToken):
     """Create a new auth token for user."""

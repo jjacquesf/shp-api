@@ -97,11 +97,11 @@ class PrivateGroupApiTests(TestCase):
         group, created = models.CustomGroup.objects.get_or_create(name='test')
         
         vperm = Permission.objects.get(codename='view_customgroup')
-        # aperm = Permission.objects.get(codename='add_user')
+        aperm = Permission.objects.get(codename='add_user')
         # cperm = Permission.objects.get(codename='change_user')
 
         group.permissions.add(vperm)
-        # group.permissions.add(aperm)
+        group.permissions.add(aperm)
         # group.permissions.add(cperm)
 
         user = create_user(
