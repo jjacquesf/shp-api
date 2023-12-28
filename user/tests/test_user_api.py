@@ -10,6 +10,8 @@ from rest_framework import status
 
 from core import models
 from django.contrib.auth.models import Group, Permission
+from django.contrib.contenttypes.models import ContentType
+from django.db.models import Q
 
 from user.serializers import (
     UserSerializer,
@@ -67,8 +69,8 @@ class PublicUserApiTest(TestCase):
 
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
-    def test_list_user_not_allowed(self):
-        """Test get all users."""
+    def test_list_users_not_allowed(self):
+        """Test get all users not allowed."""
         payload = {
             'email': 'test@example.com',
             'password': 'testpass123',
@@ -120,6 +122,12 @@ class PrivateUserApiTests(TestCase):
         # print("===user group permissions===")
         # print(user.get_group_permissions())
         # print("==============")
+
+
+        # content_type = ContentType.objects.get_for_model(get_user_model())
+        # content_type2 = ContentType.objects.get_for_model(models.CustomGroup)
+        # user_permission = Permission.objects.filter(Q(content_type=content_type) | Q(content_type=content_type2))
+        # print(user_permission)
 
         self.user = user
 
