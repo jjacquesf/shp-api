@@ -48,10 +48,25 @@ class PublicGroupApiTest(TestCase):
     def test_create_unauthorized(self):
         """Test creating a group is unauthorized"""
         payload = {
-            'name': 'testgroup2',
-            'description': 'Test group2',
+            'name': 'testgroup',
+            'description': 'Test group',
         }
         res = self.client.post(CREATE_URL, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_change_unauthorized(self):
+        """Test creating a group is unauthorized"""
+        details = {
+            'name': 'testgroup',
+            'description': 'Test group',
+        }
+        group = create_group(**details)
+
+        payload = {
+            'name': 'newtest'
+        }
+        res = self.client.patch(get_change_url(group.id), payload)
 
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
@@ -65,10 +80,10 @@ class PrivateForbiddenGroupApiTests(TestCase):
             name='Test Name'
         )
 
-        self.group = user
+        self.user = user
 
         self.client = APIClient()
-        self.client.force_authenticate(user=user)
+        self.client.force_authenticate(user=self.user)
 
     def test_list_groups_forbidden(self):
         """Test get all groups forbidden."""
@@ -89,6 +104,21 @@ class PrivateForbiddenGroupApiTests(TestCase):
             'description': 'Test group2',
         }
         res = self.client.post(CREATE_URL, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_change_forbidden(self):
+        """Test creating a group is forbidden"""
+        details = {
+            'name': 'testgroup',
+            'description': 'Test group',
+        }
+        group = create_group(**details)
+
+        payload = {
+            'name': 'newtest'
+        }
+        res = self.client.patch(get_change_url(group.id), payload)
 
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
@@ -176,3 +206,4 @@ class PrivateGroupApiTests(TestCase):
         serializer = GroupSerializer(group)
 
         self.assertEqual(res.data, serializer.data)
+
