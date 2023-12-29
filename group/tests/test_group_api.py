@@ -11,12 +11,17 @@ from core import models
 
 from group.serializers import (
     GroupSerializer,
+    PermissionSerializer,
 )
 
 LIST_CREATE_URL = reverse('group:list_create')
 
 def get_manage_url(id):
     return reverse('group:manage', args=[id])
+
+
+def get_group_permissions_url(id):
+    return reverse('group:permission', args=[id])
 
 def create_user(**params):
     """Create an return a new user"""
@@ -46,7 +51,7 @@ class PublicGroupApiTest(TestCase):
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_create_unauthorized(self):
-        """Test creating a group is unauthorized"""
+        """Test creating a group unauthorized"""
         payload = {
             'name': 'testgroup',
             'description': 'Test group',
@@ -57,7 +62,7 @@ class PublicGroupApiTest(TestCase):
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_change_unauthorized(self):
-        """Test creating a group is unauthorized"""
+        """Test creating a group unauthorized"""
         details = {
             'name': 'testgroup',
             'description': 'Test group',
@@ -72,7 +77,7 @@ class PublicGroupApiTest(TestCase):
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_delete_unauthorized(self):
-        """Test delete a group is unauthorized"""
+        """Test delete a group unauthorized"""
         details = {
             'name': 'testgroup',
             'description': 'Test group',
@@ -85,6 +90,12 @@ class PublicGroupApiTest(TestCase):
         res = self.client.delete(get_manage_url(group.id))
 
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_list_group_permissions_unauthorized(self):
+        """Test list group permissions unauthorized"""
+        res = self.client.get(get_group_permissions_url(1))
+        self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
+
 class PrivateForbiddenGroupApiTests(TestCase):
     """Test API requets that require authentication and user is not authorized"""
 
@@ -114,7 +125,7 @@ class PrivateForbiddenGroupApiTests(TestCase):
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_create_forbidden(self):
-        """Test creating a group is successfull"""
+        """Test creating a group successfull"""
         payload = {
             'name': 'testgroup2',
             'description': 'Test group2',
@@ -125,7 +136,7 @@ class PrivateForbiddenGroupApiTests(TestCase):
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_change_forbidden(self):
-        """Test creating a group is forbidden"""
+        """Test creating a group forbidden"""
         details = {
             'name': 'testgroup',
             'description': 'Test group',
@@ -140,7 +151,7 @@ class PrivateForbiddenGroupApiTests(TestCase):
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_delete_forbidden(self):
-        """Test delete a group is forbidden"""
+        """Test delete a group forbidden"""
         details = {
             'name': 'testgroup',
             'description': 'Test group',
@@ -154,6 +165,10 @@ class PrivateForbiddenGroupApiTests(TestCase):
 
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
+    def test_list_group_permissions_forbidden(self):
+        """Test list group permissions forbidden"""
+        res = self.client.get(get_group_permissions_url(1))
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 class PrivateGroupApiTests(TestCase):
     """Test API requets that require authentication and user is authorized"""
 
@@ -216,12 +231,11 @@ class PrivateGroupApiTests(TestCase):
         self.assertEqual(res.data, serializer.data)
 
     def test_create_success(self):
-        """Test creating a group is success"""
+        """Test creating a group success"""
         payload = {
             'name': 'testgroup2',
             'description': 'Test group2',
         }
-        # res = self.client.post(CREATE_URL, payload)
         res = self.client.post(LIST_CREATE_URL, payload)
 
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
@@ -231,7 +245,7 @@ class PrivateGroupApiTests(TestCase):
         self.assertEqual(res.data, serializer.data)
 
     def test_change_success(self):
-        """Test creating a group is success"""
+        """Test creating a group success"""
         payload = {
             'name': 'newtest'
         }
@@ -244,7 +258,7 @@ class PrivateGroupApiTests(TestCase):
         self.assertEqual(res.data, serializer.data)
 
     def test_delete_success(self):
-        """Test delete a group is success"""
+        """Test delete a group success"""
         details = {
             'name': 'testgroup',
             'description': 'Test group',
@@ -258,4 +272,10 @@ class PrivateGroupApiTests(TestCase):
 
         self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
 
+    def test_list_group_permissions_success(self):
+        """Test list group permissions success"""
+        res = self.client.get(get_group_permissions_url(self.group.id))
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
 
+        serializer = PermissionSerializer(self.group.permissions.all(), many=True)
+        self.assertEqual(serializer.data, res.data)

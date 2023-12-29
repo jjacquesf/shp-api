@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.contrib.auth.models import Permission
 from core import models
 
 
@@ -19,3 +20,9 @@ class GroupSerializer(serializers.ModelSerializer):
         group = super().update(instance, validated_data)
 
         return group
+    
+class PermissionSerializer(serializers.ModelSerializer):
+    """Your data serializer, define your fields here."""
+    class Meta:
+        model=Permission
+        fields = ['codename', 'name']

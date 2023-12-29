@@ -1,12 +1,16 @@
 from django.utils.translation import gettext as _
 
 from django.shortcuts import render
-from rest_framework import generics, authentication, permissions
+from rest_framework import views, generics, authentication, permissions
+from rest_framework.response import Response
+
+from django.contrib.auth.models import Permission
 
 from core import models
 
 from group.serializers import (
-    GroupSerializer
+    GroupSerializer,
+    PermissionSerializer
 )
 class GroupPermission(permissions.BasePermission):
     message = _('Requested action is not authorized')
@@ -47,3 +51,20 @@ class ManageGroupView(generics.RetrieveUpdateDestroyAPIView):
     authentication_classes = [authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated, GroupPermission]
     queryset = models.CustomGroup.objects.all()
+
+class ListCreateGroupPermissionView(views.APIView):
+    """List group permissions"""
+    # serializer_class = GroupSerializer
+    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated, GroupPermission]
+
+    # def get_queryset(self):
+    #     return Permission.objects.all()
+    #     # content_type = ContentType.objects.get_for_model(get_user_model())
+    #     # content_type2 = ContentType.objects.get_for_model(models.CustomGroup)
+    #     # return Permission.objects.filter(Q(content_type=content_type) | Q(content_type=content_type2))
+    
+    def get(self, request, pk):
+        group = models.CustomGroup.objects.get(id=pk)
+        serializer = PermissionSerializer(group.permissions.all(), many=True)
+        return Response(serializer.data)
