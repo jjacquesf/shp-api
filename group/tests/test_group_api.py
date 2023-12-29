@@ -13,11 +13,10 @@ from group.serializers import (
     GroupSerializer,
 )
 
-LIST_URL = reverse('group:list')
-CREATE_URL = reverse('group:create')
+LIST_CREATE_URL = reverse('group:list_create')
 
-def get_change_url(id):
-    return reverse('group:change', args=[id])
+def get_manage_url(id):
+    return reverse('group:manage', args=[id])
 
 def create_user(**params):
     """Create an return a new user"""
@@ -41,7 +40,8 @@ class PublicGroupApiTest(TestCase):
         }
         create_group(**details)
 
-        res = self.client.get(LIST_URL)
+        # res = self.client.get(LIST_URL)
+        res = self.client.get(LIST_CREATE_URL)
 
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
@@ -51,7 +51,8 @@ class PublicGroupApiTest(TestCase):
             'name': 'testgroup',
             'description': 'Test group',
         }
-        res = self.client.post(CREATE_URL, payload)
+        # res = self.client.post(CREATE_URL, payload)
+        res = self.client.post(LIST_CREATE_URL, payload)
 
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
@@ -66,10 +67,24 @@ class PublicGroupApiTest(TestCase):
         payload = {
             'name': 'newtest'
         }
-        res = self.client.patch(get_change_url(group.id), payload)
+        res = self.client.patch(get_manage_url(group.id), payload)
 
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
+    def test_delete_unauthorized(self):
+        """Test delete a group is unauthorized"""
+        details = {
+            'name': 'testgroup',
+            'description': 'Test group',
+        }
+        group = create_group(**details)
+
+        payload = {
+            'name': 'newtest'
+        }
+        res = self.client.delete(get_manage_url(group.id))
+
+        self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 class PrivateForbiddenGroupApiTests(TestCase):
     """Test API requets that require authentication and user is not authorized"""
 
@@ -93,7 +108,8 @@ class PrivateForbiddenGroupApiTests(TestCase):
         }
         create_group(**details)
 
-        res = self.client.get(LIST_URL)
+        # res = self.client.get(LIST_URL)
+        res = self.client.get(LIST_CREATE_URL)
 
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
@@ -103,7 +119,8 @@ class PrivateForbiddenGroupApiTests(TestCase):
             'name': 'testgroup2',
             'description': 'Test group2',
         }
-        res = self.client.post(CREATE_URL, payload)
+        # res = self.client.post(CREATE_URL, payload)
+        res = self.client.post(LIST_CREATE_URL, payload)
 
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
@@ -118,7 +135,22 @@ class PrivateForbiddenGroupApiTests(TestCase):
         payload = {
             'name': 'newtest'
         }
-        res = self.client.patch(get_change_url(group.id), payload)
+        res = self.client.patch(get_manage_url(group.id), payload)
+
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_delete_forbidden(self):
+        """Test delete a group is forbidden"""
+        details = {
+            'name': 'testgroup',
+            'description': 'Test group',
+        }
+        group = create_group(**details)
+
+        payload = {
+            'name': 'newtest'
+        }
+        res = self.client.delete(get_manage_url(group.id))
 
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
@@ -132,10 +164,12 @@ class PrivateGroupApiTests(TestCase):
         vperm = Permission.objects.get(codename='view_customgroup')
         aperm = Permission.objects.get(codename='add_customgroup')
         cperm = Permission.objects.get(codename='change_customgroup')
+        dperm = Permission.objects.get(codename='delete_customgroup')
 
         group.permissions.add(vperm)
         group.permissions.add(aperm)
         group.permissions.add(cperm)
+        group.permissions.add(dperm)
 
         user = create_user(
             email='test@example.com',
@@ -171,7 +205,8 @@ class PrivateGroupApiTests(TestCase):
         }
         create_group(**details)
 
-        res = self.client.get(LIST_URL)
+        # res = self.client.get(LIST_URL)
+        res = self.client.get(LIST_CREATE_URL)
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
@@ -181,12 +216,13 @@ class PrivateGroupApiTests(TestCase):
         self.assertEqual(res.data, serializer.data)
 
     def test_create_success(self):
-        """Test creating a group is successfull"""
+        """Test creating a group is success"""
         payload = {
             'name': 'testgroup2',
             'description': 'Test group2',
         }
-        res = self.client.post(CREATE_URL, payload)
+        # res = self.client.post(CREATE_URL, payload)
+        res = self.client.post(LIST_CREATE_URL, payload)
 
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
         group = models.CustomGroup.objects.get(name=payload['name'])
@@ -195,15 +231,31 @@ class PrivateGroupApiTests(TestCase):
         self.assertEqual(res.data, serializer.data)
 
     def test_change_success(self):
-        """Test creating a group is successfull"""
+        """Test creating a group is success"""
         payload = {
             'name': 'newtest'
         }
-        res = self.client.patch(get_change_url(self.group.id), payload)
+        res = self.client.patch(get_manage_url(self.group.id), payload)
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         group = models.CustomGroup.objects.get(name=payload['name'])
         serializer = GroupSerializer(group)
 
         self.assertEqual(res.data, serializer.data)
+
+    def test_delete_success(self):
+        """Test delete a group is success"""
+        details = {
+            'name': 'testgroup',
+            'description': 'Test group',
+        }
+        group = create_group(**details)
+
+        payload = {
+            'name': 'newtest'
+        }
+        res = self.client.delete(get_manage_url(group.id))
+
+        self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
+
 
