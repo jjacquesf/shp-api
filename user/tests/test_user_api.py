@@ -123,7 +123,6 @@ class PrivateUserApiTests(TestCase):
         # print(user.get_group_permissions())
         # print("==============")
 
-
         # content_type = ContentType.objects.get_for_model(get_user_model())
         # content_type2 = ContentType.objects.get_for_model(models.CustomGroup)
         # user_permission = Permission.objects.filter(Q(content_type=content_type) | Q(content_type=content_type2))

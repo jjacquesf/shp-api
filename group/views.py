@@ -9,7 +9,7 @@ from group.serializers import (
     GroupSerializer
 )
 class GroupPermission(permissions.BasePermission):
-    message = _('Sorry requested action is not authorized')
+    message = _('Requested action is not authorized')
 
     def has_permission(self, request, view):
         """Validate user permissions depending on the method"""
