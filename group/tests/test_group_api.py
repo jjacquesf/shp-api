@@ -94,7 +94,29 @@ class PublicGroupApiTest(TestCase):
 
     def test_list_group_permissions_unauthorized(self):
         """Test list group permissions unauthorized"""
-        res = self.client.get(get_group_permissions_url(1))
+        details = {
+            'name': 'testgroup',
+            'description': 'Test group',
+        }
+        group = create_group(**details)
+        res = self.client.get(get_group_permissions_url(group.id))
+        self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_update_permissions_to_group_unauthorized(self):
+        """Test update permissions to a group unauthorized"""
+        details = {
+            'name': 'testgroup2',
+            'description': 'Test group',
+        }
+        group = create_group(**details)
+
+        payload = {
+            "permissions": [
+                "view_user",
+                "delete_customgroup",
+            ]
+        }
+        res = self.client.put(get_group_permissions_url(group.id), payload, 'json')
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
 class PrivateForbiddenGroupApiTests(TestCase):
@@ -159,17 +181,39 @@ class PrivateForbiddenGroupApiTests(TestCase):
         }
         group = create_group(**details)
 
-        payload = {
-            'name': 'newtest'
-        }
         res = self.client.delete(get_manage_url(group.id))
 
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_list_group_permissions_forbidden(self):
         """Test list group permissions forbidden"""
-        res = self.client.get(get_group_permissions_url(1))
+
+        details = {
+            'name': 'testgroup',
+            'description': 'Test group',
+        }
+        group = create_group(**details)
+
+        res = self.client.get(get_group_permissions_url(group.id))
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_update_permissions_to_group_forbidden(self):
+        """Test update permissions to a group forbidden"""
+        details = {
+            'name': 'testgroup2',
+            'description': 'Test group',
+        }
+        group = create_group(**details)
+
+        payload = {
+            "permissions": [
+                "view_user",
+                "delete_customgroup",
+            ]
+        }
+        res = self.client.put(get_group_permissions_url(group.id), payload, 'json')
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+
 class PrivateGroupApiTests(TestCase):
     """Test API requets that require authentication and user is authorized"""
 
