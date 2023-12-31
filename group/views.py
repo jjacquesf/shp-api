@@ -1,3 +1,4 @@
+from django.db.models import Q
 from django.utils.translation import gettext as _
 
 from django.shortcuts import render
@@ -10,8 +11,14 @@ from core import models
 
 from group.serializers import (
     GroupSerializer,
-    PermissionSerializer
+    PermissionSerializer,
+    UpdateGroupPermissionSerializer
 )
+
+from permission.views import (
+    PermissionQuerySet
+)
+
 class GroupPermission(permissions.BasePermission):
     message = _('Requested action is not authorized')
 
@@ -26,7 +33,7 @@ class GroupPermission(permissions.BasePermission):
         if request.method == 'POST':
             return request.user.has_perm('core.add_customgroup')
 
-        if request.method == 'UPDATE' or request.method == 'PATCH':
+        if request.method == 'PUT' or request.method == 'PATCH':
             return request.user.has_perm('core.change_customgroup') 
 
         if request.method == 'DELETE':
@@ -54,17 +61,26 @@ class ManageGroupView(generics.RetrieveUpdateDestroyAPIView):
 
 class ListCreateGroupPermissionView(views.APIView):
     """List group permissions"""
-    # serializer_class = GroupSerializer
     authentication_classes = [authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated, GroupPermission]
 
-    # def get_queryset(self):
-    #     return Permission.objects.all()
-    #     # content_type = ContentType.objects.get_for_model(get_user_model())
-    #     # content_type2 = ContentType.objects.get_for_model(models.CustomGroup)
-    #     # return Permission.objects.filter(Q(content_type=content_type) | Q(content_type=content_type2))
-    
     def get(self, request, pk):
         group = models.CustomGroup.objects.get(id=pk)
+        serializer = PermissionSerializer(group.permissions.all(), many=True)
+        return Response(serializer.data)
+    
+    def put(self, request, pk):
+        body_serializer = UpdateGroupPermissionSerializer(request.data)
+
+        cond = Q()
+        for perm in body_serializer.data['permissions']:
+            cond |= Q(codename=perm)
+
+        # Get allowed permissions only
+        perms = PermissionQuerySet().business_domain(cond)
+
+        group = models.CustomGroup.objects.get(id=pk)
+        group.permissions.set(perms)
+
         serializer = PermissionSerializer(group.permissions.all(), many=True)
         return Response(serializer.data)

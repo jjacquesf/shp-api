@@ -1,4 +1,5 @@
 from django.db.models import Q
+from django.db.models import query
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth import get_user_model
 
@@ -12,6 +13,18 @@ from permission.serializers import (
 
 from django.contrib.auth.models import Permission
 from core import models
+
+class PermissionQuerySet(query.QuerySet):
+    """Permission Queryset"""
+
+    def business_domain(self, additional_cond = Q()):
+        """Queryset fro business domain permissions"""
+        content_type = ContentType.objects.get_for_model(get_user_model())
+        content_type2 = ContentType.objects.get_for_model(models.CustomGroup)
+        bd_q = Q(content_type=content_type) | Q(content_type=content_type2)
+
+        return Permission.objects.filter(bd_q & additional_cond)
+
 class ViewPermissionsPermission(permissions.BasePermission):
     message = _('Requested action is not authorized')
 
@@ -25,6 +38,4 @@ class ListPermissionView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated, ViewPermissionsPermission]
 
     def get_queryset(self):
-        content_type = ContentType.objects.get_for_model(get_user_model())
-        content_type2 = ContentType.objects.get_for_model(models.CustomGroup)
-        return Permission.objects.filter(Q(content_type=content_type) | Q(content_type=content_type2))
+        return PermissionQuerySet().business_domain()

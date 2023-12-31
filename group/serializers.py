@@ -22,7 +22,19 @@ class GroupSerializer(serializers.ModelSerializer):
         return group
     
 class PermissionSerializer(serializers.ModelSerializer):
-    """Your data serializer, define your fields here."""
+    """Serializer for the permission object"""
     class Meta:
+        format="json"
         model=Permission
         fields = ['codename', 'name']
+
+class StringListField(serializers.ListField):
+    child = serializers.CharField(max_length=100)
+class UpdateGroupPermissionSerializer(serializers.Serializer):
+    """Serializer for group permission update."""
+    permissions = StringListField()
+    # class Meta:
+
+    # def update(self, instance, validated_data):
+    #     print(validated_data)
+    #     return instance

@@ -1,3 +1,4 @@
+from django.db.models import Q
 from django.test import TestCase
 from django.urls import reverse
 
@@ -278,4 +279,26 @@ class PrivateGroupApiTests(TestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
         serializer = PermissionSerializer(self.group.permissions.all(), many=True)
+        self.assertEqual(serializer.data, res.data)
+
+    def test_update_permissions_to_group_success(self):
+        """Test update permissions to a group success"""
+        details = {
+            'name': 'testgroup2',
+            'description': 'Test group',
+        }
+        group = create_group(**details)
+
+        payload = {
+            "permissions": [
+                "view_user",
+                "delete_customgroup",
+            ]
+        }
+        res = self.client.put(get_group_permissions_url(group.id), payload, 'json')
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        perms = Permission.objects.filter(Q(codename="view_user") | Q(codename="delete_customgroup"))
+        serializer = PermissionSerializer(perms, many=True)
+
         self.assertEqual(serializer.data, res.data)

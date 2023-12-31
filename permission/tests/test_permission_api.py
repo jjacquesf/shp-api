@@ -17,6 +17,10 @@ from permission.serializers import (
     PermissionSerializer,
 )
 
+from permission.views import (
+    PermissionQuerySet
+)
+
 LIST_URL = reverse('permission:list')
 
 def create_user(**params):
@@ -90,11 +94,6 @@ class PrivatePermissionApiTests(TestCase):
         # print(user.get_group_permissions())
         # print("==============")
 
-        # content_type = ContentType.objects.get_for_model(get_user_model())
-        # content_type2 = ContentType.objects.get_for_model(models.CustomGroup)
-        # user_permission = Permission.objects.filter(Q(content_type=content_type) | Q(content_type=content_type2))
-        # print(user_permission)
-
         self.user = user
 
         self.client = APIClient()
@@ -106,9 +105,7 @@ class PrivatePermissionApiTests(TestCase):
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
-        content_type = ContentType.objects.get_for_model(get_user_model())
-        content_type2 = ContentType.objects.get_for_model(models.CustomGroup)
-        permissions = Permission.objects.filter(Q(content_type=content_type) | Q(content_type=content_type2))
+        permissions = perms = PermissionQuerySet().business_domain()
         serializer = PermissionSerializer(permissions, many=True)
 
         self.assertEqual(res.data, serializer.data)
