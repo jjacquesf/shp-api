@@ -33,8 +33,3 @@ class StringListField(serializers.ListField):
 class UpdateGroupPermissionSerializer(serializers.Serializer):
     """Serializer for group permission update."""
     permissions = StringListField()
-    # class Meta:
-
-    # def update(self, instance, validated_data):
-    #     print(validated_data)
-    #     return instance

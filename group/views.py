@@ -23,7 +23,7 @@ class GroupPermission(permissions.BasePermission):
     message = _('Requested action is not authorized')
 
     def has_permission(self, request, view):
-        """Validate user permissions depending on the method"""
+        """Validate user permissions depending on the request method"""
         # Use view.action for ViewSet 
         # Use request.method for APIView 
 

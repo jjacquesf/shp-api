@@ -61,3 +61,9 @@ class AuthTokenSerializer(serializers.Serializer):
 
         attrs['user'] = user
         return attrs
+    
+class IntegerListField(serializers.ListField):
+    child = serializers.IntegerField(min_value=1)
+class UpdateUserGroupSerializer(serializers.Serializer):
+    """Serializer for user group update."""
+    groups = IntegerListField()

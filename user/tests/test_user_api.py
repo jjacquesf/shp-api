@@ -17,6 +17,10 @@ from user.serializers import (
     UserSerializer,
 )
 
+from group.serializers import (
+    GroupSerializer,
+)
+
 LIST_USER_URL = reverse('user:list')
 CREATE_USER_URL = reverse('user:create')
 TOKEN_URL = reverse('user:token')
@@ -25,9 +29,16 @@ ME_URL = reverse('user:me')
 def get_retrive_url(user_id):
     return reverse('user:retrieve', args=[user_id])
 
+def get_user_groups_url(user_id):
+    return reverse('user:group', args=[user_id])
+
 def create_user(**params):
     """Create an return a new user"""
     return get_user_model().objects.create_user(**params)
+
+def create_group(**params):
+    """Create an return a new group"""
+    return models.CustomGroup.objects.create(**params)
 
 class PublicUserApiTest(TestCase):
     """Test the public features of the user API"""
@@ -134,7 +145,7 @@ class PrivateUserApiTests(TestCase):
         self.client.force_authenticate(user=self.user)
 
     def test_create_success(self):
-        """Test creating a user is successfull"""
+        """Test creating a user is successfull success"""
         payload = {
             'email': 'nonexisting@example.com',
             'password': 'testpass123',
@@ -159,7 +170,7 @@ class PrivateUserApiTests(TestCase):
             self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
     def retrieve_profile_success(self):
-        """Test retrieving profile for logged in user"""
+        """Test retrieving profile for logged in user success"""
         res = self.client.get(ME_URL)
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
@@ -169,13 +180,13 @@ class PrivateUserApiTests(TestCase):
         })
 
     def test_post_me_not_allowed(self):
-        """Test POST is not allowed fot the me endpoint"""
+        """Test POST is not allowed for the me endpoint"""
         res = self.client.post(ME_URL, {})
 
         self.assertEqual(res.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
-    def test_update_user_profile(self):
-        """Test updating the user profile for the authenticated user"""
+    def test_update_user_profile_success(self):
+        """Test updating the user profile for the authenticated user success"""
         payload = {'name': 'Updated anme', 'password': 'updatedpassword123'}
 
         res = self.client.patch(ME_URL, payload)
@@ -200,8 +211,8 @@ class PrivateUserApiTests(TestCase):
         ).exists()
         self.assertFalse(user_exist)
 
-    def test_list_user(self):
-        """Test get all users."""
+    def test_list_user_success(self):
+        """Test get all users success."""
         payload = {
             'email': 'test2@example.com',
             'password': 'testpass123',
@@ -217,8 +228,8 @@ class PrivateUserApiTests(TestCase):
 
         self.assertEqual(res.data, serializer.data)
 
-    def test_retrieve_user(self):
-        """Test retrieve user."""
+    def test_retrieve_user_success(self):
+        """Test retrieve user success."""
         res = self.client.get(get_retrive_url(self.user.id))
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
@@ -229,3 +240,50 @@ class PrivateUserApiTests(TestCase):
 
         self.assertEqual(res.data, serializer.data)
         
+    def test_list_user_groups_success(self):
+        """Test get all user group success."""
+        details = {
+            'name': 'testgroup',
+            'description': 'Test group',
+        }
+        group = create_group(**details)
+
+        group.user_set.add(self.user)
+
+        res = self.client.get(get_user_groups_url(self.user.id))
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        
+        groups = self.user.groups.all()
+        serializer = GroupSerializer(groups, many=True)
+        self.assertEqual(res.data, serializer.data)
+
+    def test_set_user_to_a_group_success(self):
+        """Test set user groups success."""
+        details = {
+            'name': 'testgroup',
+            'description': 'Test group',
+        }
+        group = create_group(**details)
+
+        details = {
+            'name': 'testgroup2',
+            'description': 'Test group',
+        }
+        group2 = create_group(**details)
+
+        payload = {
+            'groups': [
+                group.id,
+                group2.id
+            ]
+        }
+
+        res = self.client.put(get_user_groups_url(self.user.id), payload)
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        
+        groups = self.user.groups.all()
+        serializer = GroupSerializer(groups, many=True)
+
+        self.assertEqual(res.data, serializer.data)
