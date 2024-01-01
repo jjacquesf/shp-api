@@ -2,6 +2,8 @@
 Views frot he user API
 """
 import logging
+from drf_spectacular.utils import extend_schema
+
 from django.db.models import Q
 from django.utils.translation import gettext as _
 
@@ -24,8 +26,8 @@ from group.serializers import (
     GroupSerializer,
 )
 
-
 class UserPermission(permissions.BasePermission):
+    """Custom permission for user handling"""
     message = _('Requested action is not authorized')
 
     def has_permission(self, request, view):
@@ -50,20 +52,21 @@ class UserPermission(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         """Validate user access to a specific object if necessary"""
         return True
+    
 
 class CreateUserView(generics.CreateAPIView):
-    """Create a new user in the system"""
+    """[Protected | AddUser] Create a new user in the system."""
     serializer_class = UserSerializer
     authentication_classes = [authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated, UserPermission]
 
 class CreateTokenView(ObtainAuthToken):
-    """Create a new auth token for user."""
+    """[Public] Create a new auth token for user."""
     serializer_class = AuthTokenSerializer
     renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES
 
 class ManageUserView(generics.RetrieveUpdateAPIView):
-    """Manage the authenticated user"""
+    """[Protected | IsAuthenticated] Manage the authenticated user"""
     serializer_class = UserSerializer
     authentication_classes = [authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated]
@@ -73,30 +76,38 @@ class ManageUserView(generics.RetrieveUpdateAPIView):
         return self.request.user
 
 class ListUserView(generics.ListAPIView):
-    """List users"""
+    """[Protected | ViewUser] List all users"""
     serializer_class = UserSerializer
     authentication_classes = [authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated, UserPermission]
     queryset = get_user_model().objects.all().order_by('-id')
 
 class RetrieveUserView(generics.RetrieveAPIView):
-    """Get user detail"""
+    """[Protected | ViewUser] Get user detail by id"""
     serializer_class = UserSerializer
     authentication_classes = [authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated, UserPermission]
     queryset = get_user_model().objects.all()
 
 class ListCreateUserGroupView(views.APIView):
-    """List user groups"""
     authentication_classes = [authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated, UserPermission]
 
+    @extend_schema(
+        responses={200: GroupSerializer(many=True)},
+    )
     def get(self, request, pk):
+        """[Protected | ViewUser] List user groups by user id"""
         user = get_user_model().objects.get(id=pk)
         serializer = GroupSerializer(user.groups.all(), many=True)
         return Response(serializer.data)
     
+    @extend_schema(
+        request=UpdateUserGroupSerializer,
+        responses={200: GroupSerializer(many=True)},
+    )
     def put(self, request, pk):
+        """[Protected | ChangeUser] Set user groups ny user id"""
         body_serializer = UpdateUserGroupSerializer(request.data)
 
         cond = Q()

@@ -32,7 +32,7 @@ class ViewPermissionsPermission(permissions.BasePermission):
         return request.user.has_perm('auth.view_permission')
 
 class ListPermissionView(generics.ListAPIView):
-    """List users"""
+    """[Protected | ViewPermission] List all permissions"""
     serializer_class = PermissionSerializer
     authentication_classes = [authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated, ViewPermissionsPermission]

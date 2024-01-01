@@ -1,3 +1,4 @@
+from drf_spectacular.utils import extend_schema, extend_schema_view
 from django.db.models import Q
 from django.utils.translation import gettext as _
 
@@ -44,21 +45,47 @@ class GroupPermission(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         """Validate user access to a specific object if necessary"""
         return True
-
+@extend_schema_view(
+    get=extend_schema(description="[Protected | ViewGroup] List all groups"),
+    post=extend_schema(description="[Protected | AddGroup] Add a group"),
+)
 class ListCreateGroupView(generics.ListCreateAPIView):
-    """List users"""
+    """[Protected | ViewGroup] List groups"""
     serializer_class = GroupSerializer
     authentication_classes = [authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated, GroupPermission]
     queryset = models.CustomGroup.objects.all().order_by('-id')
 
+@extend_schema_view(
+    get=extend_schema(description="[Protected | ViewGroup] Get group by id"),
+    put=extend_schema(description="[Protected | ChangeGroup] Update group by id"),
+    patch=extend_schema(description="[Protected | ChangeGroup] Patch group by id"),
+    delete=extend_schema(description="[Protected | RemoveGroup] Delete group by id"),
+)
 class ManageGroupView(generics.RetrieveUpdateDestroyAPIView):
-    """Destroy a new user in the system"""
+    # """Destroy a new user in the system"""
     serializer_class = GroupSerializer
     authentication_classes = [authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated, GroupPermission]
     queryset = models.CustomGroup.objects.all()
+    
+    # @extend_schema(
+    #     description="Get group object by id"
+    # )
+    # def retrieve(request, *args, **kwargs):
+    #     return super().get(request, *args, **kwargs)
 
+@extend_schema_view(
+    get=extend_schema(
+        description="[Protected | ViewGroup] Get permissions by group id",
+        responses={200: PermissionSerializer(many=True)},
+    ),
+    put=extend_schema(
+        description="[Protected | ChangeGroup] Update group permissions by group id",
+        request=UpdateGroupPermissionSerializer,
+        responses={200: PermissionSerializer(many=True)},
+    ),
+)
 class ListCreateGroupPermissionView(views.APIView):
     """List group permissions"""
     authentication_classes = [authentication.TokenAuthentication]
