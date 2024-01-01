@@ -45,6 +45,7 @@ class GroupPermission(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         """Validate user access to a specific object if necessary"""
         return True
+@extend_schema(tags=['Groups and Permissions'])
 @extend_schema_view(
     get=extend_schema(description="[Protected | ViewGroup] List all groups"),
     post=extend_schema(description="[Protected | AddGroup] Add a group"),
@@ -56,6 +57,7 @@ class ListCreateGroupView(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticated, GroupPermission]
     queryset = models.CustomGroup.objects.all().order_by('-id')
 
+@extend_schema(tags=['Groups and Permissions'])
 @extend_schema_view(
     get=extend_schema(description="[Protected | ViewGroup] Get group by id"),
     put=extend_schema(description="[Protected | ChangeGroup] Update group by id"),
@@ -75,6 +77,7 @@ class ManageGroupView(generics.RetrieveUpdateDestroyAPIView):
     # def retrieve(request, *args, **kwargs):
     #     return super().get(request, *args, **kwargs)
 
+@extend_schema(tags=['Groups and Permissions'])
 @extend_schema_view(
     get=extend_schema(
         description="[Protected | ViewGroup] Get permissions by group id",

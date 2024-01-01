@@ -1,3 +1,5 @@
+from drf_spectacular.utils import extend_schema
+
 from django.db.models import Q
 from django.db.models import query
 from django.utils.translation import gettext_lazy as _
@@ -31,6 +33,7 @@ class ViewPermissionsPermission(permissions.BasePermission):
     def has_permission(self, request, view):
         return request.user.has_perm('auth.view_permission')
 
+@extend_schema(tags=['Groups and Permissions'])
 class ListPermissionView(generics.ListAPIView):
     """[Protected | ViewPermission] List all permissions"""
     serializer_class = PermissionSerializer

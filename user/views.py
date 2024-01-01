@@ -53,18 +53,13 @@ class UserPermission(permissions.BasePermission):
         """Validate user access to a specific object if necessary"""
         return True
     
-
-class CreateUserView(generics.CreateAPIView):
-    """[Protected | AddUser] Create a new user in the system."""
-    serializer_class = UserSerializer
-    authentication_classes = [authentication.TokenAuthentication]
-    permission_classes = [permissions.IsAuthenticated, UserPermission]
-
+@extend_schema(tags=['Auth'])
 class CreateTokenView(ObtainAuthToken):
     """[Public] Create a new auth token for user."""
     serializer_class = AuthTokenSerializer
     renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES
 
+@extend_schema(tags=['Auth'])
 class ManageUserView(generics.RetrieveUpdateAPIView):
     """[Protected | IsAuthenticated] Manage the authenticated user"""
     serializer_class = UserSerializer
@@ -75,6 +70,14 @@ class ManageUserView(generics.RetrieveUpdateAPIView):
         """Retrieve and return the authenticated user"""
         return self.request.user
 
+@extend_schema(tags=['User management'])
+class CreateUserView(generics.CreateAPIView):
+    """[Protected | AddUser] Create a new user in the system."""
+    serializer_class = UserSerializer
+    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated, UserPermission]
+
+@extend_schema(tags=['User management'])
 class ListUserView(generics.ListAPIView):
     """[Protected | ViewUser] List all users"""
     serializer_class = UserSerializer
@@ -82,6 +85,7 @@ class ListUserView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated, UserPermission]
     queryset = get_user_model().objects.all().order_by('-id')
 
+@extend_schema(tags=['User management'])
 class RetrieveUserView(generics.RetrieveAPIView):
     """[Protected | ViewUser] Get user detail by id"""
     serializer_class = UserSerializer
@@ -89,6 +93,7 @@ class RetrieveUserView(generics.RetrieveAPIView):
     permission_classes = [permissions.IsAuthenticated, UserPermission]
     queryset = get_user_model().objects.all()
 
+@extend_schema(tags=['User management'])
 class ListCreateUserGroupView(views.APIView):
     authentication_classes = [authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated, UserPermission]
