@@ -34,8 +34,8 @@ class ViewPermissionsPermission(permissions.BasePermission):
         return request.user.has_perm('auth.view_permission')
 
 @extend_schema(tags=['Groups and Permissions'])
+@extend_schema(description=_("[Protected | ViewPermission] List all permissions"))
 class ListPermissionView(generics.ListAPIView):
-    """[Protected | ViewPermission] List all permissions"""
     serializer_class = PermissionSerializer
     authentication_classes = [authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated, ViewPermissionsPermission]

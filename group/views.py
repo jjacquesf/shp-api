@@ -45,10 +45,10 @@ class GroupPermission(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         """Validate user access to a specific object if necessary"""
         return True
-@extend_schema(tags=['Groups and Permissions'])
+@extend_schema(tags=[_('Groups and Permissions')])
 @extend_schema_view(
-    get=extend_schema(description="[Protected | ViewGroup] List all groups"),
-    post=extend_schema(description="[Protected | AddGroup] Add a group"),
+    get=extend_schema(description=_("[Protected | ViewGroup] List all groups")),
+    post=extend_schema(description=_("[Protected | AddGroup] Add a group")),
 )
 class ListCreateGroupView(generics.ListCreateAPIView):
     """[Protected | ViewGroup] List groups"""
@@ -57,12 +57,12 @@ class ListCreateGroupView(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticated, GroupPermission]
     queryset = models.CustomGroup.objects.all().order_by('-id')
 
-@extend_schema(tags=['Groups and Permissions'])
+@extend_schema(tags=[_('Groups and Permissions')])
 @extend_schema_view(
-    get=extend_schema(description="[Protected | ViewGroup] Get group by id"),
-    put=extend_schema(description="[Protected | ChangeGroup] Update group by id"),
-    patch=extend_schema(description="[Protected | ChangeGroup] Patch group by id"),
-    delete=extend_schema(description="[Protected | RemoveGroup] Delete group by id"),
+    get=extend_schema(description=_("[Protected | ViewGroup] Get group by id")),
+    put=extend_schema(description=_("[Protected | ChangeGroup] Update group by id")),
+    patch=extend_schema(description=_("[Protected | ChangeGroup] Patch group by id")),
+    delete=extend_schema(description=_("[Protected | RemoveGroup] Delete group by id")),
 )
 class ManageGroupView(generics.RetrieveUpdateDestroyAPIView):
     # """Destroy a new user in the system"""
@@ -72,19 +72,19 @@ class ManageGroupView(generics.RetrieveUpdateDestroyAPIView):
     queryset = models.CustomGroup.objects.all()
     
     # @extend_schema(
-    #     description="Get group object by id"
+    #     description=_("Get group object by id)"
     # )
     # def retrieve(request, *args, **kwargs):
     #     return super().get(request, *args, **kwargs)
 
-@extend_schema(tags=['Groups and Permissions'])
+@extend_schema(tags=[_('Groups and Permissions')])
 @extend_schema_view(
     get=extend_schema(
-        description="[Protected | ViewGroup] Get permissions by group id",
+        description=_("[Protected | ViewGroup] Get permissions by group id"),
         responses={200: PermissionSerializer(many=True)},
     ),
     put=extend_schema(
-        description="[Protected | ChangeGroup] Update group permissions by group id",
+        description=_("[Protected | ChangeGroup] Update group permissions by group id"),
         request=UpdateGroupPermissionSerializer,
         responses={200: PermissionSerializer(many=True)},
     ),

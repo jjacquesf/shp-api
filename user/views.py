@@ -54,14 +54,14 @@ class UserPermission(permissions.BasePermission):
         return True
     
 @extend_schema(tags=['Auth'])
+@extend_schema(description=_("[Public] Create a new auth token for user"))
 class CreateTokenView(ObtainAuthToken):
-    """[Public] Create a new auth token for user."""
     serializer_class = AuthTokenSerializer
     renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES
 
 @extend_schema(tags=['Auth'])
+@extend_schema(description=_("[Protected | IsAuthenticated] Manage the authenticated user"))
 class ManageUserView(generics.RetrieveUpdateAPIView):
-    """[Protected | IsAuthenticated] Manage the authenticated user"""
     serializer_class = UserSerializer
     authentication_classes = [authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated]
@@ -71,23 +71,23 @@ class ManageUserView(generics.RetrieveUpdateAPIView):
         return self.request.user
 
 @extend_schema(tags=['User management'])
+@extend_schema(description=_("[Protected | AddUser] Create a new user in the system"))
 class CreateUserView(generics.CreateAPIView):
-    """[Protected | AddUser] Create a new user in the system."""
     serializer_class = UserSerializer
     authentication_classes = [authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated, UserPermission]
 
 @extend_schema(tags=['User management'])
+@extend_schema(description=_("[Protected | ViewUser] List all users"))
 class ListUserView(generics.ListAPIView):
-    """[Protected | ViewUser] List all users"""
     serializer_class = UserSerializer
     authentication_classes = [authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated, UserPermission]
     queryset = get_user_model().objects.all().order_by('-id')
 
 @extend_schema(tags=['User management'])
+@extend_schema(description=_("[Protected | ViewUser] Get user detail by id"))
 class RetrieveUserView(generics.RetrieveAPIView):
-    """[Protected | ViewUser] Get user detail by id"""
     serializer_class = UserSerializer
     authentication_classes = [authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated, UserPermission]
@@ -99,20 +99,20 @@ class ListCreateUserGroupView(views.APIView):
     permission_classes = [permissions.IsAuthenticated, UserPermission]
 
     @extend_schema(
+        description=_("[Protected | ViewUser] List user groups by user id"),
         responses={200: GroupSerializer(many=True)},
     )
     def get(self, request, pk):
-        """[Protected | ViewUser] List user groups by user id"""
         user = get_user_model().objects.get(id=pk)
         serializer = GroupSerializer(user.groups.all(), many=True)
         return Response(serializer.data)
     
     @extend_schema(
+        description=_("[Protected | ChangeUser] Set user groups ny user id"),
         request=UpdateUserGroupSerializer,
         responses={200: GroupSerializer(many=True)},
     )
     def put(self, request, pk):
-        """[Protected | ChangeUser] Set user groups ny user id"""
         body_serializer = UpdateUserGroupSerializer(request.data)
 
         cond = Q()
