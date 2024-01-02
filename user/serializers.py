@@ -67,3 +67,83 @@ class IntegerListField(serializers.ListField):
 class UpdateUserGroupSerializer(serializers.Serializer):
     """Serializer for user group update."""
     groups = IntegerListField()
+
+class ProfileSerializer(serializers.ModelSerializer):
+    """Serializer for the profile object"""
+    class Meta:
+        model=models.Profile
+        fields = ['user', 'job_position']
+
+    def create(self, validated_data):
+        """Create and return profile"""
+        profile = models.Profile.objects.create(**validated_data)
+        return profile
+
+    def update(self, instance, validated_data):
+        """Update and return profile"""
+
+        profile = super().update(instance, validated_data)
+        return profile
+
+class UserProfileSerializer(serializers.Serializer):
+    """Serializer for user creation."""
+    email = serializers.EmailField(required=True)
+    name = serializers.CharField(required=True, max_length=255)
+    password = serializers.CharField(required=False, allow_blank=True, min_length=5, max_length=255)
+    job_position = serializers.CharField(required=True, max_length=255)
+
+    def create(self, validated_data):
+        user_data = {
+            "email": validated_data.get("email"),
+            "name": validated_data.get("name"),
+            "password": validated_data.pop("password", None),
+        }
+
+        user = get_user_model().objects.create_user(**user_data)
+
+        profile_data = {
+            "user": user.id,
+            "job_position": validated_data.get("job_position"),
+        }
+
+        profile_serializer = ProfileSerializer(data=profile_data)
+        profile_serializer.is_valid(raise_exception=True)
+        profile_serializer.save()
+
+        validated_data.pop("password", None)
+
+        user.refresh_from_db()
+        profile = models.Profile.objects.get(user=user)
+
+        serializer = UserProfileSerializer({
+            "name": user.name,
+            "email": user.email,
+            "job_position": profile.job_position
+        })
+        return serializer.data
+
+    def update(self, instance, validated_data):
+        """Update and return user"""
+        password = validated_data.pop('password', None)
+        job_position = validated_data.pop('job_position', None)
+
+        if password:
+            instance.set_password(password)
+            instance.save()
+
+        get_user_model().objects.filter(id=instance.pk).update(**validated_data)
+
+        instance.refresh_from_db()
+
+        profile_data = {"job_position": job_position}
+        models.Profile.objects.filter(user=instance).update(**profile_data)
+        
+
+        profile = models.Profile.objects.get(user=instance)
+        serializer = UserProfileSerializer({
+            "name": instance.name,
+            "email": instance.email,
+            "job_position": profile.job_position
+        })
+
+        return serializer.data

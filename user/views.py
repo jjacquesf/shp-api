@@ -2,6 +2,8 @@
 Views frot he user API
 """
 import logging
+from rest_framework import status
+
 from drf_spectacular.utils import extend_schema
 
 from django.db.models import Q
@@ -19,7 +21,9 @@ from core import models
 from user.serializers import (
     UserSerializer,
     UpdateUserGroupSerializer,
-    AuthTokenSerializer
+    AuthTokenSerializer,
+
+    UserProfileSerializer
 )
 
 from group.serializers import (
@@ -59,23 +63,64 @@ class CreateTokenView(ObtainAuthToken):
     serializer_class = AuthTokenSerializer
     renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES
 
+# @extend_schema(tags=['Auth'])
+# @extend_schema(description=_("[Protected | IsAuthenticated] Manage the authenticated user"))
+# class ManageUserView(generics.RetrieveUpdateAPIView):
+#     serializer_class = UserSerializer
+#     authentication_classes = [authentication.TokenAuthentication]
+#     permission_classes = [permissions.IsAuthenticated]
+
+#     def get_object(self):
+#         """Retrieve and return the authenticated user"""
+#         return self.request.user
+
 @extend_schema(tags=['Auth'])
 @extend_schema(description=_("[Protected | IsAuthenticated] Manage the authenticated user"))
-class ManageUserView(generics.RetrieveUpdateAPIView):
-    serializer_class = UserSerializer
+class ManageUserView(views.APIView):
     authentication_classes = [authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated]
 
-    def get_object(self):
-        """Retrieve and return the authenticated user"""
-        return self.request.user
+    @extend_schema(
+        description=_("[Protected | IsAuthenticated] Get user self profile"),
+        responses={200: UserProfileSerializer},
+    )
+    def get(self, request):
+        user = self.request.user
+        profile = models.Profile.objects.get(user=user)
+        serializer = UserProfileSerializer({
+            "name": user.name,
+            "email": user.email,
+            "password": user.password,
+            "job_position": profile.job_position
+        })
+        return Response(serializer.data)
+    
+    @extend_schema(
+        description=_("[Protected | IsAuthenticated] Update self user profile"),
+        request=UpdateUserGroupSerializer,
+        responses={200: GroupSerializer(many=True)},
+    )
+    def put(self, request):
+        """Update and return user"""
+        user = get_user_model().objects.get(id=self.request.user.id)
+        profile = models.Profile.objects.get(user=user)
 
-@extend_schema(tags=['User management'])
-@extend_schema(description=_("[Protected | AddUser] Create a new user in the system"))
-class CreateUserView(generics.CreateAPIView):
-    serializer_class = UserSerializer
-    authentication_classes = [authentication.TokenAuthentication]
-    permission_classes = [permissions.IsAuthenticated, UserPermission]
+        serializer = UserProfileSerializer(user, data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        serializer.save()
+        
+        user.refresh_from_db()
+        profile.refresh_from_db()
+
+        upd_serializer = UserProfileSerializer({
+            "name": user.name,
+            "email": user.email,
+            "password": user.password,
+            "job_position": profile.job_position
+        })
+
+        return Response(upd_serializer.data)
 
 @extend_schema(tags=['User management'])
 @extend_schema(description=_("[Protected | ViewUser] List all users"))
@@ -92,6 +137,31 @@ class RetrieveUserView(generics.RetrieveAPIView):
     authentication_classes = [authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated, UserPermission]
     queryset = get_user_model().objects.all()
+
+# @extend_schema(tags=['User management'])
+# @extend_schema(description=_("[Protected | AddUser] Create a new user in the system"))
+# class CreateUserView(generics.CreateAPIView):
+#     serializer_class = UserSerializer
+#     authentication_classes = [authentication.TokenAuthentication]
+#     permission_classes = [permissions.IsAuthenticated, UserPermission]
+    
+@extend_schema(tags=['User management'])
+@extend_schema(description=_("[Protected | AddUser] Create a new user in the system"))
+class CreateUserView(views.APIView):
+    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated, UserPermission]
+
+    def post(self, request):
+        serializer = UserProfileSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+
+        if("password" not in request.data):
+            return Response({"password": ["Password is required for user creation"]}, status=status.HTTP_400_BAD_REQUEST)
+
+        user = serializer.save()
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 @extend_schema(tags=['User management'])
 class ListCreateUserGroupView(views.APIView):

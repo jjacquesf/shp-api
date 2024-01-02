@@ -8,13 +8,20 @@ from django.urls import reverse
 from rest_framework.test import APIClient
 from rest_framework import status
 
+from core import models
 
 TOKEN_URL = reverse('user:token')
 ME_URL = reverse('user:me')
 
 def create_user(**params):
     """Create an return a new user"""
-    return get_user_model().objects.create_user(**params)
+    user = get_user_model().objects.create_user(**params)
+    profile_data = {
+        "user": user,
+        "job_position": "CTO"
+    }
+    profile = models.Profile.objects.create(**profile_data)
+    return user
 
 class PublicUserApiTest(TestCase):
     """Test the public features of the user API"""
@@ -65,9 +72,9 @@ class PrivateUserApiTests(TestCase):
             password='testpass123',
             name='Test Name'
         )
-
+        
         self.user = user
-
+        
         self.client = APIClient()
         self.client.force_authenticate(user=self.user)
 
@@ -89,11 +96,18 @@ class PrivateUserApiTests(TestCase):
 
     def test_update_user_profile_success(self):
         """Test updating the user profile for the authenticated user success"""
-        payload = {'name': 'Updated anme', 'password': 'updatedpassword123'}
+        payload = {
+            'name': 'Updated name', 
+            'password': 'updatedpassword123', 
+            "job_position": "CEO", 
+            "email": "test@example.com"
+        }
 
-        res = self.client.patch(ME_URL, payload)
-
+        res = self.client.put(ME_URL, payload)
         self.user.refresh_from_db()
-        self.assertEqual(self.user.name, payload['name'])
-        self.assertTrue(self.user.check_password(payload['password']))
+
+        self.assertEqual(res.data["name"], payload['name'])
+        if("password" in payload):
+            self.assertTrue(self.user.check_password(payload['password']))
+
         self.assertEqual(res.status_code, status.HTTP_200_OK)
