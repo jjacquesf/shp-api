@@ -65,7 +65,7 @@ class CreateTokenView(ObtainAuthToken):
 
 @extend_schema(tags=['Auth'])
 @extend_schema(description=_("[Protected | IsAuthenticated] Manage the authenticated user"))
-class ManageUserView(views.APIView):
+class SelfManageUserView(views.APIView):
     authentication_classes = [authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated]
 
@@ -119,13 +119,51 @@ class ListUserView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated, UserPermission]
     queryset = get_user_model().objects.all().order_by('-id')
 
-@extend_schema(tags=['User management'])
-@extend_schema(description=_("[Protected | ViewUser] Get user detail by id"))
-class RetrieveUserView(generics.RetrieveAPIView):
-    serializer_class = UserSerializer
+@extend_schema(tags=['Auth'])
+@extend_schema(description=_("[Protected | IsAuthenticated] Manage the authenticated user"))
+class ManageUserView(views.APIView):
     authentication_classes = [authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated, UserPermission]
-    queryset = get_user_model().objects.all()
+
+    @extend_schema(
+        description=_("[Protected | ViewUser] Get user profile by id"),
+        responses={200: UserProfileSerializer},
+    )
+    def get(self, request, pk):
+        user = get_user_model().objects.get(id=pk)
+        profile = models.Profile.objects.get(user=user)
+        serializer = UserProfileSerializer({
+            "name": user.name,
+            "email": user.email,
+            "job_position": profile.job_position
+        })
+        return Response(serializer.data)
+    
+    @extend_schema(
+        description=_("[Protected | ChangeUser] Update user profile by id"),
+        request=UpdateUserGroupSerializer,
+        responses={200: GroupSerializer(many=True)},
+    )
+    def put(self, request, pk):
+        """Update and return user"""
+        user = get_user_model().objects.get(id=pk)
+        profile = models.Profile.objects.get(user=user)
+
+        serializer = UserProfileSerializer(user, data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        serializer.save()
+        
+        user.refresh_from_db()
+        profile.refresh_from_db()
+
+        upd_serializer = UserProfileSerializer({
+            "name": user.name,
+            "email": user.email,
+            "job_position": profile.job_position
+        })
+
+        return Response(upd_serializer.data)
 
 @extend_schema(tags=['User management'])
 @extend_schema(description=_("[Protected | AddUser] Create a new user in the system"))

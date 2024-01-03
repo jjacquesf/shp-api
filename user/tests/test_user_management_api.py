@@ -13,6 +13,7 @@ from django.contrib.auth.models import Permission
 
 from user.serializers import (
     UserSerializer,
+    UserProfileSerializer
 )
 
 from group.serializers import (
@@ -30,7 +31,13 @@ def get_user_groups_url(user_id):
 
 def create_user(**params):
     """Create an return a new user"""
-    return get_user_model().objects.create_user(**params)
+    user = get_user_model().objects.create_user(**params)
+    profile_data = {
+        "user": user,
+        "job_position": "CTO"
+    }
+    profile = models.Profile.objects.create(**profile_data)
+    return user
 
 def create_group(**params):
     """Create an return a new group"""
@@ -176,8 +183,13 @@ class PrivateUserManagementApiTests(TestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
         user = get_user_model().objects.get(email=self.user.email)
+        profile = models.Profile.objects.get(user=user)
 
-        serializer = UserSerializer(user)
+        serializer = UserProfileSerializer({
+            "name": user.name,
+            "email": user.email,
+            "job_position": profile.job_position
+        })
 
         self.assertEqual(res.data, serializer.data)
         
