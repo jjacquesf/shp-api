@@ -22,8 +22,8 @@ from group.serializers import (
 LIST_USER_URL = reverse('user:list')
 CREATE_USER_URL = reverse('user:create')
 
-def get_retrive_url(user_id):
-    return reverse('user:retrieve', args=[user_id])
+def get_user_detail_url(user_id):
+    return reverse('user:detail', args=[user_id])
 
 def get_user_groups_url(user_id):
     return reverse('user:group', args=[user_id])
@@ -62,7 +62,7 @@ class PublicUserManagementApiTests(TestCase):
             'name': 'Test Name',
         }
         user = create_user(**payload)
-        res = self.client.get(get_retrive_url(user.id))
+        res = self.client.get(get_user_detail_url(user.id))
 
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
@@ -171,7 +171,7 @@ class PrivateUserManagementApiTests(TestCase):
 
     def test_retrieve_user_success(self):
         """Test retrieve user success."""
-        res = self.client.get(get_retrive_url(self.user.id))
+        res = self.client.get(get_user_detail_url(self.user.id))
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
