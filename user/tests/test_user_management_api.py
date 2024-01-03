@@ -171,10 +171,18 @@ class PrivateUserManagementApiTests(TestCase):
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
-        users = get_user_model().objects.all().order_by('-id')
-        serializer = UserSerializer(users, many=True)
+        users = get_user_model().objects.filter(is_superuser=False).order_by('-id')
+        result = []
+        for user in users:
+            profile = models.Profile.objects.get(user=user)
+            serializer = UserProfileSerializer({
+                "name": user.name,
+                "email": user.email,
+                "job_position": profile.job_position
+            })
+            result.append(serializer.data)
 
-        self.assertEqual(res.data, serializer.data)
+        self.assertEqual(res.data, result)
 
     def test_retrieve_user_success(self):
         """Test retrieve user success."""

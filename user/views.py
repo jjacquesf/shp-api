@@ -110,17 +110,30 @@ class SelfManageUserView(views.APIView):
         })
 
         return Response(upd_serializer.data)
-
+    
 @extend_schema(tags=['User management'])
-@extend_schema(description=_("[Protected | ViewUser] List all users"))
-class ListUserView(generics.ListAPIView):
-    serializer_class = UserSerializer
+class ListUserView(views.APIView):
     authentication_classes = [authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated, UserPermission]
-    queryset = get_user_model().objects.all().order_by('-id')
 
-@extend_schema(tags=['Auth'])
-@extend_schema(description=_("[Protected | IsAuthenticated] Manage the authenticated user"))
+    @extend_schema(
+        description=_("[Protected | ViewUser] List all users"),
+        responses={200: UserProfileSerializer},
+    )
+    def get(self, request):
+        users = get_user_model().objects.filter(is_superuser=False).order_by('-id')
+        result = []
+        for user in users:
+            profile = models.Profile.objects.get(user=user)
+            serializer = UserProfileSerializer({
+                "name": user.name,
+                "email": user.email,
+                "job_position": profile.job_position
+            })
+            result.append(serializer.data)
+
+        return Response(result)
+@extend_schema(tags=['User management'])
 class ManageUserView(views.APIView):
     authentication_classes = [authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated, UserPermission]
