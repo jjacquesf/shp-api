@@ -19,11 +19,10 @@ from django.contrib.auth import get_user_model
 from core import models
 
 from user.serializers import (
-    UserSerializer,
     UpdateUserGroupSerializer,
     AuthTokenSerializer,
-
-    UserProfileSerializer
+    UserProfileSerializer,
+    serialize_user_profile
 )
 
 from group.serializers import (
@@ -75,13 +74,14 @@ class SelfManageUserView(views.APIView):
     )
     def get(self, request):
         user = self.request.user
-        profile = models.Profile.objects.get(user=user)
-        serializer = UserProfileSerializer({
-            "name": user.name,
-            "email": user.email,
-            "password": user.password,
-            "job_position": profile.job_position
-        })
+        # profile = models.Profile.objects.get(user=user)
+        # serializer = UserProfileSerializer({
+        #     "name": user.name,
+        #     "email": user.email,
+        #     "password": user.password,
+        #     "job_position": profile.job_position
+        # })
+        serializer = serialize_user_profile(user)
         return Response(serializer.data)
     
     @extend_schema(
@@ -92,7 +92,7 @@ class SelfManageUserView(views.APIView):
     def put(self, request):
         """Update and return user"""
         user = get_user_model().objects.get(id=self.request.user.id)
-        profile = models.Profile.objects.get(user=user)
+        # profile = models.Profile.objects.get(user=user)
 
         serializer = UserProfileSerializer(user, data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -100,14 +100,16 @@ class SelfManageUserView(views.APIView):
         serializer.save()
         
         user.refresh_from_db()
-        profile.refresh_from_db()
+        # profile.refresh_from_db()
 
-        upd_serializer = UserProfileSerializer({
-            "name": user.name,
-            "email": user.email,
-            "password": user.password,
-            "job_position": profile.job_position
-        })
+        # upd_serializer = UserProfileSerializer({
+        #     "name": user.name,
+        #     "email": user.email,
+        #     "password": user.password,
+        #     "job_position": profile.job_position
+        # })
+
+        upd_serializer = serialize_user_profile(user)
 
         return Response(upd_serializer.data)
     
@@ -124,12 +126,13 @@ class ListUserView(views.APIView):
         users = get_user_model().objects.filter(is_superuser=False).order_by('-id')
         result = []
         for user in users:
-            profile = models.Profile.objects.get(user=user)
-            serializer = UserProfileSerializer({
-                "name": user.name,
-                "email": user.email,
-                "job_position": profile.job_position
-            })
+            # profile = models.Profile.objects.get(user=user)
+            # serializer = UserProfileSerializer({
+            #     "name": user.name,
+            #     "email": user.email,
+            #     "job_position": profile.job_position
+            # })
+            serializer = serialize_user_profile(user)
             result.append(serializer.data)
 
         return Response(result)
@@ -144,12 +147,13 @@ class ManageUserView(views.APIView):
     )
     def get(self, request, pk):
         user = get_user_model().objects.get(id=pk)
-        profile = models.Profile.objects.get(user=user)
-        serializer = UserProfileSerializer({
-            "name": user.name,
-            "email": user.email,
-            "job_position": profile.job_position
-        })
+        # profile = models.Profile.objects.get(user=user)
+        # serializer = UserProfileSerializer({
+        #     "name": user.name,
+        #     "email": user.email,
+        #     "job_position": profile.job_position
+        # })
+        serializer = serialize_user_profile(user)
         return Response(serializer.data)
     
     @extend_schema(
@@ -170,12 +174,12 @@ class ManageUserView(views.APIView):
         user.refresh_from_db()
         profile.refresh_from_db()
 
-        upd_serializer = UserProfileSerializer({
-            "name": user.name,
-            "email": user.email,
-            "job_position": profile.job_position
-        })
-
+        # upd_serializer = UserProfileSerializer({
+        #     "name": user.name,
+        #     "email": user.email,
+        #     "job_position": profile.job_position
+        # })
+        upd_serializer = serialize_user_profile(user)
         return Response(upd_serializer.data)
 
 @extend_schema(tags=['User management'])

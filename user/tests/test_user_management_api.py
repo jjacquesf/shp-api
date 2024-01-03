@@ -11,13 +11,12 @@ from rest_framework import status
 from core import models
 from django.contrib.auth.models import Permission
 
-from user.serializers import (
-    UserSerializer,
-    UserProfileSerializer
-)
-
 from group.serializers import (
     GroupSerializer,
+)
+
+from user.serializers import (
+    serialize_user_profile
 )
 
 LIST_USER_URL = reverse('user:list')
@@ -174,12 +173,7 @@ class PrivateUserManagementApiTests(TestCase):
         users = get_user_model().objects.filter(is_superuser=False).order_by('-id')
         result = []
         for user in users:
-            profile = models.Profile.objects.get(user=user)
-            serializer = UserProfileSerializer({
-                "name": user.name,
-                "email": user.email,
-                "job_position": profile.job_position
-            })
+            serializer = serialize_user_profile(user)
             result.append(serializer.data)
 
         self.assertEqual(res.data, result)
@@ -191,13 +185,7 @@ class PrivateUserManagementApiTests(TestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
         user = get_user_model().objects.get(email=self.user.email)
-        profile = models.Profile.objects.get(user=user)
-
-        serializer = UserProfileSerializer({
-            "name": user.name,
-            "email": user.email,
-            "job_position": profile.job_position
-        })
+        serializer = serialize_user_profile(user)
 
         self.assertEqual(res.data, serializer.data)
         

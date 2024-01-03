@@ -139,11 +139,23 @@ class UserProfileSerializer(serializers.Serializer):
         models.Profile.objects.filter(user=instance).update(**profile_data)
         
 
-        profile = models.Profile.objects.get(user=instance)
-        serializer = UserProfileSerializer({
-            "name": instance.name,
-            "email": instance.email,
-            "job_position": profile.job_position
-        })
+        # profile = models.Profile.objects.get(user=instance)
+        # serializer = UserProfileSerializer({
+        #     "name": instance.name,
+        #     "email": instance.email,
+        #     "job_position": profile.job_position
+        # })
+
+        serializer = serialize_user_profile(instance)
 
         return serializer.data
+    
+def serialize_user_profile(user):
+    profile = models.Profile.objects.get(user=user)
+    serializer = UserProfileSerializer({
+        "name": user.name,
+        "email": user.email,
+        "job_position": profile.job_position
+    })
+
+    return serializer
