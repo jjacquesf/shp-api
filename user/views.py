@@ -192,11 +192,14 @@ class CreateUserView(views.APIView):
         serializer = UserProfileSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-
         if("password" not in request.data):
-            return Response({"password": ["Password is required for user creation"]}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"password": [_("Password is required for user creation")]}, status=status.HTTP_400_BAD_REQUEST)
 
-        user = serializer.save()
+        user = get_user_model().objects.filter(email=serializer.validated_data['email'])
+        if len(user) != 0:
+            return Response({"email": [_("User already exists")]}, status=status.HTTP_400_BAD_REQUEST)
+        
+        serializer.save()
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
