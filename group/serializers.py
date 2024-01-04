@@ -8,7 +8,7 @@ class GroupSerializer(serializers.ModelSerializer):
 
     class Meta:
         model=models.CustomGroup
-        fields = ['name', 'description']
+        fields = ['id', 'name', 'description']
 
     def create(self, validated_data):
         """Create and return a group"""
