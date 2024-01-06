@@ -53,3 +53,10 @@ class CustomGroup(Group):
     class Meta:
         verbose_name = 'Group'
         verbose_name_plural = 'Groups'
+
+class Municipality(models.Model):
+    is_active = models.BooleanField(default=True)
+    name = models.CharField(max_length=128,unique=True)
+    class Meta:
+        verbose_name = 'Municipality'
+        verbose_name_plural = 'Municipalities'

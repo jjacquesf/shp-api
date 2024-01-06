@@ -55,3 +55,5 @@ class CustomGroupAdmin(GroupAdmin):
 
 admin.site.register(models.User, UserAdmin)
 admin.site.register(models.CustomGroup, CustomGroupAdmin)
+admin.site.register(models.Profile)
+admin.site.register(models.Municipality)
