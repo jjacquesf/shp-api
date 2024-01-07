@@ -66,3 +66,11 @@ class Institution(models.Model):
     name = models.CharField(max_length=128,unique=True)
     class Meta:
         verbose_name = 'Institution'
+
+
+class Dpe(models.Model):
+    is_active = models.BooleanField(default=True)
+    name = models.CharField(max_length=128,unique=True)
+    class Meta:
+        verbose_name = 'Decentralized public entity'
+        verbose_name_plural = 'Decentralized public entities'

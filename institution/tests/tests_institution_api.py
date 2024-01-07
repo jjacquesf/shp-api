@@ -16,7 +16,7 @@ from institution.serializers import (
     InstitutionSerializer
 )
 
-MUNICIPALITIES_URL = reverse('institution:institution-list')
+MAIN_URL = reverse('institution:institution-list')
 
 def detail_url(id):
     return reverse('institution:institution-detail', args=[id])
@@ -47,7 +47,7 @@ class PublicInstitutionTests(TestCase):
 
     def test_list_institutions_unauthorized(self):
         """Test list institutions unauthorized"""
-        res = self.client.get(MUNICIPALITIES_URL)
+        res = self.client.get(MAIN_URL)
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_institution_detail_unauthorized(self):
@@ -64,7 +64,7 @@ class PublicInstitutionTests(TestCase):
             'is_active': True,
             'name': 'name3'
         }
-        res = self.client.post(MUNICIPALITIES_URL, payload)
+        res = self.client.post(MAIN_URL, payload)
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_institution_update_unauthorized(self):
@@ -102,7 +102,7 @@ class ForbiddenInstitutionTests(TestCase):
 
     def test_list_institutions_forbidden(self):
         """Test list institutions forbidden"""
-        res = self.client.get(MUNICIPALITIES_URL)
+        res = self.client.get(MAIN_URL)
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_institution_detail_forbidden(self):
@@ -119,7 +119,7 @@ class ForbiddenInstitutionTests(TestCase):
             'is_active': True,
             'name': 'name3'
         }
-        res = self.client.post(MUNICIPALITIES_URL, payload)
+        res = self.client.post(MAIN_URL, payload)
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_institution_update_forbidden(self):
@@ -197,10 +197,10 @@ class InstitutionTests(TestCase):
         mun_data.update({'is_active': False, 'name': 'name2'})
         create_institution(**mun_data)
 
-        res = self.client.get(MUNICIPALITIES_URL)
+        res = self.client.get(MAIN_URL)
         
         params = {'active_only': 'true'}
-        res2 = self.client.get(MUNICIPALITIES_URL, params)
+        res2 = self.client.get(MAIN_URL, params)
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res2.status_code, status.HTTP_200_OK)
@@ -220,7 +220,7 @@ class InstitutionTests(TestCase):
         create_institution(**mun_data)
         
         params = {'active_only': 'false'}
-        res = self.client.get(MUNICIPALITIES_URL, params)
+        res = self.client.get(MAIN_URL, params)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
         rows = models.Institution.objects.all().order_by('name')
@@ -246,7 +246,7 @@ class InstitutionTests(TestCase):
             'is_active': True,
             'name': 'name3'
         }
-        res = self.client.post(MUNICIPALITIES_URL, payload)
+        res = self.client.post(MAIN_URL, payload)
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
 
         institution = models.Institution.objects.get(id=res.data['id'])
@@ -259,10 +259,10 @@ class InstitutionTests(TestCase):
             'is_active': True,
             'name': 'name3'
         }
-        res = self.client.post(MUNICIPALITIES_URL, payload)
+        res = self.client.post(MAIN_URL, payload)
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
 
-        res = self.client.post(MUNICIPALITIES_URL, payload)
+        res = self.client.post(MAIN_URL, payload)
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_institution_update_success(self):

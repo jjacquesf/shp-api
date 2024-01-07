@@ -55,17 +55,20 @@ class InstitutionPermission(permissions.BasePermission):
             )
         ]
     ),
+    create=extend_schema(
+        description=_('[Protected | AddInstitution] Add an institution')
+    ),
     retrieve=extend_schema(
-        description=_('[Protected | ViewInstitution] Retrieve a institution by id')
+        description=_('[Protected | ViewInstitution] Retrieve an institution by id')
     ),
     partial_update=extend_schema(
-        description=_('[Protected | ChangeInstitution] Partial update a institution by id')
+        description=_('[Protected | ChangeInstitution] Partial update an institution by id')
     ),
     update=extend_schema(
-        description=_('[Protected | ChangeInstitution] Replace a institution by id')
+        description=_('[Protected | ChangeInstitution] Replace an institution by id')
     ),
     destroy=extend_schema(
-        description=_('[Protected | DeleteInstitution] Delete a institution by id')
+        description=_('[Protected | DeleteInstitution] Delete an institution by id')
     ),
 )
 class InstitutionViewSet(viewsets.ModelViewSet):

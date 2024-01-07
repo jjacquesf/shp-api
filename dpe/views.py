@@ -1,5 +1,5 @@
 """
-Views fro the municipality APIs
+Views fro the dpe APIs
 """
 from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter
 from drf_spectacular.types import OpenApiTypes
@@ -14,27 +14,27 @@ from rest_framework.permissions import IsAuthenticated
 
 from core import models
 
-from municipality.serializers import (
-    MunicipalitySerializer
+from dpe.serializers import (
+    DpeSerializer
 )
 
-class MunicipalityPermission(permissions.BasePermission):
+class DpePermission(permissions.BasePermission):
     message = _('Requested action is not authorized')
 
     def has_permission(self, request, view):
         """Validate user permissions depending on the request method"""
 
         if view.action == 'list' or view.action == 'retrieve':
-            return request.user.has_perm('core.view_municipality') 
+            return request.user.has_perm('core.view_dpe') 
 
         if view.action == 'create':
-            return request.user.has_perm('core.add_municipality')
+            return request.user.has_perm('core.add_dpe')
 
         if view.action == 'update' or view.action == 'partial_update':
-            return request.user.has_perm('core.change_municipality') 
+            return request.user.has_perm('core.change_dpe') 
 
         if view.action == 'destroy':
-            return request.user.has_perm('core.delete_municipality') 
+            return request.user.has_perm('core.delete_dpe') 
 
         return True
     
@@ -45,7 +45,7 @@ class MunicipalityPermission(permissions.BasePermission):
 @extend_schema(tags=[_('Catalogs')])
 @extend_schema_view(
     list=extend_schema(
-        description=_('[Protected | ViewMunicipality] List municipalities'),
+        description=_('[Protected | Viewdpe] List decentralized public entities'),
         parameters=[
             OpenApiParameter(
                 'active_only',
@@ -56,30 +56,30 @@ class MunicipalityPermission(permissions.BasePermission):
         ]
     ),
     create=extend_schema(
-        description=_('[Protected | AddMunicipality] Add a municipality')
+        description=_('[Protected | AddDpe] Add a decentralized public entity')
     ),
     retrieve=extend_schema(
-        description=_('[Protected | ViewMunicipality] Retrieve a municipality by id')
+        description=_('[Protected | ViewDpe] Retrieve a decentralized public entity by id')
     ),
     partial_update=extend_schema(
-        description=_('[Protected | ChangeMunicipality] Partial update a municipality by id')
+        description=_('[Protected | ChangeDpe] Partial update a decentralized public entity by id')
     ),
     update=extend_schema(
-        description=_('[Protected | ChangeMunicipality] Replace a municipality by id')
+        description=_('[Protected | ChangeDpe] Replace a decentralized public entity by id')
     ),
     destroy=extend_schema(
-        description=_('[Protected | DeleteMunicipality] Delete a municipality by id')
+        description=_('[Protected | DeleteDpe] Delete a decentralized public entity by id')
     ),
 )
-class MunicipalityViewSet(viewsets.ModelViewSet):
-    """Viewset for manage municipality APIs."""
-    serializer_class = MunicipalitySerializer
-    queryset = models.Municipality.objects.all()
+class DpeViewSet(viewsets.ModelViewSet):
+    """Viewset for manage dpe APIs."""
+    serializer_class = DpeSerializer
+    queryset = models.Dpe.objects.all()
     authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated, MunicipalityPermission]
+    permission_classes = [IsAuthenticated, DpePermission]
 
     def get_queryset(self):
-        """Retrieve municipalities sorted by name"""
+        """Retrieve decentralized public entities sorted by name"""
         active_only = self.request.query_params.get('active_only')
 
         # Filter objects by active status
@@ -90,5 +90,5 @@ class MunicipalityViewSet(viewsets.ModelViewSet):
         return queryset.order_by('name')
 
     # def perform_create(self, serializer):
-    #     """Create a new municipality"""
+    #     """Create a new dpe"""
     #     # Validate something

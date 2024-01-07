@@ -1,5 +1,5 @@
 """
-Tests for municipality APIs
+Tests for dpe APIs
 """
 from django.test import TestCase
 from django.urls import reverse
@@ -12,14 +12,14 @@ from django.contrib.auth.models import Permission
 
 from core import models 
 
-from municipality.serializers import (
-    MunicipalitySerializer
+from dpe.serializers import (
+    DpeSerializer
 )
 
-MAIN_URL = reverse('municipality:municipality-list')
+MAIN_URL = reverse('dpe:dpe-list')
 
 def detail_url(id):
-    return reverse('municipality:municipality-detail', args=[id])
+    return reverse('dpe:dpe-detail', args=[id])
 
 def create_user(**params):
     """Create an return a new user"""
@@ -36,29 +36,29 @@ def create_group(**params):
     return models.CustomGroup.objects.create(**params)
 
 
-def create_municipality(**params):
-    return models.Municipality.objects.create(**params)
+def create_dpe(**params):
+    return models.Dpe.objects.create(**params)
 
-class PublicMunicipalityTests(TestCase):
+class PublicDpeTests(TestCase):
     """Test unauthenticated API requests."""
 
     def setUp(self):
         self.client = APIClient()
 
-    def test_list_municipalities_unauthorized(self):
-        """Test list municipalities unauthorized"""
+    def test_list_dpes_unauthorized(self):
+        """Test list dpes unauthorized"""
         res = self.client.get(MAIN_URL)
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
-    def test_municipality_detail_unauthorized(self):
-        """Test municipality detail unauthorized"""
+    def test_dpe_detail_unauthorized(self):
+        """Test dpe detail unauthorized"""
         mun_data = {'name': 'name1'}
-        model = create_municipality(**mun_data)
+        model = create_dpe(**mun_data)
 
         res = self.client.get(detail_url(model.id))
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
-    def test_create_municipality_unauthorized(self):
+    def test_create_dpe_unauthorized(self):
         """Test creating a recipe unauthorized"""
         payload = {
             'is_active': True,
@@ -67,23 +67,23 @@ class PublicMunicipalityTests(TestCase):
         res = self.client.post(MAIN_URL, payload)
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
-    def test_municipality_update_unauthorized(self):
-        """Test municipality update unauthorized"""
+    def test_dpe_update_unauthorized(self):
+        """Test dpe update unauthorized"""
         mun_data = {'name': 'name1'}
-        model = create_municipality(**mun_data)
+        model = create_dpe(**mun_data)
         mun_data.update({'is_active': False, 'name': 'name2'})
         res = self.client.put(detail_url(model.id), mun_data)
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
-    def test_municipality_partial_update_unauthorized(self):
-        """Test municipality partial update unauthorized"""
+    def test_dpe_partial_update_unauthorized(self):
+        """Test dpe partial update unauthorized"""
         mun_data = {'name': 'name1'}
-        model = create_municipality(**mun_data)
+        model = create_dpe(**mun_data)
         mun_data.update({'is_active': False})
         res = self.client.put(detail_url(model.id), mun_data)
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
-class ForbiddenMunicipalityTests(TestCase):
+class ForbiddenDpeTests(TestCase):
     """Test unauthenticated API requests."""
 
     def setUp(self):
@@ -100,20 +100,20 @@ class ForbiddenMunicipalityTests(TestCase):
 
         self.client.force_authenticate(user=self.user)
 
-    def test_list_municipalities_forbidden(self):
-        """Test list municipalities forbidden"""
+    def test_list_dpes_forbidden(self):
+        """Test list dpes forbidden"""
         res = self.client.get(MAIN_URL)
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_municipality_detail_forbidden(self):
-        """Test municipality detail forbidden"""
+    def test_dpe_detail_forbidden(self):
+        """Test dpe detail forbidden"""
         mun_data = {'name': 'name1'}
-        model = create_municipality(**mun_data)
+        model = create_dpe(**mun_data)
 
         res = self.client.get(detail_url(model.id))
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_create_municipality_forbidden(self):
+    def test_create_dpe_forbidden(self):
         """Test creating a recipe forbidden"""
         payload = {
             'is_active': True,
@@ -122,42 +122,41 @@ class ForbiddenMunicipalityTests(TestCase):
         res = self.client.post(MAIN_URL, payload)
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_municipality_update_forbidden(self):
-        """Test municipality update forbidden"""
+    def test_dpe_update_forbidden(self):
+        """Test dpe update forbidden"""
         mun_data = {'name': 'name1'}
-        model = create_municipality(**mun_data)
+        model = create_dpe(**mun_data)
         mun_data.update({'is_active': False, 'name': 'name2'})
         res = self.client.put(detail_url(model.id), mun_data)
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_municipality_partial_update_forbidden(self):
-        """Test municipality partial update forbidden"""
+    def test_dpe_partial_update_forbidden(self):
+        """Test dpe partial update forbidden"""
         mun_data = {'name': 'name1'}
-        model = create_municipality(**mun_data)
+        model = create_dpe(**mun_data)
         mun_data.update({'is_active': False})
         res = self.client.put(detail_url(model.id), mun_data)
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_municipality_delete_success(self):
-        """Test municipality delete success"""
+    def test_dpe_delete_success(self):
+        """Test dpe delete success"""
         mun_data = {'name': 'name1'}
-        model = create_municipality(**mun_data)
+        model = create_dpe(**mun_data)
 
         res = self.client.delete(detail_url(model.id))
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
-
-class MunicipalityTests(TestCase):
+class DpeTests(TestCase):
     """Test unauthenticated API requests."""
 
     def setUp(self):
 
         group, created = models.CustomGroup.objects.get_or_create(name='test')
         
-        vperm = Permission.objects.get(codename='view_municipality')
-        aperm = Permission.objects.get(codename='add_municipality')
-        cperm = Permission.objects.get(codename='change_municipality')
-        dperm = Permission.objects.get(codename='delete_municipality')
+        vperm = Permission.objects.get(codename='view_dpe')
+        aperm = Permission.objects.get(codename='add_dpe')
+        cperm = Permission.objects.get(codename='change_dpe')
+        dperm = Permission.objects.get(codename='delete_dpe')
 
         group.permissions.add(vperm)
         group.permissions.add(aperm)
@@ -190,12 +189,12 @@ class MunicipalityTests(TestCase):
         self.client = APIClient()
         self.client.force_authenticate(user=user)
 
-    def test_list_active_municipalities_success(self):
-        """Test list municipalities success"""
+    def test_list_active_dpes_success(self):
+        """Test list dpes success"""
         mun_data = {'name': 'name1'}
-        create_municipality(**mun_data)
+        create_dpe(**mun_data)
         mun_data.update({'is_active': False, 'name': 'name2'})
-        create_municipality(**mun_data)
+        create_dpe(**mun_data)
 
         res = self.client.get(MAIN_URL)
         
@@ -206,41 +205,41 @@ class MunicipalityTests(TestCase):
         self.assertEqual(res2.status_code, status.HTTP_200_OK)
         
         
-        rows = models.Municipality.objects.filter(is_active=True).order_by('name')
-        serializer = MunicipalitySerializer(rows, many=True)
+        rows = models.Dpe.objects.filter(is_active=True).order_by('name')
+        serializer = DpeSerializer(rows, many=True)
         
         self.assertEqual(res.data, serializer.data)
         self.assertEqual(res2.data, serializer.data)
 
-    def test_list_all_municipalities_success(self):
-        """Test list filtered municipalities success"""
+    def test_list_all_dpes_success(self):
+        """Test list filtered dpes success"""
         mun_data = {'name': 'name1'}
-        create_municipality(**mun_data)
+        create_dpe(**mun_data)
         mun_data.update({'is_active': False, 'name': 'name2'})
-        create_municipality(**mun_data)
+        create_dpe(**mun_data)
         
         params = {'active_only': 'false'}
         res = self.client.get(MAIN_URL, params)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
-        rows = models.Municipality.objects.all().order_by('name')
-        serializer = MunicipalitySerializer(rows, many=True)
+        rows = models.Dpe.objects.all().order_by('name')
+        serializer = DpeSerializer(rows, many=True)
         self.assertEqual(res.data, serializer.data)
 
 
-    def test_municipality_detail_success(self):
-        """Test municipality detail success"""
+    def test_dpe_detail_success(self):
+        """Test dpe detail success"""
         mun_data = {'name': 'name1'}
-        model = create_municipality(**mun_data)
+        model = create_dpe(**mun_data)
 
         res = self.client.get(detail_url(model.id))
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
-        rows = models.Municipality.objects.get(id=model.id)
-        serializer = MunicipalitySerializer(rows)
+        rows = models.Dpe.objects.get(id=model.id)
+        serializer = DpeSerializer(rows)
         self.assertEqual(res.data, serializer.data)
 
-    def test_create_municipality_success(self):
+    def test_create_dpe_success(self):
         """Test creating a recipe success"""
         payload = {
             'is_active': True,
@@ -249,9 +248,9 @@ class MunicipalityTests(TestCase):
         res = self.client.post(MAIN_URL, payload)
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
 
-        municipality = models.Municipality.objects.get(id=res.data['id'])
+        dpe = models.Dpe.objects.get(id=res.data['id'])
         for k,v in payload.items():
-            self.assertEqual(getattr(municipality, k), v)
+            self.assertEqual(getattr(dpe, k), v)
 
     def test_fail_creation_on_duplicated_name(self):
         """Test fail creation on duplicated name"""
@@ -265,34 +264,34 @@ class MunicipalityTests(TestCase):
         res = self.client.post(MAIN_URL, payload)
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_municipality_update_success(self):
-        """Test municipality update success"""
+    def test_dpe_update_success(self):
+        """Test dpe update success"""
         mun_data = {'name': 'name1'}
-        model = create_municipality(**mun_data)
+        model = create_dpe(**mun_data)
         mun_data.update({'is_active': False, 'name': 'name2'})
         res = self.client.put(detail_url(model.id), mun_data)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
-        rows = models.Municipality.objects.get(id=model.id)
-        serializer = MunicipalitySerializer(rows)
+        rows = models.Dpe.objects.get(id=model.id)
+        serializer = DpeSerializer(rows)
         self.assertEqual(res.data, serializer.data)
 
-    def test_municipality_partial_update_success(self):
-        """Test municipality partial update success"""
+    def test_dpe_partial_update_success(self):
+        """Test dpe partial update success"""
         mun_data = {'name': 'name1'}
-        model = create_municipality(**mun_data)
+        model = create_dpe(**mun_data)
         mun_data.update({'is_active': False})
         res = self.client.put(detail_url(model.id), mun_data)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
-        rows = models.Municipality.objects.get(id=model.id)
-        serializer = MunicipalitySerializer(rows)
+        rows = models.Dpe.objects.get(id=model.id)
+        serializer = DpeSerializer(rows)
         self.assertEqual(res.data['is_active'], serializer.data['is_active'])
 
-    def test_municipality_delete_success(self):
-        """Test municipality delete success"""
+    def test_dpe_delete_success(self):
+        """Test dpe delete success"""
         mun_data = {'name': 'name1'}
-        model = create_municipality(**mun_data)
+        model = create_dpe(**mun_data)
 
         res = self.client.delete(detail_url(model.id))
         self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
