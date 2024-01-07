@@ -8,3 +8,6 @@ class MunicipalitySerializer(serializers.ModelSerializer):
         model= models.Municipality
         fields = ['id', 'is_active', 'name']
         read_only_fields = ['id']
+
+    def __str__(self):
+        return f'Municipality: {self.name}'

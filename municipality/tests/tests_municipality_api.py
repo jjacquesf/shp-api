@@ -190,14 +190,37 @@ class MunicipalityTests(TestCase):
         self.client = APIClient()
         self.client.force_authenticate(user=user)
 
-    def test_list_municipalities_success(self):
+    def test_list_active_municipalities_success(self):
         """Test list municipalities success"""
         mun_data = {'name': 'name1'}
         create_municipality(**mun_data)
-        mun_data.update({'name': 'name2'})
+        mun_data.update({'is_active': False, 'name': 'name2'})
         create_municipality(**mun_data)
 
         res = self.client.get(MUNICIPALITIES_URL)
+        
+        params = {'active_only': 'true'}
+        res2 = self.client.get(MUNICIPALITIES_URL, params)
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res2.status_code, status.HTTP_200_OK)
+        
+        
+        rows = models.Municipality.objects.filter(is_active=True).order_by('name')
+        serializer = MunicipalitySerializer(rows, many=True)
+        
+        self.assertEqual(res.data, serializer.data)
+        self.assertEqual(res2.data, serializer.data)
+
+    def test_list_all_municipalities_success(self):
+        """Test list filtered municipalities success"""
+        mun_data = {'name': 'name1'}
+        create_municipality(**mun_data)
+        mun_data.update({'is_active': False, 'name': 'name2'})
+        create_municipality(**mun_data)
+        
+        params = {'active_only': 'false'}
+        res = self.client.get(MUNICIPALITIES_URL, params)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
         rows = models.Municipality.objects.all().order_by('name')
