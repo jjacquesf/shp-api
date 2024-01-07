@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'group',
     'permission',
     'municipality',
+    'institution',
 ]
 
 MIDDLEWARE = [

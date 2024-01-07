@@ -1,5 +1,5 @@
 """
-Views fro the municipality APIs
+Views fro the institution APIs
 """
 from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter
 from drf_spectacular.types import OpenApiTypes
@@ -14,27 +14,27 @@ from rest_framework.permissions import IsAuthenticated
 
 from core import models
 
-from municipality.serializers import (
-    MunicipalitySerializer
+from institution.serializers import (
+    InstitutionSerializer
 )
 
-class MunicipalityPermission(permissions.BasePermission):
+class InstitutionPermission(permissions.BasePermission):
     message = _('Requested action is not authorized')
 
     def has_permission(self, request, view):
         """Validate user permissions depending on the request method"""
 
         if view.action == 'list' or view.action == 'retrieve':
-            return request.user.has_perm('core.view_municipality') 
+            return request.user.has_perm('core.view_institution') 
 
         if view.action == 'create':
-            return request.user.has_perm('core.add_municipality')
+            return request.user.has_perm('core.add_institution')
 
         if view.action == 'update' or view.action == 'partial_update':
-            return request.user.has_perm('core.change_municipality') 
+            return request.user.has_perm('core.change_institution') 
 
         if view.action == 'destroy':
-            return request.user.has_perm('core.delete_municipality') 
+            return request.user.has_perm('core.delete_institution') 
 
         return True
     
@@ -45,7 +45,7 @@ class MunicipalityPermission(permissions.BasePermission):
 @extend_schema(tags=[_('Catalogs')])
 @extend_schema_view(
     list=extend_schema(
-        description=_('[Protected | ViewMunicipality] List municipalities'),
+        description=_('[Protected | ViewInstitution] List institutions'),
         parameters=[
             OpenApiParameter(
                 'active_only',
@@ -56,27 +56,27 @@ class MunicipalityPermission(permissions.BasePermission):
         ]
     ),
     retrieve=extend_schema(
-        description=_('[Protected | ViewMunicipality] Retrieve a municipality by id')
+        description=_('[Protected | ViewInstitution] Retrieve a institution by id')
     ),
     partial_update=extend_schema(
-        description=_('[Protected | ChangeMunicipality] Partial update a municipality by id')
+        description=_('[Protected | ChangeInstitution] Partial update a institution by id')
     ),
     update=extend_schema(
-        description=_('[Protected | ChangeMunicipality] Replace a municipality by id')
+        description=_('[Protected | ChangeInstitution] Replace a institution by id')
     ),
     destroy=extend_schema(
-        description=_('[Protected | DeleteMunicipality] Delete a municipality by id')
+        description=_('[Protected | DeleteInstitution] Delete a institution by id')
     ),
 )
-class MunicipalityViewSet(viewsets.ModelViewSet):
-    """Viewset for manage municipality APIs."""
-    serializer_class = MunicipalitySerializer
-    queryset = models.Municipality.objects.all()
+class InstitutionViewSet(viewsets.ModelViewSet):
+    """Viewset for manage institution APIs."""
+    serializer_class = InstitutionSerializer
+    queryset = models.Institution.objects.all()
     authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated, MunicipalityPermission]
+    permission_classes = [IsAuthenticated, InstitutionPermission]
 
     def get_queryset(self):
-        """Retrieve municipalities sorted by name"""
+        """Retrieve institutions sorted by name"""
         active_only = self.request.query_params.get('active_only')
 
         # Filter objects by active status
@@ -87,5 +87,5 @@ class MunicipalityViewSet(viewsets.ModelViewSet):
         return queryset.order_by('name')
 
     # def perform_create(self, serializer):
-    #     """Create a new municipality"""
+    #     """Create a new institution"""
     #     # Validate something

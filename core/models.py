@@ -60,3 +60,9 @@ class Municipality(models.Model):
     class Meta:
         verbose_name = 'Municipality'
         verbose_name_plural = 'Municipalities'
+
+class Institution(models.Model):
+    is_active = models.BooleanField(default=True)
+    name = models.CharField(max_length=128,unique=True)
+    class Meta:
+        verbose_name = 'Institution'
