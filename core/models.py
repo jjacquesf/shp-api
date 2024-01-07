@@ -1,6 +1,8 @@
 """
 Database models
 """
+from django.utils.translation import gettext_lazy as _
+
 from django.db import models
 from django.contrib.auth.models import (
     AbstractBaseUser,
@@ -16,7 +18,7 @@ class UserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
         """Create, save and return a new user"""
         if not email:
-            raise ValueError('User must have an email address')
+            raise ValueError(_('User must have an email address'))
         user = self.model(email=self.normalize_email(email), **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
@@ -51,26 +53,35 @@ class CustomGroup(Group):
     description = models.TextField(blank=True)
 
     class Meta:
-        verbose_name = 'Group'
-        verbose_name_plural = 'Groups'
+        verbose_name = _('Group')
+        verbose_name_plural = _('Groups')
 
 class Municipality(models.Model):
     is_active = models.BooleanField(default=True)
     name = models.CharField(max_length=128,unique=True)
     class Meta:
-        verbose_name = 'Municipality'
-        verbose_name_plural = 'Municipalities'
+        verbose_name = _('Municipality')
+        verbose_name_plural = _('Municipalities')
 
 class Institution(models.Model):
     is_active = models.BooleanField(default=True)
     name = models.CharField(max_length=128,unique=True)
     class Meta:
-        verbose_name = 'Institution'
+        verbose_name = _('Institution')
 
 
 class Dpe(models.Model):
     is_active = models.BooleanField(default=True)
     name = models.CharField(max_length=128,unique=True)
     class Meta:
-        verbose_name = 'Decentralized public entity'
-        verbose_name_plural = 'Decentralized public entities'
+        verbose_name = _('Decentralized public entity')
+        verbose_name_plural = _('Decentralized public entities')
+
+class Supplier(models.Model):
+    is_active = models.BooleanField(default=True)
+    name = models.CharField(max_length=128,unique=True)
+    tax_id = models.CharField(max_length=13,unique=True)
+    tax_name = models.CharField(max_length=255,unique=True)
+    class Meta:
+        verbose_name = _('Supplier')
+

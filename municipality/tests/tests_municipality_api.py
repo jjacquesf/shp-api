@@ -24,11 +24,7 @@ def detail_url(id):
 def create_user(**params):
     """Create an return a new user"""
     user = get_user_model().objects.create_user(**params)
-    # profile_data = {
-    #     "user": user,
-    #     "job_position": "CTO"
-    # }
-    # models.Profile.objects.create(**profile_data)
+
     return user
 
 def create_group(**params):
@@ -52,8 +48,8 @@ class PublicMunicipalityTests(TestCase):
 
     def test_municipality_detail_unauthorized(self):
         """Test municipality detail unauthorized"""
-        mun_data = {'name': 'name1'}
-        model = create_municipality(**mun_data)
+        data = {'name': 'name1'}
+        model = create_municipality(**data)
 
         res = self.client.get(detail_url(model.id))
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
@@ -69,18 +65,18 @@ class PublicMunicipalityTests(TestCase):
 
     def test_municipality_update_unauthorized(self):
         """Test municipality update unauthorized"""
-        mun_data = {'name': 'name1'}
-        model = create_municipality(**mun_data)
-        mun_data.update({'is_active': False, 'name': 'name2'})
-        res = self.client.put(detail_url(model.id), mun_data)
+        data = {'name': 'name1'}
+        model = create_municipality(**data)
+        data.update({'is_active': False, 'name': 'name2'})
+        res = self.client.put(detail_url(model.id), data)
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_municipality_partial_update_unauthorized(self):
         """Test municipality partial update unauthorized"""
-        mun_data = {'name': 'name1'}
-        model = create_municipality(**mun_data)
-        mun_data.update({'is_active': False})
-        res = self.client.put(detail_url(model.id), mun_data)
+        data = {'name': 'name1'}
+        model = create_municipality(**data)
+        data.update({'is_active': False})
+        res = self.client.put(detail_url(model.id), data)
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
 class ForbiddenMunicipalityTests(TestCase):
@@ -107,8 +103,8 @@ class ForbiddenMunicipalityTests(TestCase):
 
     def test_municipality_detail_forbidden(self):
         """Test municipality detail forbidden"""
-        mun_data = {'name': 'name1'}
-        model = create_municipality(**mun_data)
+        data = {'name': 'name1'}
+        model = create_municipality(**data)
 
         res = self.client.get(detail_url(model.id))
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
@@ -124,24 +120,24 @@ class ForbiddenMunicipalityTests(TestCase):
 
     def test_municipality_update_forbidden(self):
         """Test municipality update forbidden"""
-        mun_data = {'name': 'name1'}
-        model = create_municipality(**mun_data)
-        mun_data.update({'is_active': False, 'name': 'name2'})
-        res = self.client.put(detail_url(model.id), mun_data)
+        data = {'name': 'name1'}
+        model = create_municipality(**data)
+        data.update({'is_active': False, 'name': 'name2'})
+        res = self.client.put(detail_url(model.id), data)
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_municipality_partial_update_forbidden(self):
         """Test municipality partial update forbidden"""
-        mun_data = {'name': 'name1'}
-        model = create_municipality(**mun_data)
-        mun_data.update({'is_active': False})
-        res = self.client.put(detail_url(model.id), mun_data)
+        data = {'name': 'name1'}
+        model = create_municipality(**data)
+        data.update({'is_active': False})
+        res = self.client.put(detail_url(model.id), data)
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_municipality_delete_success(self):
         """Test municipality delete success"""
-        mun_data = {'name': 'name1'}
-        model = create_municipality(**mun_data)
+        data = {'name': 'name1'}
+        model = create_municipality(**data)
 
         res = self.client.delete(detail_url(model.id))
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
@@ -192,10 +188,10 @@ class MunicipalityTests(TestCase):
 
     def test_list_active_municipalities_success(self):
         """Test list municipalities success"""
-        mun_data = {'name': 'name1'}
-        create_municipality(**mun_data)
-        mun_data.update({'is_active': False, 'name': 'name2'})
-        create_municipality(**mun_data)
+        data = {'name': 'name1'}
+        create_municipality(**data)
+        data.update({'is_active': False, 'name': 'name2'})
+        create_municipality(**data)
 
         res = self.client.get(MAIN_URL)
         
@@ -214,10 +210,10 @@ class MunicipalityTests(TestCase):
 
     def test_list_all_municipalities_success(self):
         """Test list filtered municipalities success"""
-        mun_data = {'name': 'name1'}
-        create_municipality(**mun_data)
-        mun_data.update({'is_active': False, 'name': 'name2'})
-        create_municipality(**mun_data)
+        data = {'name': 'name1'}
+        create_municipality(**data)
+        data.update({'is_active': False, 'name': 'name2'})
+        create_municipality(**data)
         
         params = {'active_only': 'false'}
         res = self.client.get(MAIN_URL, params)
@@ -230,8 +226,8 @@ class MunicipalityTests(TestCase):
 
     def test_municipality_detail_success(self):
         """Test municipality detail success"""
-        mun_data = {'name': 'name1'}
-        model = create_municipality(**mun_data)
+        data = {'name': 'name1'}
+        model = create_municipality(**data)
 
         res = self.client.get(detail_url(model.id))
         self.assertEqual(res.status_code, status.HTTP_200_OK)
@@ -267,10 +263,10 @@ class MunicipalityTests(TestCase):
 
     def test_municipality_update_success(self):
         """Test municipality update success"""
-        mun_data = {'name': 'name1'}
-        model = create_municipality(**mun_data)
-        mun_data.update({'is_active': False, 'name': 'name2'})
-        res = self.client.put(detail_url(model.id), mun_data)
+        data = {'name': 'name1'}
+        model = create_municipality(**data)
+        data.update({'is_active': False, 'name': 'name2'})
+        res = self.client.put(detail_url(model.id), data)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
         rows = models.Municipality.objects.get(id=model.id)
@@ -279,10 +275,10 @@ class MunicipalityTests(TestCase):
 
     def test_municipality_partial_update_success(self):
         """Test municipality partial update success"""
-        mun_data = {'name': 'name1'}
-        model = create_municipality(**mun_data)
-        mun_data.update({'is_active': False})
-        res = self.client.put(detail_url(model.id), mun_data)
+        data = {'name': 'name1'}
+        model = create_municipality(**data)
+        data.update({'is_active': False})
+        res = self.client.put(detail_url(model.id), data)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
         rows = models.Municipality.objects.get(id=model.id)
@@ -291,8 +287,8 @@ class MunicipalityTests(TestCase):
 
     def test_municipality_delete_success(self):
         """Test municipality delete success"""
-        mun_data = {'name': 'name1'}
-        model = create_municipality(**mun_data)
+        data = {'name': 'name1'}
+        model = create_municipality(**data)
 
         res = self.client.delete(detail_url(model.id))
         self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)

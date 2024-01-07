@@ -48,7 +48,8 @@ INSTALLED_APPS = [
     'permission',
     'municipality',
     'institution',
-    'dpe'
+    'dpe',
+    'supplier'
 ]
 
 MIDDLEWARE = [

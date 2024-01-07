@@ -24,11 +24,7 @@ def detail_url(id):
 def create_user(**params):
     """Create an return a new user"""
     user = get_user_model().objects.create_user(**params)
-    # profile_data = {
-    #     "user": user,
-    #     "job_position": "CTO"
-    # }
-    # models.Profile.objects.create(**profile_data)
+
     return user
 
 def create_group(**params):

@@ -35,4 +35,5 @@ urlpatterns = [
     path('api/municipality/', include('municipality.urls')),
     path('api/institution/', include('institution.urls')),
     path('api/dpe/', include('dpe.urls')),
+    path('api/supplier/', include('supplier.urls')),
 ]

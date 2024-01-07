@@ -1,5 +1,5 @@
 """
-Tests for institution APIs
+Tests for supplier APIs
 """
 from django.test import TestCase
 from django.urls import reverse
@@ -12,14 +12,14 @@ from django.contrib.auth.models import Permission
 
 from core import models 
 
-from institution.serializers import (
-    InstitutionSerializer
+from supplier.serializers import (
+    SupplierSerializer
 )
 
-MAIN_URL = reverse('institution:institution-list')
+MAIN_URL = reverse('supplier:supplier-list')
 
 def detail_url(id):
-    return reverse('institution:institution-detail', args=[id])
+    return reverse('supplier:supplier-detail', args=[id])
 
 def create_user(**params):
     """Create an return a new user"""
@@ -32,29 +32,29 @@ def create_group(**params):
     return models.CustomGroup.objects.create(**params)
 
 
-def create_institution(**params):
-    return models.Institution.objects.create(**params)
+def create_supplier(**params):
+    return models.Supplier.objects.create(**params)
 
-class PublicInstitutionTests(TestCase):
+class PublicSupplierTests(TestCase):
     """Test unauthenticated API requests."""
 
     def setUp(self):
         self.client = APIClient()
 
-    def test_list_institutions_unauthorized(self):
-        """Test list institutions unauthorized"""
+    def test_list_suppliers_unauthorized(self):
+        """Test list suppliers unauthorized"""
         res = self.client.get(MAIN_URL)
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
-    def test_institution_detail_unauthorized(self):
-        """Test institution detail unauthorized"""
-        data = {'name': 'name1'}
-        model = create_institution(**data)
+    def test_supplier_detail_unauthorized(self):
+        """Test supplier detail unauthorized"""
+        data = {'name': 'name1', 'tax_id': 'JAFJ8611086D4', 'tax_name': 'name sa de cv'}
+        model = create_supplier(**data)
 
         res = self.client.get(detail_url(model.id))
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
-    def test_create_institution_unauthorized(self):
+    def test_create_supplier_unauthorized(self):
         """Test creating a recipe unauthorized"""
         payload = {
             'is_active': True,
@@ -63,23 +63,23 @@ class PublicInstitutionTests(TestCase):
         res = self.client.post(MAIN_URL, payload)
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
-    def test_institution_update_unauthorized(self):
-        """Test institution update unauthorized"""
-        data = {'name': 'name1'}
-        model = create_institution(**data)
+    def test_supplier_update_unauthorized(self):
+        """Test supplier update unauthorized"""
+        data = {'name': 'name1', 'tax_id': 'JAFJ8611086D4', 'tax_name': 'name sa de cv'}
+        model = create_supplier(**data)
         data.update({'is_active': False, 'name': 'name2'})
         res = self.client.put(detail_url(model.id), data)
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
-    def test_institution_partial_update_unauthorized(self):
-        """Test institution partial update unauthorized"""
-        data = {'name': 'name1'}
-        model = create_institution(**data)
+    def test_supplier_partial_update_unauthorized(self):
+        """Test supplier partial update unauthorized"""
+        data = {'name': 'name1', 'tax_id': 'JAFJ8611086D4', 'tax_name': 'name sa de cv'}
+        model = create_supplier(**data)
         data.update({'is_active': False})
         res = self.client.put(detail_url(model.id), data)
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
-class ForbiddenInstitutionTests(TestCase):
+class ForbiddenSupplierTests(TestCase):
     """Test unauthenticated API requests."""
 
     def setUp(self):
@@ -96,20 +96,20 @@ class ForbiddenInstitutionTests(TestCase):
 
         self.client.force_authenticate(user=self.user)
 
-    def test_list_institutions_forbidden(self):
-        """Test list institutions forbidden"""
+    def test_list_suppliers_forbidden(self):
+        """Test list suppliers forbidden"""
         res = self.client.get(MAIN_URL)
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_institution_detail_forbidden(self):
-        """Test institution detail forbidden"""
-        data = {'name': 'name1'}
-        model = create_institution(**data)
+    def test_supplier_detail_forbidden(self):
+        """Test supplier detail forbidden"""
+        data = {'name': 'name1', 'tax_id': 'JAFJ8611086D4', 'tax_name': 'name sa de cv'}
+        model = create_supplier(**data)
 
         res = self.client.get(detail_url(model.id))
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_create_institution_forbidden(self):
+    def test_create_supplier_forbidden(self):
         """Test creating a recipe forbidden"""
         payload = {
             'is_active': True,
@@ -118,42 +118,42 @@ class ForbiddenInstitutionTests(TestCase):
         res = self.client.post(MAIN_URL, payload)
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_institution_update_forbidden(self):
-        """Test institution update forbidden"""
-        data = {'name': 'name1'}
-        model = create_institution(**data)
+    def test_supplier_update_forbidden(self):
+        """Test supplier update forbidden"""
+        data = {'name': 'name1', 'tax_id': 'JAFJ8611086D4', 'tax_name': 'name sa de cv'}
+        model = create_supplier(**data)
         data.update({'is_active': False, 'name': 'name2'})
         res = self.client.put(detail_url(model.id), data)
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_institution_partial_update_forbidden(self):
-        """Test institution partial update forbidden"""
-        data = {'name': 'name1'}
-        model = create_institution(**data)
+    def test_supplier_partial_update_forbidden(self):
+        """Test supplier partial update forbidden"""
+        data = {'name': 'name1', 'tax_id': 'JAFJ8611086D4', 'tax_name': 'name sa de cv'}
+        model = create_supplier(**data)
         data.update({'is_active': False})
         res = self.client.put(detail_url(model.id), data)
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_institution_delete_success(self):
-        """Test institution delete success"""
-        data = {'name': 'name1'}
-        model = create_institution(**data)
+    def test_supplier_delete_success(self):
+        """Test supplier delete success"""
+        data = {'name': 'name1', 'tax_id': 'JAFJ8611086D4', 'tax_name': 'name sa de cv'}
+        model = create_supplier(**data)
 
         res = self.client.delete(detail_url(model.id))
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
 
-class InstitutionTests(TestCase):
+class SupplierTests(TestCase):
     """Test unauthenticated API requests."""
 
     def setUp(self):
 
         group, created = models.CustomGroup.objects.get_or_create(name='test')
         
-        vperm = Permission.objects.get(codename='view_institution')
-        aperm = Permission.objects.get(codename='add_institution')
-        cperm = Permission.objects.get(codename='change_institution')
-        dperm = Permission.objects.get(codename='delete_institution')
+        vperm = Permission.objects.get(codename='view_supplier')
+        aperm = Permission.objects.get(codename='add_supplier')
+        cperm = Permission.objects.get(codename='change_supplier')
+        dperm = Permission.objects.get(codename='delete_supplier')
 
         group.permissions.add(vperm)
         group.permissions.add(aperm)
@@ -186,12 +186,12 @@ class InstitutionTests(TestCase):
         self.client = APIClient()
         self.client.force_authenticate(user=user)
 
-    def test_list_active_institutions_success(self):
-        """Test list institutions success"""
-        data = {'name': 'name1'}
-        create_institution(**data)
-        data.update({'is_active': False, 'name': 'name2'})
-        create_institution(**data)
+    def test_list_active_suppliers_success(self):
+        """Test list suppliers success"""
+        data = {'name': 'name1', 'tax_id': 'JAFJ8611086D4', 'tax_name': 'name sa de cv'}
+        create_supplier(**data)
+        data.update({'is_active': False, 'name': 'name2', 'tax_id': 'JAFJ8611086D5', 'tax_name': 'name sa'})
+        create_supplier(**data)
 
         res = self.client.get(MAIN_URL)
         
@@ -202,58 +202,62 @@ class InstitutionTests(TestCase):
         self.assertEqual(res2.status_code, status.HTTP_200_OK)
         
         
-        rows = models.Institution.objects.filter(is_active=True).order_by('name')
-        serializer = InstitutionSerializer(rows, many=True)
+        rows = models.Supplier.objects.filter(is_active=True).order_by('name')
+        serializer = SupplierSerializer(rows, many=True)
         
         self.assertEqual(res.data, serializer.data)
         self.assertEqual(res2.data, serializer.data)
 
-    def test_list_all_institutions_success(self):
-        """Test list filtered institutions success"""
-        data = {'name': 'name1'}
-        create_institution(**data)
-        data.update({'is_active': False, 'name': 'name2'})
-        create_institution(**data)
+    def test_list_all_suppliers_success(self):
+        """Test list filtered suppliers success"""
+        data = {'name': 'name1', 'tax_id': 'JAFJ8611086D4', 'tax_name': 'name sa de cv'}
+        create_supplier(**data)
+        data.update({'is_active': False, 'name': 'name2', 'tax_id': 'JAFJ8611086D5', 'tax_name': 'name sa'})
+        create_supplier(**data)
         
         params = {'active_only': 'false'}
         res = self.client.get(MAIN_URL, params)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
-        rows = models.Institution.objects.all().order_by('name')
-        serializer = InstitutionSerializer(rows, many=True)
+        rows = models.Supplier.objects.all().order_by('name')
+        serializer = SupplierSerializer(rows, many=True)
         self.assertEqual(res.data, serializer.data)
 
 
-    def test_institution_detail_success(self):
-        """Test institution detail success"""
-        data = {'name': 'name1'}
-        model = create_institution(**data)
+    def test_supplier_detail_success(self):
+        """Test supplier detail success"""
+        data = {'name': 'name1', 'tax_id': 'JAFJ8611086D4', 'tax_name': 'name sa de cv'}
+        model = create_supplier(**data)
 
         res = self.client.get(detail_url(model.id))
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
-        rows = models.Institution.objects.get(id=model.id)
-        serializer = InstitutionSerializer(rows)
+        rows = models.Supplier.objects.get(id=model.id)
+        serializer = SupplierSerializer(rows)
         self.assertEqual(res.data, serializer.data)
 
-    def test_create_institution_success(self):
+    def test_create_supplier_success(self):
         """Test creating a recipe success"""
         payload = {
             'is_active': True,
-            'name': 'name3'
+            'name': 'name3',
+            'tax_id': 'JAFJ8611086D4', 
+            'tax_name': 'name sa de cv'
         }
         res = self.client.post(MAIN_URL, payload)
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
 
-        institution = models.Institution.objects.get(id=res.data['id'])
+        supplier = models.Supplier.objects.get(id=res.data['id'])
         for k,v in payload.items():
-            self.assertEqual(getattr(institution, k), v)
+            self.assertEqual(getattr(supplier, k), v)
 
     def test_fail_creation_on_duplicated_name(self):
         """Test fail creation on duplicated name"""
         payload = {
             'is_active': True,
-            'name': 'name3'
+            'name': 'name3',
+            'tax_id': 'JAFJ8611086D4', 
+            'tax_name': 'name sa de cv'
         }
         res = self.client.post(MAIN_URL, payload)
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
@@ -261,34 +265,34 @@ class InstitutionTests(TestCase):
         res = self.client.post(MAIN_URL, payload)
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_institution_update_success(self):
-        """Test institution update success"""
-        data = {'name': 'name1'}
-        model = create_institution(**data)
+    def test_supplier_update_success(self):
+        """Test supplier update success"""
+        data = {'name': 'name1', 'tax_id': 'JAFJ8611086D4', 'tax_name': 'name sa de cv'}
+        model = create_supplier(**data)
         data.update({'is_active': False, 'name': 'name2'})
         res = self.client.put(detail_url(model.id), data)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
-        rows = models.Institution.objects.get(id=model.id)
-        serializer = InstitutionSerializer(rows)
+        rows = models.Supplier.objects.get(id=model.id)
+        serializer = SupplierSerializer(rows)
         self.assertEqual(res.data, serializer.data)
 
-    def test_institution_partial_update_success(self):
-        """Test institution partial update success"""
-        data = {'name': 'name1'}
-        model = create_institution(**data)
+    def test_supplier_partial_update_success(self):
+        """Test supplier partial update success"""
+        data = {'name': 'name1', 'tax_id': 'JAFJ8611086D4', 'tax_name': 'name sa de cv'}
+        model = create_supplier(**data)
         data.update({'is_active': False})
         res = self.client.put(detail_url(model.id), data)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
-        rows = models.Institution.objects.get(id=model.id)
-        serializer = InstitutionSerializer(rows)
+        rows = models.Supplier.objects.get(id=model.id)
+        serializer = SupplierSerializer(rows)
         self.assertEqual(res.data['is_active'], serializer.data['is_active'])
 
-    def test_institution_delete_success(self):
-        """Test institution delete success"""
-        data = {'name': 'name1'}
-        model = create_institution(**data)
+    def test_supplier_delete_success(self):
+        """Test supplier delete success"""
+        data = {'name': 'name1', 'tax_id': 'JAFJ8611086D4', 'tax_name': 'name sa de cv'}
+        model = create_supplier(**data)
 
         res = self.client.delete(detail_url(model.id))
         self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
