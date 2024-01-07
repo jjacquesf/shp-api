@@ -44,6 +44,7 @@ class MunicipalityPermission(permissions.BasePermission):
 
 @extend_schema_view(
     list=extend_schema(
+        description=_('[Protected | ViewMunicipality] List municipalities'),
         parameters=[
             OpenApiParameter(
                 'active_only',
@@ -52,7 +53,19 @@ class MunicipalityPermission(permissions.BasePermission):
                 description=_('Either "true" or "false" depending on the desired query. Default: "true"')
             )
         ]
-    )
+    ),
+    retrieve=extend_schema(
+        description=_('[Protected | ViewMunicipality] Retrieve a municilipality by id')
+    ),
+    partial_update=extend_schema(
+        description=_('[Protected | ChangeMunicipality] Partial update a municilipality by id')
+    ),
+    update=extend_schema(
+        description=_('[Protected | ChangeMunicipality] Replace a municilipality by id')
+    ),
+    destroy=extend_schema(
+        description=_('[Protected | DeleteMunicipality] Delete a municilipality by id')
+    ),
 )
 class MunicipalityViewSet(viewsets.ModelViewSet):
     """Viewset for manage municipality APIs."""

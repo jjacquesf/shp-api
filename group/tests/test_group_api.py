@@ -113,7 +113,7 @@ class PublicGroupApiTest(TestCase):
         payload = {
             "permissions": [
                 "view_user",
-                "delete_customgroup",
+                "delete_group",
             ]
         }
         res = self.client.put(get_group_permissions_url(group.id), payload, 'json')
@@ -208,7 +208,7 @@ class PrivateForbiddenGroupApiTests(TestCase):
         payload = {
             "permissions": [
                 "view_user",
-                "delete_customgroup",
+                "delete_group",
             ]
         }
         res = self.client.put(get_group_permissions_url(group.id), payload, 'json')
@@ -221,10 +221,10 @@ class PrivateGroupApiTests(TestCase):
 
         group, created = models.CustomGroup.objects.get_or_create(name='test')
         
-        vperm = Permission.objects.get(codename='view_customgroup')
-        aperm = Permission.objects.get(codename='add_customgroup')
-        cperm = Permission.objects.get(codename='change_customgroup')
-        dperm = Permission.objects.get(codename='delete_customgroup')
+        vperm = Permission.objects.get(codename='view_group')
+        aperm = Permission.objects.get(codename='add_group')
+        cperm = Permission.objects.get(codename='change_group')
+        dperm = Permission.objects.get(codename='delete_group')
 
         group.permissions.add(vperm)
         group.permissions.add(aperm)
@@ -336,13 +336,13 @@ class PrivateGroupApiTests(TestCase):
         payload = {
             "permissions": [
                 "view_user",
-                "delete_customgroup",
+                "delete_group",
             ]
         }
         res = self.client.put(get_group_permissions_url(group.id), payload, 'json')
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
-        perms = Permission.objects.filter(Q(codename="view_user") | Q(codename="delete_customgroup"))
+        perms = Permission.objects.filter(Q(codename="view_user") | Q(codename="delete_group"))
         serializer = PermissionSerializer(perms, many=True)
 
         self.assertEqual(serializer.data, res.data)

@@ -22,7 +22,8 @@ class PermissionQuerySet(query.QuerySet):
     def business_domain(self, additional_cond = Q()):
         """Queryset fro business domain permissions"""
         content_type = ContentType.objects.get_for_model(get_user_model())
-        content_type2 = ContentType.objects.get_for_model(models.CustomGroup)
+        content_type2 = ContentType.objects.get_for_model(models.Group)
+        content_type3 = ContentType.objects.get_for_model(models.Municipality)
         bd_q = Q(content_type=content_type) | Q(content_type=content_type2)
 
         return Permission.objects.filter(bd_q & additional_cond)

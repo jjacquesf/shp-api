@@ -29,16 +29,16 @@ class GroupPermission(permissions.BasePermission):
         # Use request.method for APIView 
 
         if request.method == 'GET':
-            return request.user.has_perm('core.view_customgroup') 
+            return request.user.has_perm('auth.view_group') 
 
         if request.method == 'POST':
-            return request.user.has_perm('core.add_customgroup')
+            return request.user.has_perm('auth.add_group')
 
         if request.method == 'PUT' or request.method == 'PATCH':
-            return request.user.has_perm('core.change_customgroup') 
+            return request.user.has_perm('auth.change_group') 
 
         if request.method == 'DELETE':
-            return request.user.has_perm('core.delete_customgroup') 
+            return request.user.has_perm('auth.delete_group') 
         
         return False
     
@@ -62,7 +62,7 @@ class ListCreateGroupView(generics.ListCreateAPIView):
     get=extend_schema(description=_("[Protected | ViewGroup] Get group by id")),
     put=extend_schema(description=_("[Protected | ChangeGroup] Update group by id")),
     patch=extend_schema(description=_("[Protected | ChangeGroup] Patch group by id")),
-    delete=extend_schema(description=_("[Protected | RemoveGroup] Delete group by id")),
+    delete=extend_schema(description=_("[Protected | DeleteGroup] Delete group by id")),
 )
 class ManageGroupView(generics.RetrieveUpdateDestroyAPIView):
     # """Destroy a new user in the system"""
