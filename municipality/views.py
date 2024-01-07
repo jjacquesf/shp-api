@@ -52,7 +52,13 @@ class MunicipalityPermission(permissions.BasePermission):
                 OpenApiTypes.STR,
                 required=False,
                 description=_('Either "true" or "false" depending on the desired query. Default: "true"')
-            )
+            ),
+            OpenApiParameter(
+                'name',
+                OpenApiTypes.STR,
+                required=False,
+                description=_('Name filter value')
+            ),
         ]
     ),
     create=extend_schema(
@@ -86,6 +92,10 @@ class MunicipalityViewSet(viewsets.ModelViewSet):
         queryset = self.queryset
         if active_only == None or active_only.strip().lower() == 'true':
             queryset = queryset.filter(is_active=True)
+
+        name = self.request.query_params.get('name')
+        if name != None:
+            queryset = queryset.filter(name__icontains=name)
 
         return queryset.order_by('name')
 

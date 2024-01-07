@@ -54,6 +54,18 @@ class DepartmentPermission(permissions.BasePermission):
                 OpenApiTypes.STR,
                 required=False,
                 description=_('Either "true" or "false" depending on the desired query. Default: "true"')
+            ),
+            OpenApiParameter(
+                'name',
+                OpenApiTypes.STR,
+                required=False,
+                description=_('Name filter value')
+            ),
+            OpenApiParameter(
+                'parent',
+                OpenApiTypes.INT,
+                required=False,
+                description=_('Parent id filter value')
             )
         ]
     ),
@@ -82,14 +94,23 @@ class DepartmentViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         """Retrieve departments sorted by name"""
-        active_only = self.request.query_params.get('active_only')
-
+        
         # Filter objects by active status
+        active_only = self.request.query_params.get('active_only')
         queryset = self.queryset
         if active_only == None or active_only.strip().lower() == 'true':
             queryset = queryset.filter(is_active=True)
 
+        name = self.request.query_params.get('name')
+        if name != None:
+            queryset = queryset.filter(name__icontains=name)
+
+        parent = self.request.query_params.get('parent')
+        if parent != None:
+            queryset = queryset.filter(parent=parent)
+
         return queryset.order_by('name')
+        
     
     def _update_level(self, serializer):
         # Save level depending on the parent

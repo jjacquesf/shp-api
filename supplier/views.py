@@ -52,7 +52,25 @@ class SupplierPermission(permissions.BasePermission):
                 OpenApiTypes.STR,
                 required=False,
                 description=_('Either "true" or "false" depending on the desired query. Default: "true"')
-            )
+            ),
+            OpenApiParameter(
+                'name',
+                OpenApiTypes.STR,
+                required=False,
+                description=_('Name filter value')
+            ),
+            OpenApiParameter(
+                'tax_id',
+                OpenApiTypes.STR,
+                required=False,
+                description=_('Tax ID filter value')
+            ),
+            OpenApiParameter(
+                'tax_name',
+                OpenApiTypes.STR,
+                required=False,
+                description=_('Tax name filter value')
+            ),
         ]
     ),
     create=extend_schema(
@@ -86,6 +104,10 @@ class SupplierViewSet(viewsets.ModelViewSet):
         queryset = self.queryset
         if active_only == None or active_only.strip().lower() == 'true':
             queryset = queryset.filter(is_active=True)
+
+        name = self.request.query_params.get('name')
+        if name != None:
+            queryset = queryset.filter(name__icontains=name)
 
         tax_id = self.request.query_params.get('tax_id')
         if tax_id != None:

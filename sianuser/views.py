@@ -54,6 +54,18 @@ class SianUserPermission(permissions.BasePermission):
                 OpenApiTypes.STR,
                 required=False,
                 description=_('Either "true" or "false" depending on the desired query. Default: "true"')
+            ),
+            OpenApiParameter(
+                'name',
+                OpenApiTypes.STR,
+                required=False,
+                description=_('Name filter value')
+            ),
+            OpenApiParameter(
+                'stateorg',
+                OpenApiTypes.INT,
+                required=False,
+                description=_('State Organization id filter value')
             )
         ]
     ),
@@ -88,5 +100,13 @@ class SianUserViewSet(viewsets.ModelViewSet):
         queryset = self.queryset
         if active_only == None or active_only.strip().lower() == 'true':
             queryset = queryset.filter(is_active=True)
+
+        name = self.request.query_params.get('name')
+        if name != None:
+            queryset = queryset.filter(name__icontains=name)
+
+        stateorg = self.request.query_params.get('stateorg')
+        if stateorg != None:
+            queryset = queryset.filter(stateorg=stateorg)
 
         return queryset.order_by('name')
