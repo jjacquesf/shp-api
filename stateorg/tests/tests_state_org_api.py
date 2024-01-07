@@ -12,7 +12,7 @@ from django.contrib.auth.models import Permission
 
 from core import models 
 
-from state_org.serializers import (
+from stateorg.serializers import (
     StateOrgSerializer
 )
 
@@ -32,7 +32,7 @@ def create_group(**params):
     return models.CustomGroup.objects.create(**params)
 
 
-def createstate_org(**params):
+def create_stateorg(**params):
     return models.StateOrg.objects.create(**params)
 
 class PublicStateOrgTests(TestCase):
@@ -46,15 +46,15 @@ class PublicStateOrgTests(TestCase):
         res = self.client.get(MAIN_URL)
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
-    def teststate_org_detail_unauthorized(self):
+    def test_stateorg_detail_unauthorized(self):
         """Test state organization detail unauthorized"""
         data = {'name': 'name1', 'level': 0}
-        model = createstate_org(**data)
+        model = create_stateorg(**data)
 
         res = self.client.get(detail_url(model.id))
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
-    def test_createstate_org_unauthorized(self):
+    def test_create_stateorg_unauthorized(self):
         """Test creating a state organization unauthorized"""
         payload = {
             'is_active': True,
@@ -63,18 +63,18 @@ class PublicStateOrgTests(TestCase):
         res = self.client.post(MAIN_URL, payload)
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
-    def teststate_org_update_unauthorized(self):
+    def test_stateorg_update_unauthorized(self):
         """Test state organization update unauthorized"""
         data = {'name': 'name1', 'level': 0}
-        model = createstate_org(**data)
+        model = create_stateorg(**data)
         data.update({'is_active': False, 'name': 'name2'})
         res = self.client.put(detail_url(model.id), data)
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
-    def teststate_org_partial_update_unauthorized(self):
+    def test_stateorg_partial_update_unauthorized(self):
         """Test state organization partial update unauthorized"""
         data = {'name': 'name1', 'level': 0}
-        model = createstate_org(**data)
+        model = create_stateorg(**data)
         data.update({'is_active': False})
         res = self.client.put(detail_url(model.id), data)
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
@@ -101,15 +101,15 @@ class ForbiddenStateOrgTests(TestCase):
         res = self.client.get(MAIN_URL)
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
-    def teststate_org_detail_forbidden(self):
+    def test_stateorg_detail_forbidden(self):
         """Test state organization detail forbidden"""
         data = {'name': 'name1', 'level': 0}
-        model = createstate_org(**data)
+        model = create_stateorg(**data)
 
         res = self.client.get(detail_url(model.id))
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_createstate_org_forbidden(self):
+    def test_create_stateorg_forbidden(self):
         """Test creating a state organization forbidden"""
         payload = {
             'is_active': True,
@@ -118,26 +118,26 @@ class ForbiddenStateOrgTests(TestCase):
         res = self.client.post(MAIN_URL, payload)
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
-    def teststate_org_update_forbidden(self):
+    def test_stateorg_update_forbidden(self):
         """Test state organization update forbidden"""
         data = {'name': 'name1', 'level': 0}
-        model = createstate_org(**data)
+        model = create_stateorg(**data)
         data.update({'is_active': False, 'name': 'name2'})
         res = self.client.put(detail_url(model.id), data)
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
-    def teststate_org_partial_update_forbidden(self):
+    def test_stateorg_partial_update_forbidden(self):
         """Test state organization partial update forbidden"""
         data = {'name': 'name1', 'level': 0}
-        model = createstate_org(**data)
+        model = create_stateorg(**data)
         data.update({'is_active': False})
         res = self.client.put(detail_url(model.id), data)
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
-    def teststate_org_delete_success(self):
+    def test_stateorg_delete_success(self):
         """Test state organization delete success"""
         data = {'name': 'name1', 'level': 0}
-        model = createstate_org(**data)
+        model = create_stateorg(**data)
 
         res = self.client.delete(detail_url(model.id))
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
@@ -189,9 +189,9 @@ class StateOrgTests(TestCase):
     def test_list_active_entities_success(self):
         """Test list entities success"""
         data = {'name': 'name1', 'level': 0}
-        createstate_org(**data)
+        create_stateorg(**data)
         data.update({'is_active': False, 'name': 'name2'})
-        createstate_org(**data)
+        create_stateorg(**data)
 
         res = self.client.get(MAIN_URL)
         
@@ -211,9 +211,9 @@ class StateOrgTests(TestCase):
     def test_list_all_entities_success(self):
         """Test list filtered entities success"""
         data = {'name': 'name1', 'level': 0}
-        createstate_org(**data)
+        create_stateorg(**data)
         data.update({'is_active': False, 'name': 'name2'})
-        createstate_org(**data)
+        create_stateorg(**data)
         
         params = {'active_only': 'false'}
         res = self.client.get(MAIN_URL, params)
@@ -223,10 +223,10 @@ class StateOrgTests(TestCase):
         serializer = StateOrgSerializer(rows, many=True)
         self.assertEqual(res.data, serializer.data)
 
-    def teststate_org_detail_success(self):
+    def test_stateorg_detail_success(self):
         """Test state organization detail success"""
         data = {'name': 'name1', 'level': 0}
-        model = createstate_org(**data)
+        model = create_stateorg(**data)
 
         res = self.client.get(detail_url(model.id))
         self.assertEqual(res.status_code, status.HTTP_200_OK)
@@ -235,7 +235,7 @@ class StateOrgTests(TestCase):
         serializer = StateOrgSerializer(rows)
         self.assertEqual(res.data, serializer.data)
 
-    def test_createstate_org_success(self):
+    def test_create_stateorg_success(self):
         """Test creating a state organization success"""
         payload = {
             'is_active': True,
@@ -244,21 +244,21 @@ class StateOrgTests(TestCase):
         res = self.client.post(MAIN_URL, payload)
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
 
-        state_org = models.StateOrg.objects.get(id=res.data['id'])
+        stateorg = models.StateOrg.objects.get(id=res.data['id'])
         for k,v in payload.items():
-            self.assertEqual(getattr(state_org, k), v)
+            self.assertEqual(getattr(stateorg, k), v)
 
         payload.update({'name': 'name4', 'parent': res.data['id']})
         res2 = self.client.post(MAIN_URL, payload)
         self.assertEqual(res2.status_code, status.HTTP_201_CREATED)
 
-        state_org = models.StateOrg.objects.get(id=res2.data['id'])
-        self.assertEqual(state_org.level, 1)
+        stateorg = models.StateOrg.objects.get(id=res2.data['id'])
+        self.assertEqual(stateorg.level, 1)
         for k,v in payload.items():
             if k == 'parent':
-                self.assertEqual(getattr(state_org, k).id, v)
+                self.assertEqual(getattr(stateorg, k).id, v)
             else:
-                self.assertEqual(getattr(state_org, k), v)
+                self.assertEqual(getattr(stateorg, k), v)
 
     def test_fail_creation_on_duplicated_name(self):
         """Test fail creation on duplicated name"""
@@ -272,10 +272,10 @@ class StateOrgTests(TestCase):
         res = self.client.post(MAIN_URL, payload)
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def teststate_org_update_success(self):
+    def test_stateorg_update_success(self):
         """Test state organization update success"""
         data = {'name': 'name1', 'level': 0}
-        model = createstate_org(**data)
+        model = create_stateorg(**data)
         data.update({'is_active': False, 'name': 'name2'})
         res = self.client.put(detail_url(model.id), data)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
@@ -284,10 +284,10 @@ class StateOrgTests(TestCase):
         serializer = StateOrgSerializer(rows)
         self.assertEqual(res.data, serializer.data)
 
-    def teststate_org_partial_update_success(self):
+    def test_stateorg_partial_update_success(self):
         """Test state organization partial update success"""
         data = {'name': 'name10', 'level': 0}
-        model = createstate_org(**data)
+        model = create_stateorg(**data)
         data = {'name': 'name10'}
         res = self.client.patch(detail_url(model.id), data)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
@@ -296,11 +296,11 @@ class StateOrgTests(TestCase):
         serializer = StateOrgSerializer(rows)
         self.assertEqual(res.data['is_active'], serializer.data['is_active'])
 
-    def teststate_org_update_level_not_allowed_success(self):
+    def test_stateorg_update_level_not_allowed_success(self):
         """Test state organization partial update level not allowed"""
         org_level = 0
         data = {'name': 'name10', 'level': org_level}
-        model = createstate_org(**data)
+        model = create_stateorg(**data)
         data = {'level': 1}
         res = self.client.patch(detail_url(model.id), data)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
@@ -309,11 +309,11 @@ class StateOrgTests(TestCase):
         serializer = StateOrgSerializer(rows)
         self.assertEqual(serializer.data['level'], org_level)
 
-    def teststate_org_update_level_not_allowed_success(self):
+    def test_stateorg_update_level_not_allowed_success(self):
         """Test state organization partial update level not allowed"""
         org_level = 0
         data = {'name': 'name10', 'level': org_level}
-        model = createstate_org(**data)
+        model = create_stateorg(**data)
         data = {'level': 1}
         res = self.client.patch(detail_url(model.id), data)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
@@ -323,15 +323,15 @@ class StateOrgTests(TestCase):
         self.assertEqual(serializer.data['level'], org_level)
 
 
-    def teststate_org_delete_success(self):
+    def test_stateorg_delete_success(self):
         """Test state organization delete success"""
         data = {'name': 'name1', 'level': 0}
-        model = createstate_org(**data)
+        model = create_stateorg(**data)
 
         res = self.client.delete(detail_url(model.id))
         self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
 
-    def teststate_org_delete_parent_not_allowed(self):
+    def test_stateorg_delete_parent_not_allowed(self):
         """Test state organization delete parent not allowed"""
         payload = {
             'is_active': True,

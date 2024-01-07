@@ -8,7 +8,7 @@ from django.urls import (
 
 from rest_framework.routers import DefaultRouter
 
-from state_org import views
+from stateorg import views
 
 router = DefaultRouter()
 router.register('entities', views.StateOrgViewSet)

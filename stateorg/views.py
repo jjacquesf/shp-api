@@ -16,7 +16,7 @@ from rest_framework.permissions import IsAuthenticated
 
 from core import models
 
-from state_org.serializers import (
+from stateorg.serializers import (
     StateOrgSerializer
 )
 
