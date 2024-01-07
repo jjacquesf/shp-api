@@ -88,7 +88,7 @@ class Supplier(models.Model):
 class Department(models.Model):
     is_active = models.BooleanField(default=True)
     name = models.CharField(max_length=128,unique=True)
-    level = models.IntegerField()
+    level = models.IntegerField(default=0)
     parent = models.ForeignKey(
         'self',
         on_delete=models.CASCADE,
@@ -96,5 +96,6 @@ class Department(models.Model):
         null=True
     )
     class Meta:
-        verbose_name = _('Department')
+        verbose_name = _('SHP Department')
+        verbose_name_plural = _('SHP Departments')
 

@@ -6,7 +6,7 @@ class DepartmentSerializer(serializers.ModelSerializer):
     
     class Meta:
         model= models.Department
-        fields = ['id', 'is_active', 'name', 'parent', 'level']
+        fields = ['id', 'is_active', 'level', 'name','parent']
         read_only_fields = ['id', 'level']
 
     def __str__(self):

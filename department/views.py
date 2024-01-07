@@ -88,7 +88,20 @@ class DepartmentViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(is_active=True)
 
         return queryset.order_by('name')
+    
+    def _update_level(self, serializer):
+        # Save level depending on the parent
+        level = 0
+        parent = serializer.validated_data.get('parent', None)
+        if parent != None:
+            level = parent.level + 1
 
-    # def perform_create(self, serializer):
-    #     """Create a new department"""
-    #     # Validate something
+        return serializer.save(level=level)
+
+    def perform_create(self, serializer):
+        """Create a new supplier"""
+        return self._update_level(serializer)
+
+    def perform_update(self, serializer):
+        """Update a supplier"""
+        return self._update_level(serializer)

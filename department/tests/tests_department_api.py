@@ -48,14 +48,14 @@ class PublicDepartmentTests(TestCase):
 
     def test_department_detail_unauthorized(self):
         """Test department detail unauthorized"""
-        data = {'name': 'name1'}
+        data = {'name': 'name1', 'level': 0}
         model = create_department(**data)
 
         res = self.client.get(detail_url(model.id))
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_create_department_unauthorized(self):
-        """Test creating a recipe unauthorized"""
+        """Test creating a department unauthorized"""
         payload = {
             'is_active': True,
             'name': 'name3'
@@ -65,7 +65,7 @@ class PublicDepartmentTests(TestCase):
 
     def test_department_update_unauthorized(self):
         """Test department update unauthorized"""
-        data = {'name': 'name1'}
+        data = {'name': 'name1', 'level': 0}
         model = create_department(**data)
         data.update({'is_active': False, 'name': 'name2'})
         res = self.client.put(detail_url(model.id), data)
@@ -73,7 +73,7 @@ class PublicDepartmentTests(TestCase):
 
     def test_department_partial_update_unauthorized(self):
         """Test department partial update unauthorized"""
-        data = {'name': 'name1'}
+        data = {'name': 'name1', 'level': 0}
         model = create_department(**data)
         data.update({'is_active': False})
         res = self.client.put(detail_url(model.id), data)
@@ -103,14 +103,14 @@ class ForbiddenDepartmentTests(TestCase):
 
     def test_department_detail_forbidden(self):
         """Test department detail forbidden"""
-        data = {'name': 'name1'}
+        data = {'name': 'name1', 'level': 0}
         model = create_department(**data)
 
         res = self.client.get(detail_url(model.id))
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_create_department_forbidden(self):
-        """Test creating a recipe forbidden"""
+        """Test creating a department forbidden"""
         payload = {
             'is_active': True,
             'name': 'name3'
@@ -120,7 +120,7 @@ class ForbiddenDepartmentTests(TestCase):
 
     def test_department_update_forbidden(self):
         """Test department update forbidden"""
-        data = {'name': 'name1'}
+        data = {'name': 'name1', 'level': 0}
         model = create_department(**data)
         data.update({'is_active': False, 'name': 'name2'})
         res = self.client.put(detail_url(model.id), data)
@@ -128,7 +128,7 @@ class ForbiddenDepartmentTests(TestCase):
 
     def test_department_partial_update_forbidden(self):
         """Test department partial update forbidden"""
-        data = {'name': 'name1'}
+        data = {'name': 'name1', 'level': 0}
         model = create_department(**data)
         data.update({'is_active': False})
         res = self.client.put(detail_url(model.id), data)
@@ -136,7 +136,7 @@ class ForbiddenDepartmentTests(TestCase):
 
     def test_department_delete_success(self):
         """Test department delete success"""
-        data = {'name': 'name1'}
+        data = {'name': 'name1', 'level': 0}
         model = create_department(**data)
 
         res = self.client.delete(detail_url(model.id))
@@ -188,7 +188,7 @@ class DepartmentTests(TestCase):
 
     def test_list_active_departments_success(self):
         """Test list departments success"""
-        data = {'name': 'name1'}
+        data = {'name': 'name1', 'level': 0}
         create_department(**data)
         data.update({'is_active': False, 'name': 'name2'})
         create_department(**data)
@@ -210,7 +210,7 @@ class DepartmentTests(TestCase):
 
     def test_list_all_departments_success(self):
         """Test list filtered departments success"""
-        data = {'name': 'name1'}
+        data = {'name': 'name1', 'level': 0}
         create_department(**data)
         data.update({'is_active': False, 'name': 'name2'})
         create_department(**data)
@@ -223,10 +223,9 @@ class DepartmentTests(TestCase):
         serializer = DepartmentSerializer(rows, many=True)
         self.assertEqual(res.data, serializer.data)
 
-
     def test_department_detail_success(self):
         """Test department detail success"""
-        data = {'name': 'name1'}
+        data = {'name': 'name1', 'level': 0}
         model = create_department(**data)
 
         res = self.client.get(detail_url(model.id))
@@ -237,7 +236,7 @@ class DepartmentTests(TestCase):
         self.assertEqual(res.data, serializer.data)
 
     def test_create_department_success(self):
-        """Test creating a recipe success"""
+        """Test creating a department success"""
         payload = {
             'is_active': True,
             'name': 'name3'
@@ -248,6 +247,18 @@ class DepartmentTests(TestCase):
         department = models.Department.objects.get(id=res.data['id'])
         for k,v in payload.items():
             self.assertEqual(getattr(department, k), v)
+
+        payload.update({'name': 'name4', 'parent': res.data['id']})
+        res2 = self.client.post(MAIN_URL, payload)
+        self.assertEqual(res2.status_code, status.HTTP_201_CREATED)
+
+        department = models.Department.objects.get(id=res2.data['id'])
+        self.assertEqual(department.level, 1)
+        for k,v in payload.items():
+            if k == 'parent':
+                self.assertEqual(getattr(department, k).id, v)
+            else:
+                self.assertEqual(getattr(department, k), v)
 
     def test_fail_creation_on_duplicated_name(self):
         """Test fail creation on duplicated name"""
@@ -263,7 +274,7 @@ class DepartmentTests(TestCase):
 
     def test_department_update_success(self):
         """Test department update success"""
-        data = {'name': 'name1'}
+        data = {'name': 'name1', 'level': 0}
         model = create_department(**data)
         data.update({'is_active': False, 'name': 'name2'})
         res = self.client.put(detail_url(model.id), data)
@@ -275,19 +286,32 @@ class DepartmentTests(TestCase):
 
     def test_department_partial_update_success(self):
         """Test department partial update success"""
-        data = {'name': 'name1'}
+        data = {'name': 'name10', 'level': 0}
         model = create_department(**data)
-        data.update({'is_active': False})
-        res = self.client.put(detail_url(model.id), data)
+        data = {'name': 'name10'}
+        res = self.client.patch(detail_url(model.id), data)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
         rows = models.Department.objects.get(id=model.id)
         serializer = DepartmentSerializer(rows)
         self.assertEqual(res.data['is_active'], serializer.data['is_active'])
 
+    def test_department_update_level_not_allowed_success(self):
+        """Test department partial update level not allowed"""
+        org_level = 0
+        data = {'name': 'name10', 'level': org_level}
+        model = create_department(**data)
+        data = {'level': 1}
+        res = self.client.patch(detail_url(model.id), data)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        rows = models.Department.objects.get(id=model.id)
+        serializer = DepartmentSerializer(rows)
+        self.assertEqual(serializer.data['level'], org_level)
+
     def test_department_delete_success(self):
         """Test department delete success"""
-        data = {'name': 'name1'}
+        data = {'name': 'name1', 'level': 0}
         model = create_department(**data)
 
         res = self.client.delete(detail_url(model.id))
