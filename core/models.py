@@ -138,3 +138,14 @@ class SifUser(models.Model):
     class Meta:
         verbose_name = _('SIF user')
         verbose_name_plural = _('SIF users')
+
+class SianUser(models.Model):
+    is_active = models.BooleanField(default=True)
+    name = models.CharField(max_length=128,unique=True)
+    stateorg = models.ForeignKey(
+        StateOrg,
+        on_delete=models.CASCADE
+    )
+    class Meta:
+        verbose_name = _('SIAN user')
+        verbose_name_plural = _('SIAN users')

@@ -40,4 +40,5 @@ urlpatterns = [
     path('api/entity/', include('entity.urls')),
     path('api/state-org/', include('stateorg.urls')),
     path('api/sif-user/', include('sifuser.urls')),
+    path('api/sian-user/', include('sianuser.urls')),
 ]

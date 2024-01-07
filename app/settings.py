@@ -53,7 +53,8 @@ INSTALLED_APPS = [
     'department',
     'entity',
     'stateorg',
-    'sifuser'
+    'sifuser',
+    'sianuser'
 ]
 
 MIDDLEWARE = [
