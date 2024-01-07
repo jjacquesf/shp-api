@@ -47,7 +47,7 @@ class StateOrgPermission(permissions.BasePermission):
 @extend_schema(tags=[_('Catalogs')])
 @extend_schema_view(
     list=extend_schema(
-        description=_('[Protected | ViewStateOrg] List entities'),
+        description=_('[Protected | ViewStateOrg] List state organizations'),
         parameters=[
             OpenApiParameter(
                 'active_only',
@@ -81,7 +81,7 @@ class StateOrgViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated, StateOrgPermission]
 
     def get_queryset(self):
-        """Retrieve entities sorted by name"""
+        """Retrieve state organizations sorted by name"""
         active_only = self.request.query_params.get('active_only')
 
         # Filter objects by active status
