@@ -309,6 +309,20 @@ class DepartmentTests(TestCase):
         serializer = DepartmentSerializer(rows)
         self.assertEqual(serializer.data['level'], org_level)
 
+    def test_department_update_level_not_allowed_success(self):
+        """Test department partial update level not allowed"""
+        org_level = 0
+        data = {'name': 'name10', 'level': org_level}
+        model = create_department(**data)
+        data = {'level': 1}
+        res = self.client.patch(detail_url(model.id), data)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        rows = models.Department.objects.get(id=model.id)
+        serializer = DepartmentSerializer(rows)
+        self.assertEqual(serializer.data['level'], org_level)
+
+
     def test_department_delete_success(self):
         """Test department delete success"""
         data = {'name': 'name1', 'level': 0}
@@ -316,3 +330,19 @@ class DepartmentTests(TestCase):
 
         res = self.client.delete(detail_url(model.id))
         self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
+
+    def test_department_delete_parent_not_allowed(self):
+        """Test department delete parent not allowed"""
+        payload = {
+            'is_active': True,
+            'name': 'name3'
+        }
+        parent_res = self.client.post(MAIN_URL, payload)
+        self.assertEqual(parent_res.status_code, status.HTTP_201_CREATED)
+
+        payload.update({'name': 'name4', 'parent': parent_res.data['id']})
+        child_res = self.client.post(MAIN_URL, payload)
+        self.assertEqual(child_res.status_code, status.HTTP_201_CREATED)
+
+        res = self.client.delete(detail_url(parent_res.data['id']))
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)

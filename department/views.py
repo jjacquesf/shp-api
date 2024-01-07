@@ -9,8 +9,10 @@ from django.utils.translation import gettext as _
 
 from rest_framework import viewsets
 from rest_framework import permissions
+from rest_framework import serializers
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
+
 
 from core import models
 
@@ -105,3 +107,11 @@ class DepartmentViewSet(viewsets.ModelViewSet):
     def perform_update(self, serializer):
         """Update a supplier"""
         return self._update_level(serializer)
+    
+    def perform_destroy(self, instance):
+        """Destroy a supplier"""
+        children = models.Department.objects.filter(parent=instance)
+        if(len(children)):
+            raise serializers.ValidationError(_('Unable to delete parent records. Disable it instead.'))
+        
+        instance.delete()
