@@ -141,8 +141,6 @@ class ForbiddenSupplierTests(TestCase):
 
         res = self.client.delete(detail_url(model.id))
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
-
-
 class SupplierTests(TestCase):
     """Test unauthenticated API requests."""
 
@@ -223,6 +221,20 @@ class SupplierTests(TestCase):
         serializer = SupplierSerializer(rows, many=True)
         self.assertEqual(res.data, serializer.data)
 
+    def test_list_filter_suppliers_success(self):
+        """Test list filtered suppliers success"""
+        data = {'name': 'name1', 'tax_id': 'JAFJ8611086D4', 'tax_name': 'name sa de cv'}
+        create_supplier(**data)
+        data.update({'is_active': True, 'name': 'name2', 'tax_id': 'JAFJ8611086D5', 'tax_name': 'name sa'})
+        create_supplier(**data)
+        
+        params = {'tax_id': 'JAFJ8611086D5'}
+        res = self.client.get(MAIN_URL, params)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        rows = models.Supplier.objects.filter(tax_id__icontains='JAFJ8611086D5').order_by('name')
+        serializer = SupplierSerializer(rows, many=True)
+        self.assertEqual(res.data, serializer.data)
 
     def test_supplier_detail_success(self):
         """Test supplier detail success"""

@@ -87,6 +87,14 @@ class SupplierViewSet(viewsets.ModelViewSet):
         if active_only == None or active_only.strip().lower() == 'true':
             queryset = queryset.filter(is_active=True)
 
+        tax_id = self.request.query_params.get('tax_id')
+        if tax_id != None:
+            queryset = queryset.filter(tax_id__icontains=tax_id)
+
+        tax_name = self.request.query_params.get('tax_name')
+        if tax_name != None:
+            queryset = queryset.filter(tax_name__icontains=tax_name)
+            
         return queryset.order_by('name')
 
     # def perform_create(self, serializer):
