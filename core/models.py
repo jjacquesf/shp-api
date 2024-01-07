@@ -99,3 +99,18 @@ class Department(models.Model):
         verbose_name = _('SHP Department')
         verbose_name_plural = _('SHP Departments')
 
+class Entity(models.Model):
+    is_active = models.BooleanField(default=True)
+    name = models.CharField(max_length=128,unique=True)
+    level = models.IntegerField(default=0)
+    parent = models.ForeignKey(
+        'self',
+        on_delete=models.CASCADE,
+        blank=True, 
+        null=True
+    )
+    class Meta:
+        verbose_name = _('Entity')
+        verbose_name_plural = _('Entities')
+
+

@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'dpe',
     'supplier',
     'department',
+    'entity',
 ]
 
 MIDDLEWARE = [
