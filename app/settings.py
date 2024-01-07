@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'supplier',
     'department',
     'entity',
+    'state_org'
 ]
 
 MIDDLEWARE = [
