@@ -52,26 +52,26 @@ class ModelTests(TestCase):
       def test_create_municipality(self):
             """Test creating a municipality"""
             name = "Zapopan"
-            municipality = models.Municipality.objects.create(
+            model = models.Municipality.objects.create(
                   name=name
             )
-            self.assertEqual(municipality.name, name)
+            self.assertEqual(model.name, name)
 
       def test_create_entity(self):
             """Test creating a entity"""
             name = "Entity name"
-            entity = models.Entity.objects.create(
+            model = models.Entity.objects.create(
                   name=name
             )
-            self.assertEqual(entity.name, name)
+            self.assertEqual(model.name, name)
 
 
       def test_create_institution(self):
             name = "Institution name"
-            institution = models.Institution.objects.create(
+            model = models.Institution.objects.create(
                   name=name
             )
-            self.assertEqual(institution.name, name)
+            self.assertEqual(model.name, name)
 
       def test_create_stateorg(self):
             """Test creating a stateorg"""
@@ -85,27 +85,59 @@ class ModelTests(TestCase):
             """Test creating a sifuser"""
             stateorg = models.StateOrg.objects.create(name="state org")
             name = "SIF user name"
-            sifuser = models.SifUser.objects.create(
+            model = models.SifUser.objects.create(
                   name=name,
                   stateorg=stateorg
             )
-            self.assertEqual(sifuser.name, name)
+            self.assertEqual(model.name, name)
 
       def test_create_sianuser(self):
             """Test creating a sianuser"""
             stateorg = models.StateOrg.objects.create(name="state org")
             name = "SIAN user name"
-            sianuser = models.SianUser.objects.create(
+            model = models.SianUser.objects.create(
                   name=name,
                   stateorg=stateorg
             )
-            self.assertEqual(sianuser.name, name)
+            self.assertEqual(model.name, name)
 
 
       def test_create_supplier(self):
             """Test creating a supplier"""
             name = "Supplier name"
-            supplier = models.Supplier.objects.create(
+            model = models.Supplier.objects.create(
                   name=name
             )
-            self.assertEqual(supplier.name, name)
+            self.assertEqual(model.name, name)
+
+      def test_create_evidence_stage(self):
+            """Test creating a stage"""
+            name = "Evidence Stage name"
+            model = models.EvidenceStage.objects.create(
+                  name=name,
+                  description="stage description"
+            )
+            self.assertEqual(model.name, name)
+
+      def test_create_evidence_status(self):
+            """Test creating a status"""
+            stage = models.EvidenceStage.objects.create(name="Stage")
+            name = "Evidence status name"
+            model = models.EvidenceStatus.objects.create(
+                  name=name,
+                  description="Status description",
+                  color="#ff00aa",
+                  stage=stage,
+                  position=1,
+            )
+            self.assertEqual(model.name, name)
+
+      def test_create_evidence_type(self):
+            """Test creating a evidence type"""
+            name = "Evidence type name"
+            model = models.EvidenceType.objects.create(
+                  name=name,
+                  alias="type",
+                  description="Status description"
+            )
+            self.assertEqual(model.name, name)
