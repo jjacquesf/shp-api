@@ -50,7 +50,10 @@ class Profile(models.Model):
     job_position = models.CharField(max_length=255)
 
 class CustomGroup(Group):
-    description = models.TextField(blank=True)
+    description = models.TextField(
+        blank=True, 
+        null=True
+    )
 
     class Meta:
         verbose_name = _('Group')
@@ -149,3 +152,51 @@ class SianUser(models.Model):
     class Meta:
         verbose_name = _('SIAN user')
         verbose_name_plural = _('SIAN users')
+
+class EvidenceType(models.Model):
+    is_active = models.BooleanField(default=True)
+    name = models.CharField(max_length=128,unique=True)
+    alias = models.SlugField(max_length=128,unique=True)
+    description = models.TextField(
+        blank=True, 
+        null=True
+    )
+    
+    class Meta:
+        verbose_name = _('Evidence type')
+        verbose_name_plural = _('Evidence types')
+
+class EvidenceStage(models.Model):
+    is_active = models.BooleanField(default=True)
+    name = models.CharField(max_length=128,unique=True)
+    position = models.IntegerField(default=1)
+    description = models.TextField(
+        blank=True, 
+        null=True
+    )
+    
+    class Meta:
+        verbose_name = _('Evidence stage')
+        verbose_name_plural = _('Evidence stages')
+
+class EvidenceStatus(models.Model):
+    is_active = models.BooleanField(default=True)
+    name = models.CharField(max_length=128,unique=True)
+    position = models.IntegerField(default=1)
+    color = models.TextField()
+    description = models.TextField(
+        blank=True, 
+        null=True
+    )
+    stage = models.ForeignKey(
+        EvidenceStage,
+        on_delete=models.CASCADE
+    )
+    type = models.ForeignKey(
+        EvidenceType,
+        on_delete=models.CASCADE
+    )
+    
+    class Meta:
+        verbose_name = _('Evidence satatus')
+        verbose_name_plural = _('Evidence satatuses')

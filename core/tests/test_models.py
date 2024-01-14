@@ -110,34 +110,41 @@ class ModelTests(TestCase):
             )
             self.assertEqual(model.name, name)
 
-      def test_create_evidence_stage(self):
-            """Test creating a stage"""
-            name = "Evidence Stage name"
-            model = models.EvidenceStage.objects.create(
-                  name=name,
-                  description="stage description"
-            )
-            self.assertEqual(model.name, name)
-
-      def test_create_evidence_status(self):
-            """Test creating a status"""
-            stage = models.EvidenceStage.objects.create(name="Stage")
-            name = "Evidence status name"
-            model = models.EvidenceStatus.objects.create(
-                  name=name,
-                  description="Status description",
-                  color="#ff00aa",
-                  stage=stage,
-                  position=1,
-            )
-            self.assertEqual(model.name, name)
-
       def test_create_evidence_type(self):
             """Test creating a evidence type"""
             name = "Evidence type name"
             model = models.EvidenceType.objects.create(
                   name=name,
                   alias="type",
-                  description="Status description"
+                  description="Evidence type description"
+            )
+            self.assertEqual(model.name, name)
+
+      def test_create_evidence_stage(self):
+            """Test creating a stage"""
+            name = "Evidence Stage name"
+            model = models.EvidenceStage.objects.create(
+                  name=name,
+                  position=1,
+                  description="stage description"
+            )
+            self.assertEqual(model.name, name)
+
+      def test_create_evidence_status(self):
+            """Test creating a status"""
+            type = models.EvidenceType.objects.create(
+                  name="Test Type",
+                  alias="type",
+                  description="Type description"
+            )
+            stage = models.EvidenceStage.objects.create(name="Stage")
+            name = "Evidence status name"
+            model = models.EvidenceStatus.objects.create(
+                  name=name,
+                  position=1,
+                  description="Status description",
+                  color="#ff00aa",
+                  stage=stage,
+                  type=type,
             )
             self.assertEqual(model.name, name)

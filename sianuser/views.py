@@ -98,7 +98,7 @@ class SianUserViewSet(viewsets.ModelViewSet):
 
         # Filter objects by active status
         queryset = self.queryset
-        if active_only == None or active_only.strip().lower() == 'true':
+        if self.request.method == 'GET' and (active_only == None or active_only.strip().lower() == 'true'):
             queryset = queryset.filter(is_active=True)
 
         name = self.request.query_params.get('name')
