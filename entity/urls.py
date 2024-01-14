@@ -11,7 +11,7 @@ from rest_framework.routers import DefaultRouter
 from entity import views
 
 router = DefaultRouter()
-router.register('entities', views.EntityViewSet)
+router.register('', views.EntityViewSet)
 
 app_name = 'entity'
 

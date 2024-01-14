@@ -11,7 +11,7 @@ from rest_framework.routers import DefaultRouter
 from institution import views
 
 router = DefaultRouter()
-router.register('institutions', views.InstitutionViewSet)
+router.register('', views.InstitutionViewSet)
 
 app_name = 'institution'
 

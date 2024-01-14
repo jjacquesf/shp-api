@@ -11,7 +11,7 @@ from rest_framework.routers import DefaultRouter
 from evidence_status import views
 
 router = DefaultRouter()
-router.register('evidence_statuses', views.EvidenceStatusViewSet)
+router.register('', views.EvidenceStatusViewSet)
 
 app_name = 'evidencestatus'
 

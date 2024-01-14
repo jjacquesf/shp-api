@@ -11,7 +11,7 @@ from rest_framework.routers import DefaultRouter
 from sianuser import views
 
 router = DefaultRouter()
-router.register('sianusers', views.SianUserViewSet)
+router.register('', views.SianUserViewSet)
 
 app_name = 'sianuser'
 

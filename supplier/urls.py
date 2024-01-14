@@ -11,7 +11,7 @@ from rest_framework.routers import DefaultRouter
 from supplier import views
 
 router = DefaultRouter()
-router.register('suppliers', views.SupplierViewSet)
+router.register('', views.SupplierViewSet)
 
 app_name = 'supplier'
 

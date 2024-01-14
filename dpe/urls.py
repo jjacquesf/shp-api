@@ -11,7 +11,7 @@ from rest_framework.routers import DefaultRouter
 from dpe import views
 
 router = DefaultRouter()
-router.register('dpes', views.DpeViewSet)
+router.register('', views.DpeViewSet)
 
 app_name = 'dpe'
 

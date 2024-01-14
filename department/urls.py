@@ -11,7 +11,7 @@ from rest_framework.routers import DefaultRouter
 from department import views
 
 router = DefaultRouter()
-router.register('departments', views.DepartmentViewSet)
+router.register('', views.DepartmentViewSet)
 
 app_name = 'department'
 

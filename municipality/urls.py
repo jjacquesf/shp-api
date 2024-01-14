@@ -11,7 +11,7 @@ from rest_framework.routers import DefaultRouter
 from municipality import views
 
 router = DefaultRouter()
-router.register('municipalities', views.MunicipalityViewSet)
+router.register('', views.MunicipalityViewSet)
 
 app_name = 'municipality'
 

@@ -11,7 +11,7 @@ from rest_framework.routers import DefaultRouter
 from sifuser import views
 
 router = DefaultRouter()
-router.register('sifusers', views.SifUserViewSet)
+router.register('', views.SifUserViewSet)
 
 app_name = 'sifuser'
 

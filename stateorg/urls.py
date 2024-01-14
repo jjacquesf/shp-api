@@ -11,7 +11,7 @@ from rest_framework.routers import DefaultRouter
 from stateorg import views
 
 router = DefaultRouter()
-router.register('stateorgs', views.StateOrgViewSet)
+router.register('', views.StateOrgViewSet)
 
 app_name = 'stateorg'
 
