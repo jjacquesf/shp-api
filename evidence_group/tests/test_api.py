@@ -1,5 +1,5 @@
 """
-Tests for evidence APIs
+Tests for evidence group APIs
 """
 from django.test import TestCase
 from django.urls import reverse
@@ -12,11 +12,11 @@ from django.contrib.auth.models import Permission
 
 from core import models 
 
-from evidence_type.serializers import (
-    EvidenceTypeSerializer,
+from evidence_group.serializers import (
+    EvidenceGroupSerializer,
 )
 
-MAIN_URL = reverse('evidence_type:list')
+MAIN_URL = reverse('evidence_group:list')
 
 
 def create_user(**params):
@@ -25,23 +25,23 @@ def create_user(**params):
 
     return user
 
-def create_evidence_type(**params):
-    """Create and return a new evidence type"""
-    evidence_type = models.EvidenceType.objects.create(**params)
-    return evidence_type
+def create_evidence_group(**params):
+    """Create and return a new evidence group"""
+    evidence_group = models.EvidenceGroup.objects.create(**params)
+    return evidence_group
 
-class PublicEvidenceTypeTests(TestCase):
+class PublicEvidenceGroupTests(TestCase):
     """Test unauthenticated API requests."""
 
     def setUp(self):
         self.client = APIClient()
 
-    def test_list_evidence_typess_unauthorized(self):
+    def test_list_evidence_groupss_unauthorized(self):
         """Test list evidences unauthorized"""
         res = self.client.get(MAIN_URL)
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
-class EvidenceTypeTests(TestCase):
+class EvidenceGroupTests(TestCase):
     """Test unauthenticated API requests."""
 
     def setUp(self):
@@ -58,14 +58,14 @@ class EvidenceTypeTests(TestCase):
 
         self.client.force_authenticate(user=self.user)
 
-    def test_list_active_evidence_types_success(self):
-        """Test list evidence types success"""
+    def test_list_active_evidence_groups_success(self):
+        """Test list evidence groups success"""
         data = {'name': 'name1', 'alias': 'name1'}
-        create_evidence_type(**data)
+        create_evidence_group(**data)
         data.update({'name': 'name2', 'alias': 'name2'})
-        create_evidence_type(**data)
+        create_evidence_group(**data)
         data.update({'is_active': False, 'name': 'name3', 'alias': 'name3'})
-        create_evidence_type(**data)
+        create_evidence_group(**data)
 
         res = self.client.get(MAIN_URL)
         
@@ -73,7 +73,7 @@ class EvidenceTypeTests(TestCase):
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         
-        rows = models.EvidenceType.objects.filter(is_active=True).order_by('name')
-        serializer = EvidenceTypeSerializer(rows, many=True)
+        rows = models.EvidenceGroup.objects.filter(is_active=True).order_by('name')
+        serializer = EvidenceGroupSerializer(rows, many=True)
         
         self.assertEqual(res.data, serializer.data)

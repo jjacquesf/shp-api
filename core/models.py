@@ -206,6 +206,7 @@ class EvidenceType(models.Model):
     name = models.CharField(max_length=128,unique=True)
     alias = models.SlugField(max_length=128,unique=True)
     level = models.IntegerField(default=0)
+    attachment_required = models.BooleanField(default=True)
     parent = models.ForeignKey(
         'self',
         on_delete=models.CASCADE,

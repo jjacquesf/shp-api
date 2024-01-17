@@ -41,7 +41,7 @@ urlpatterns = [
     path('api/state-org/', include('stateorg.urls')),
     path('api/sif-user/', include('sifuser.urls')),
     path('api/sian-user/', include('sianuser.urls')),
-    path('api/evidence-type/', include('evidence_type.urls')),
+    path('api/evidence-group/', include('evidence_group.urls')),
     path('api/evidence-stage/', include('evidence_stage.urls')),
     path('api/evidence-status/', include('evidence_status.urls')),
 ]

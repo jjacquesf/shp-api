@@ -147,18 +147,6 @@ class ModelTests(TestCase):
             )
             self.assertEqual(model.name, name)
 
-
-      def test_create_evidence_group(self):
-            """Test creating a evidence group"""
-            name = "Evidence group name"
-            model = models.EvidenceGroup.objects.create(
-                  name=name,
-                  alias="group",
-                  description="Evidence group description"
-            )
-            self.assertEqual(model.name, name)
-
-
       def test_create_evidence_status(self):
             """Test creating a status"""
             group = models.EvidenceGroup.objects.create(
@@ -178,7 +166,7 @@ class ModelTests(TestCase):
             )
             self.assertEqual(model.name, name)
 
-      def test_create_evidence_type(self):
+      def test_create_evidence_group(self):
             """Test creating a evidence type"""
             group = models.EvidenceGroup.objects.create(
                   name="Test Group",

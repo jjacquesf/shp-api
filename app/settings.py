@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     'evidence_type',
     'evidence_stage',
     'evidence_status',
+    'evidence_group',
 ]
 
 MIDDLEWARE = [
