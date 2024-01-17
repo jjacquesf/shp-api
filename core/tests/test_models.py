@@ -130,6 +130,34 @@ class ModelTests(TestCase):
             )
             self.assertEqual(model.name, name)
 
+
+      def test_create_evidence_status(self):
+            """Test creating an evidence status"""
+
+            stage = models.EvidenceStage.objects.create(
+                  name="Evidence Stage name",
+                  position=1,
+                  description="stage description"
+            )
+
+            type = models.EvidenceType.objects.create(
+                  name="Evidence type name",
+                  alias="type",
+                  description="Evidence type description"
+            )
+
+            name = "Evidence status name"
+            model = models.EvidenceStage.objects.create(
+                  name=name,
+                  color='#ffffff',
+                  position=1,
+                  description="evidence status description",
+                  stage=stage,
+                  group=group,
+            )
+            self.assertEqual(model.name, name)
+
+
       def test_create_evidence_status(self):
             """Test creating a status"""
             type = models.EvidenceType.objects.create(
@@ -148,3 +176,23 @@ class ModelTests(TestCase):
                   type=type,
             )
             self.assertEqual(model.name, name)
+
+
+      # def test_create_evidence_document_type(self):
+      #       """Test creating a status"""
+      #       type = models.EvidenceType.objects.create(
+      #             name="Test Type",
+      #             alias="type",
+      #             description="Type description"
+      #       )
+      #       stage = models.EvidenceStage.objects.create(name="Stage")
+      #       name = "Evidence status name"
+      #       model = models.EvidenceStatus.objects.create(
+      #             name=name,
+      #             position=1,
+      #             description="Status description",
+      #             color="#ff00aa",
+      #             stage=stage,
+      #             type=type,
+      #       )
+      #       self.assertEqual(model.name, name)
