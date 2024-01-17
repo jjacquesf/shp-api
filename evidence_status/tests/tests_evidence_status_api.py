@@ -36,10 +36,10 @@ def create_evidence_stage(**params):
     evidence_stage = models.EvidenceStage.objects.create(**params)
     return evidence_stage
 
-def create_evidence_type(**params):
-    """Create and return a new evidence type"""
-    evidence_type = models.EvidenceType.objects.create(**params)
-    return evidence_type
+def create_evidence_group(**params):
+    """Create and return a new evidence group"""
+    evidence_group = models.EvidenceGroup.objects.create(**params)
+    return evidence_group
 
 def create_evidence_status(**params):
     """Create and return a new evidence status"""
@@ -57,10 +57,10 @@ class PublicEvidenceStatusTests(TestCase):
         self.stage = stage
 
         data = {'name': 'name1', 'alias': 'name1'}
-        type = create_evidence_type(**data)
-        self.type = type
+        egroup = create_evidence_group(**data)
+        self.egroup = egroup
 
-    def test_list_entities_unauthorized(self):
+    def test_list_evidence_status_unauthorized(self):
         """Test list evidence statuses unauthorized"""
         res = self.client.get(MAIN_URL)
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
@@ -71,7 +71,7 @@ class PublicEvidenceStatusTests(TestCase):
             'name': 'name1', 
             'position': 1, 
             'color': '#ffffff', 
-            'type': self.type, 
+            'group': self.egroup, 
             'stage': self.stage
         }
         model = create_evidence_status(**data)
@@ -97,7 +97,7 @@ class PublicEvidenceStatusTests(TestCase):
             'name': 'name1', 
             'position': 1, 
             'color': '#ffffff', 
-            'type': self.type, 
+            'group': self.egroup, 
             'stage': self.stage
         }
         model = create_evidence_status(**data)
@@ -111,7 +111,7 @@ class PublicEvidenceStatusTests(TestCase):
             'name': 'name1', 
             'position': 1, 
             'color': '#ffffff', 
-            'type': self.type, 
+            'group': self.egroup, 
             'stage': self.stage
         }
         model = create_evidence_status(**data)
@@ -139,14 +139,14 @@ class ForbiddenEvidenceStatusTests(TestCase):
         self.stage = stage
 
         data = {'name': 'name1', 'alias': 'name1'}
-        type = create_evidence_type(**data)
-        self.type = type
+        egroup = create_evidence_group(**data)
+        self.egroup = egroup
 
         # data = {
         #     'name': 'name1', 
         #     'position': 1, 
         #     'color': '#ffffff', 
-        #     'type': self.type, 
+        #     'group': self.egroup, 
         #     'stage': self.stage
         # }
         # status = create_evidence_status(**data)
@@ -160,7 +160,7 @@ class ForbiddenEvidenceStatusTests(TestCase):
             'name': 'name1', 
             'position': 1, 
             'color': '#ffffff', 
-            'type': self.type.id, 
+            'group': self.egroup.id, 
             'stage': self.stage.id
         }
         res = self.client.post(MAIN_URL, payload)
@@ -172,7 +172,7 @@ class ForbiddenEvidenceStatusTests(TestCase):
             'name': 'name1', 
             'position': 1, 
             'color': '#ffffff', 
-            'type': self.type, 
+            'group': self.egroup, 
             'stage': self.stage
         }
         model = create_evidence_status(**data)
@@ -186,7 +186,7 @@ class ForbiddenEvidenceStatusTests(TestCase):
             'name': 'name1', 
             'position': 1, 
             'color': '#ffffff', 
-            'type': self.type, 
+            'group': self.egroup, 
             'stage': self.stage
         }
         model = create_evidence_status(**data)
@@ -200,7 +200,7 @@ class ForbiddenEvidenceStatusTests(TestCase):
             'name': 'name1', 
             'position': 1, 
             'color': '#ffffff', 
-            'type': self.type, 
+            'group': self.egroup, 
             'stage': self.stage
         }
         model = create_evidence_status(**data)
@@ -254,19 +254,19 @@ class EvidenceStatusTests(TestCase):
         self.stage = stage
 
         data = {'name': 'name1', 'alias': 'name1'}
-        type = create_evidence_type(**data)
-        self.type = type
+        egroup = create_evidence_group(**data)
+        self.egroup = egroup
 
         self.client = APIClient()
         self.client.force_authenticate(user=user)
 
-    def test_list_active_entities_success(self):
+    def test_list_active_evidence_status_success(self):
         """Test list evidence statuses success"""
         data = {
             'name': 'name1', 
             'position': 1, 
             'color': '#ffffff', 
-            'type': self.type, 
+            'group': self.egroup, 
             'stage': self.stage
         }
         create_evidence_status(**data)
@@ -288,13 +288,13 @@ class EvidenceStatusTests(TestCase):
         self.assertEqual(res.data, serializer.data)
         self.assertEqual(res2.data, serializer.data)
 
-    def test_list_all_entities_success(self):
+    def test_list_all_evidence_status_success(self):
         """Test list filtered evidence statuses success"""
         data = {
             'name': 'name1', 
             'position': 1, 
             'color': '#ffffff', 
-            'type': self.type, 
+            'group': self.egroup, 
             'stage': self.stage
         }
         create_evidence_status(**data)
@@ -315,7 +315,7 @@ class EvidenceStatusTests(TestCase):
             'name': 'name1', 
             'position': 1, 
             'color': '#ffffff', 
-            'type': self.type, 
+            'group': self.egroup, 
             'stage': self.stage
         }
         model = create_evidence_status(**data)
@@ -333,7 +333,7 @@ class EvidenceStatusTests(TestCase):
             'name': 'name1', 
             'position': 1, 
             'color': '#ffffff', 
-            'type': self.type.id, 
+            'group': self.egroup.id, 
             'stage': self.stage.id,
         }
 
@@ -342,7 +342,7 @@ class EvidenceStatusTests(TestCase):
 
         entity = models.EvidenceStatus.objects.get(id=res.data['id'])
         for k,v in payload.items():
-            if k == 'type':
+            if k == 'group':
                 self.assertEqual(getattr(entity, k).id, v)
             elif k == 'stage':
                 self.assertEqual(getattr(entity, k).id, v)
@@ -355,7 +355,7 @@ class EvidenceStatusTests(TestCase):
 
         entity = models.EvidenceStatus.objects.get(id=res2.data['id'])
         for k,v in payload.items():
-            if k == 'type':
+            if k == 'group':
                 self.assertEqual(getattr(entity, k).id, v)
             elif k == 'stage':
                 self.assertEqual(getattr(entity, k).id, v)
@@ -368,7 +368,7 @@ class EvidenceStatusTests(TestCase):
             'name': 'name1', 
             'position': 1, 
             'color': '#ffffff', 
-            'type': self.type.id, 
+            'group': self.egroup.id, 
             'stage': self.stage.id,
         }
         res = self.client.post(MAIN_URL, payload)
@@ -383,7 +383,7 @@ class EvidenceStatusTests(TestCase):
             'name': 'name1', 
             'position': 1, 
             'color': '#ffffff', 
-            'type': self.type, 
+            'group': self.egroup, 
             'stage': self.stage,
         }
         model = create_evidence_status(**data)
@@ -392,7 +392,7 @@ class EvidenceStatusTests(TestCase):
             'name': 'name2',
             'position': 1, 
             'color': '#ffffff', 
-            'type': self.type.id, 
+            'group': self.egroup.id, 
             'stage': self.stage.id,
         })
         res = self.client.put(detail_url(model.id), data)
@@ -409,7 +409,7 @@ class EvidenceStatusTests(TestCase):
             'name': 'name1', 
             'position': 1, 
             'color': '#ffffff', 
-            'type': self.type, 
+            'group': self.egroup, 
             'stage': self.stage,
         }
         model = create_evidence_status(**data)
@@ -428,7 +428,7 @@ class EvidenceStatusTests(TestCase):
             'name': 'name1', 
             'position': 1, 
             'color': '#ffffff', 
-            'type': self.type, 
+            'group': self.egroup, 
             'stage': self.stage,
         }
         model = create_evidence_status(**data)
