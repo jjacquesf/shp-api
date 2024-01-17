@@ -153,7 +153,7 @@ class SianUser(models.Model):
         verbose_name = _('SIAN user')
         verbose_name_plural = _('SIAN users')
 
-class EvidenceType(models.Model):
+class EvidenceGroup(models.Model):
     is_active = models.BooleanField(default=True)
     name = models.CharField(max_length=128,unique=True)
     alias = models.SlugField(max_length=128,unique=True)
@@ -163,8 +163,8 @@ class EvidenceType(models.Model):
     )
     
     class Meta:
-        verbose_name = _('Evidence type')
-        verbose_name_plural = _('Evidence types')
+        verbose_name = _('Evidence group')
+        verbose_name_plural = _('Evidence groups')
 
 class EvidenceStage(models.Model):
     is_active = models.BooleanField(default=True)
@@ -192,11 +192,35 @@ class EvidenceStatus(models.Model):
         EvidenceStage,
         on_delete=models.CASCADE
     )
-    type = models.ForeignKey(
-        EvidenceType,
+    group = models.ForeignKey(
+        EvidenceGroup,
         on_delete=models.CASCADE
     )
     
     class Meta:
         verbose_name = _('Evidence satatus')
         verbose_name_plural = _('Evidence satatuses')
+
+class EvidenceType(models.Model):
+    is_active = models.BooleanField(default=True)
+    name = models.CharField(max_length=128,unique=True)
+    alias = models.SlugField(max_length=128,unique=True)
+    level = models.IntegerField(default=0)
+    parent = models.ForeignKey(
+        'self',
+        on_delete=models.CASCADE,
+        blank=True, 
+        null=True
+    )
+    group = models.ForeignKey(
+        EvidenceGroup,
+        on_delete=models.CASCADE
+    )
+    description = models.TextField(
+        blank=True, 
+        null=True
+    )
+    
+    class Meta:
+        verbose_name = _('Evidence type')
+        verbose_name_plural = _('Evidence types')

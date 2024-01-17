@@ -110,16 +110,6 @@ class ModelTests(TestCase):
             )
             self.assertEqual(model.name, name)
 
-      def test_create_evidence_type(self):
-            """Test creating a evidence type"""
-            name = "Evidence type name"
-            model = models.EvidenceType.objects.create(
-                  name=name,
-                  alias="type",
-                  description="Evidence type description"
-            )
-            self.assertEqual(model.name, name)
-
       def test_create_evidence_stage(self):
             """Test creating a stage"""
             name = "Evidence Stage name"
@@ -147,23 +137,34 @@ class ModelTests(TestCase):
             )
 
             name = "Evidence status name"
-            model = models.EvidenceStage.objects.create(
+            model = models.EvidenceStatus.objects.create(
                   name=name,
                   color='#ffffff',
                   position=1,
                   description="evidence status description",
                   stage=stage,
-                  group=group,
+                  type=type,
+            )
+            self.assertEqual(model.name, name)
+
+
+      def test_create_evidence_group(self):
+            """Test creating a evidence group"""
+            name = "Evidence group name"
+            model = models.EvidenceGroup.objects.create(
+                  name=name,
+                  alias="group",
+                  description="Evidence group description"
             )
             self.assertEqual(model.name, name)
 
 
       def test_create_evidence_status(self):
             """Test creating a status"""
-            type = models.EvidenceType.objects.create(
-                  name="Test Type",
-                  alias="type",
-                  description="Type description"
+            group = models.EvidenceGroup.objects.create(
+                  name="Test Group",
+                  alias="group",
+                  description="Group description"
             )
             stage = models.EvidenceStage.objects.create(name="Stage")
             name = "Evidence status name"
@@ -173,26 +174,35 @@ class ModelTests(TestCase):
                   description="Status description",
                   color="#ff00aa",
                   stage=stage,
-                  type=type,
+                  group=group,
             )
             self.assertEqual(model.name, name)
 
+      def test_create_evidence_type(self):
+            """Test creating a evidence type"""
+            group = models.EvidenceGroup.objects.create(
+                  name="Test Group",
+                  alias="group",
+                  description="Group description"
+            )
 
-      # def test_create_evidence_document_type(self):
-      #       """Test creating a status"""
-      #       type = models.EvidenceType.objects.create(
-      #             name="Test Type",
-      #             alias="type",
-      #             description="Type description"
-      #       )
-      #       stage = models.EvidenceStage.objects.create(name="Stage")
-      #       name = "Evidence status name"
-      #       model = models.EvidenceStatus.objects.create(
-      #             name=name,
-      #             position=1,
-      #             description="Status description",
-      #             color="#ff00aa",
-      #             stage=stage,
-      #             type=type,
-      #       )
-      #       self.assertEqual(model.name, name)
+            model = models.EvidenceType.objects.create(
+                  name="Evidence type name",
+                  alias="type",
+                  description="Evidence type description",
+                  group=group,
+                  attachment_required=True
+            )
+            self.assertEqual(model.name, "Evidence type name")
+
+
+            model2 = models.EvidenceType.objects.create(
+                  name="Evidence type name2",
+                  alias="type2",
+                  description="Evidence type description2",
+                  group=group,
+                  parent=model,
+                  attachment_required=True
+            )
+            self.assertEqual(model2.name, "Evidence type name2")
+            self.assertEqual(model2.group.id, model.id)
