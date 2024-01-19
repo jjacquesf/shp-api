@@ -12,7 +12,10 @@ from core import models
 
 from group.serializers import (
     GroupSerializer,
-    PermissionSerializer,
+)
+
+from permission.serializers import (
+    PermissionSerializer
 )
 
 LIST_CREATE_URL = reverse('group:list_create')

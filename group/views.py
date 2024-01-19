@@ -12,8 +12,11 @@ from core import models
 
 from group.serializers import (
     GroupSerializer,
-    PermissionSerializer,
     UpdateGroupPermissionSerializer
+)
+
+from permission.serializers import (
+    PermissionSerializer
 )
 
 from permission.views import (
