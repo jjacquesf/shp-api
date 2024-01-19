@@ -131,8 +131,8 @@ class DepartmentViewSet(viewsets.ModelViewSet):
     
     def perform_destroy(self, instance):
         """Destroy a supplier"""
-        children = models.Department.objects.filter(parent=instance)
-        if(len(children)):
+        children = models.Department.objects.filter(parent=instance).count()
+        if(children > 0):
             raise serializers.ValidationError(_('Unable to delete parent records. Disable it instead.'))
         
         instance.delete()

@@ -15,7 +15,7 @@ from evidence_group.serializers import (
     EvidenceGroupSerializer
 )
 
-@extend_schema(tags=['Evidence management'])
+@extend_schema(tags=['Evidence catalogs'])
 class ListEvidenceGroupView(views.APIView):
     authentication_classes = [authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated]

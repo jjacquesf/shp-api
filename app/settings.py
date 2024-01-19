@@ -55,10 +55,10 @@ INSTALLED_APPS = [
     'stateorg',
     'sifuser',
     'sianuser',
-    'evidence_type',
     'evidence_stage',
     'evidence_status',
     'evidence_group',
+    'evidence_type',
 ]
 
 MIDDLEWARE = [

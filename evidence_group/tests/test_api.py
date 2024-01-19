@@ -18,7 +18,6 @@ from evidence_group.serializers import (
 
 MAIN_URL = reverse('evidence_group:list')
 
-
 def create_user(**params):
     """Create an return a new user"""
     user = get_user_model().objects.create_user(**params)

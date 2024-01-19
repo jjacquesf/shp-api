@@ -1,5 +1,5 @@
 """
-URL mappings for the entity app
+URL mappings for the evidence type app
 """
 from django.urls import (
     path,
@@ -10,8 +10,11 @@ from rest_framework.routers import DefaultRouter
 
 from evidence_type import views
 
-app_name = 'evidence_type'
+router = DefaultRouter()
+router.register('', views.EvidenceTypeViewSet)
+
+app_name = 'evidencetype'
 
 urlpatterns = [
-    path('', views.ListEvidenceTypeView.as_view(), name='list')
+    path('', include(router.urls)),
 ]

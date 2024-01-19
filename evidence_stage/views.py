@@ -15,7 +15,7 @@ from evidence_stage.serializers import (
     EvidenceStageSerializer
 )
 
-@extend_schema(tags=['Evidence management'])
+@extend_schema(tags=['Evidence catalogs'])
 class ListEvidenceStageView(views.APIView):
     authentication_classes = [authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated]

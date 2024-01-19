@@ -44,7 +44,7 @@ class EvidenceStatusPermission(permissions.BasePermission):
         """Validate user access to a specific object if necessary"""
         return True
 
-@extend_schema(tags=['Evidence management'])
+@extend_schema(tags=['Evidence catalogs'])
 @extend_schema_view(
     list=extend_schema(
         description=_('[Protected | ViewEvidenceStatus] List evidence status'),

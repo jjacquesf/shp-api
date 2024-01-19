@@ -6,7 +6,7 @@ class EvidenceTypeSerializer(serializers.ModelSerializer):
     
     class Meta:
         model= models.EvidenceType
-        fields = ['id', 'is_active', 'name', 'alias','description']
+        fields = ['id', 'is_active', 'name', 'alias', 'attachment_required', 'level', 'parent', 'group', 'description']
         read_only_fields = ['id']
 
     def __str__(self):
