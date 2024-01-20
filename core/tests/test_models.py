@@ -5,6 +5,7 @@ from django.test import TestCase
 from django.contrib.auth import get_user_model
 
 from core import models
+from eav.models import Attribute
 
 class ModelTests(TestCase):
       """Test models"""
@@ -166,6 +167,22 @@ class ModelTests(TestCase):
             )
             self.assertEqual(model.name, name)
 
+      def test_create_evidence_type(self):
+            group = models.EvidenceGroup.objects.create(
+                  name="Test Group",
+                  alias="group",
+                  description="Group description"
+            )
+
+            model = models.EvidenceType.objects.create(
+                  name="Evidence type name",
+                  alias="type",
+                  description="Evidence type description",
+                  group=group,
+                  attachment_required=True
+            )
+            self.assertEqual(model.name, "Evidence type name")
+
       def test_create_evidence_group(self):
             """Test creating a evidence type"""
             group = models.EvidenceGroup.objects.create(
@@ -194,3 +211,53 @@ class ModelTests(TestCase):
             )
             self.assertEqual(model2.name, "Evidence type name2")
             self.assertEqual(model2.group.id, model.id)
+
+      def test_create_eav_attribute(self):
+            model = Attribute.objects.create(name='Color', slug='color', datatype=Attribute.TYPE_TEXT)
+            exists = Attribute.objects.filter(id=model.id).first()
+       
+            self.assertEqual(model.id, exists.id)
+            self.assertEqual(model.name, exists.name)
+            self.assertEqual(model.slug, exists.slug)
+            self.assertEqual(model.datatype, exists.datatype)
+
+      def test_create_custom_field(self):
+            """Test creating a custom field"""
+
+            group = models.EvidenceGroup.objects.create(
+                  name="Test Group",
+                  alias="group",
+                  description="Group description"
+            )
+
+            evidenceType = models.EvidenceType.objects.create(
+                  name="Evidence type name",
+                  alias="type",
+                  description="Evidence type description",
+                  group=group,
+                  attachment_required=True
+            )
+
+            customField = models.CustomField.create_custom_field(
+                  name="custom 1", 
+                  slug="custom1", 
+                  datatype=Attribute.TYPE_TEXT,
+                  description="Custom field description"
+            )
+
+            evidenceType.custom_fields.add(customField)
+            evidenceType.save()
+
+            self.assertEqual(customField.is_active, True)
+            self.assertEqual(customField.attribute.name, "custom 1")
+            self.assertEqual(customField.attribute.slug, "custom1")
+            self.assertEqual(customField.attribute.datatype, Attribute.TYPE_TEXT)
+
+            added = evidenceType.custom_fields.filter(id=customField.id).first()
+            self.assertEqual(customField.is_active, added.is_active)
+            self.assertEqual(customField.attribute.name, added.attribute.name)
+            self.assertEqual(customField.attribute.slug, added.attribute.slug)
+            self.assertEqual(customField.attribute.datatype, added.attribute.datatype)
+
+            cfields = models.CustomField.objects.all()
+            print(cfields)

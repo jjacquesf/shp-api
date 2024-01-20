@@ -2,6 +2,9 @@
 Database models
 """
 from django.utils.translation import gettext_lazy as _
+import eav
+from eav.models import Attribute
+from typing import Any
 
 from django.db import models
 from django.contrib.auth.models import (
@@ -152,7 +155,6 @@ class SianUser(models.Model):
     class Meta:
         verbose_name = _('SIAN user')
         verbose_name_plural = _('SIAN users')
-
 class EvidenceGroup(models.Model):
     is_active = models.BooleanField(default=True)
     name = models.CharField(max_length=128,unique=True)
@@ -201,6 +203,41 @@ class EvidenceStatus(models.Model):
         verbose_name = _('Evidence satatus')
         verbose_name_plural = _('Evidence satatuses')
 
+class CustomField(models.Model):
+    is_active = models.BooleanField(default=True)
+    description = models.TextField(
+        blank=True, 
+        null=True
+    )
+    attribute = models.ForeignKey(
+        Attribute,
+        on_delete=models.CASCADE
+    )
+
+    class Meta:
+        verbose_name = _('Custom field')
+        verbose_name_plural = _('Custom field')
+    
+    def __str__(self):
+        return self.attribute.name
+
+    @staticmethod
+    def create_custom_field(**kwargs: Any):
+
+        is_active = kwargs.pop('is_active', True)
+        description = kwargs.pop('description', None)
+
+        attribute = Attribute.objects.create(**kwargs)
+
+        model = CustomField.objects.create(
+            is_active=is_active,
+            description=description,
+            attribute=attribute
+        )
+
+        return model
+
+
 class EvidenceType(models.Model):
     is_active = models.BooleanField(default=True)
     name = models.CharField(max_length=128,unique=True)
@@ -217,6 +254,7 @@ class EvidenceType(models.Model):
         EvidenceGroup,
         on_delete=models.CASCADE
     )
+    custom_fields = models.ManyToManyField(CustomField)
     description = models.TextField(
         blank=True, 
         null=True
@@ -225,3 +263,7 @@ class EvidenceType(models.Model):
     class Meta:
         verbose_name = _('Evidence type')
         verbose_name_plural = _('Evidence types')
+
+## Register eav for models
+eav.register(EvidenceGroup)
+eav.register(Dpe)
