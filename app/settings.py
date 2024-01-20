@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'drf_spectacular',
+    'eav',
+    #'django_jsonfield_backport',
     'user',
     'group',
     'permission',
@@ -165,6 +167,8 @@ SPECTACULAR_SETTINGS = {
     'SERVE_INCLUDE_SCHEMA': False,
     # OTHER SETTINGS
 }
+
+EAV2_PRIMARY_KEY_FIELD = "django.db.models.BigAutoField"
 
 # LOGGING = {
 #     'version': 1,
