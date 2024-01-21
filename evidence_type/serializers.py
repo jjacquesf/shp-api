@@ -14,6 +14,6 @@ class EvidenceTypeSerializer(serializers.ModelSerializer):
         read_only_fields = ['id']
     
 
-class UpdateCustomFieldSerializer(serializers.Serializer):
+class UpdateEvidenceTypeCustomFieldSerializer(serializers.Serializer):
     """Serializer for user group update."""
     custom_fields = IntegerListField()

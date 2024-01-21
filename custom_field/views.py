@@ -85,16 +85,14 @@ class CustomFieldPermission(permissions.BasePermission):
         ]
     ),
     create=extend_schema(
-        description=_('[Protected | AddCustomField] Add an custom field')
+        description=_('[Protected | AddCustomField] Add an custom field'),
+        responses={200: CustomFieldSerializer},
     ),
     retrieve=extend_schema(
         description=_('[Protected | ViewCustomField] Retrieve an custom field by id')
     ),
     partial_update=extend_schema(
-        description=_('[Protected | ChangeCustomField] Partial update an custom field by id')
-    ),
-    update=extend_schema(
-        description=_('[Protected | ChangeCustomField] Replace an custom field by id')
+        description=_('[Protected | ChangeCustomField] Partial update an custom field by id'),
     ),
     destroy=extend_schema(
         description=_('[Protected | DeleteCustomField] Delete an custom field by id')

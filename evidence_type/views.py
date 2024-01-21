@@ -19,7 +19,7 @@ from core import models
 
 from evidence_type.serializers import (
     EvidenceTypeSerializer,
-    UpdateCustomFieldSerializer
+    UpdateEvidenceTypeCustomFieldSerializer
 )
 
 from custom_field.serializers import (
@@ -186,14 +186,14 @@ class ListCreateCustomFieldView(views.APIView):
     
     @extend_schema(
         description=_("[Protected | ChangeEvidenceType] Update evidence type custom fields by id"),
-        request=UpdateCustomFieldSerializer,
+        request=UpdateEvidenceTypeCustomFieldSerializer,
         responses={200: CustomFieldSerializer(many=True)},
     )
     def put(self, request, pk):
         """Update evidence type custom fields"""
         
         # Get allowed custom fields only
-        body_serializer = UpdateCustomFieldSerializer(request.data)
+        body_serializer = UpdateEvidenceTypeCustomFieldSerializer(request.data)
         cond = Q()
         for cf in body_serializer.data['custom_fields']:
             cond |= Q(id=cf)
