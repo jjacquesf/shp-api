@@ -10,6 +10,10 @@ from django.utils.translation import gettext as _
 from rest_framework import serializers
 from core import models
 
+from core.serializers import (
+    IntegerListField,
+)
+
 class UserSerializer(serializers.ModelSerializer):
     """Serializer for the user object"""
 
@@ -62,8 +66,6 @@ class AuthTokenSerializer(serializers.Serializer):
         attrs['user'] = user
         return attrs
     
-class IntegerListField(serializers.ListField):
-    child = serializers.IntegerField(min_value=1)
 class UpdateUserGroupSerializer(serializers.Serializer):
     """Serializer for user group update."""
     groups = IntegerListField()

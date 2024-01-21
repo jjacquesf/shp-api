@@ -4,20 +4,23 @@ Views fro the evidence type APIs
 from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter
 from drf_spectacular.types import OpenApiTypes
 
-
+from django.db.models import Q
 from django.utils.translation import gettext as _
 
-from rest_framework import viewsets
+from rest_framework import views, viewsets
 from rest_framework import permissions
 from rest_framework import serializers
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
 
 from core import models
 
 from evidence_type.serializers import (
-    EvidenceTypeSerializer
+    EvidenceTypeSerializer,
+    CustomFieldSerializer,
+    UpdateCustomFieldSerializer
 )
 
 class EvidenceTypePermission(permissions.BasePermission):
@@ -26,19 +29,35 @@ class EvidenceTypePermission(permissions.BasePermission):
     def has_permission(self, request, view):
         """Validate user permissions depending on the request method"""
 
-        if view.action == 'list' or view.action == 'retrieve':
-            return request.user.has_perm('core.view_evidencetype') 
+        if hasattr(view, 'action'):
 
-        if view.action == 'create':
-            return request.user.has_perm('core.add_evidencetype')
+            if view.action == 'list' or view.action == 'retrieve':
+                return request.user.has_perm('core.view_evidencetype') 
 
-        if view.action == 'update' or view.action == 'partial_update':
-            return request.user.has_perm('core.change_evidencetype') 
+            if view.action == 'create':
+                return request.user.has_perm('core.add_evidencetype')
 
-        if view.action == 'destroy':
-            return request.user.has_perm('core.delete_evidencetype') 
+            if view.action == 'update' or view.action == 'partial_update':
+                return request.user.has_perm('core.change_evidencetype') 
 
-        return True
+            if view.action == 'destroy':
+                return request.user.has_perm('core.delete_evidencetype') 
+
+        else:
+
+            if request.method == 'GET':
+                return request.user.has_perm('core.view_evidencetype') 
+
+            if request.method == 'POST':
+                return request.user.has_perm('core.add_evidencetype')
+
+            if request.method == 'PUT' or request.method == 'PATCH':
+                return request.user.has_perm('core.change_evidencetype') 
+
+            if request.method == 'DELETE':
+                return request.user.has_perm('core.delete_evidencetype') 
+        
+        return False
     
     def has_object_permission(self, request, view, obj):
         """Validate user access to a specific object if necessary"""
@@ -146,3 +165,41 @@ class EvidenceTypeViewSet(viewsets.ModelViewSet):
             raise serializers.ValidationError(_('Unable to delete parent records. Disable it instead.'))
         
         instance.delete()
+
+
+@extend_schema(tags=['Evidence catalogs'])
+class ListCreateCustomFieldView(views.APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated, EvidenceTypePermission]
+
+    @extend_schema(
+        description=_("[Protected | ViewEvidenceType] List custom fields by evidence type id"),
+        responses={200: CustomFieldSerializer(many=True)},
+    )
+    def get(self, request, pk):
+        model = models.EvidenceType.objects.get(id=pk)
+        serializer = CustomFieldSerializer(model.custom_fields.all(), many=True)
+        return Response(serializer.data)
+    
+    @extend_schema(
+        description=_("[Protected | ChangeEvidenceType] Update evidence type custom fields by id"),
+        request=UpdateCustomFieldSerializer,
+        responses={200: CustomFieldSerializer(many=True)},
+    )
+    def put(self, request, pk):
+        """Update evidence type custom fields"""
+        
+        # Get allowed custom fields only
+        body_serializer = UpdateCustomFieldSerializer(request.data)
+        cond = Q()
+        for cf in body_serializer.data['custom_fields']:
+            cond |= Q(id=cf)
+
+        custom_fields = models.CustomField.objects.filter(cond)
+
+        model = models.EvidenceType.objects.get(id=pk)
+        model.custom_fields.set(custom_fields)
+
+        serializer = CustomFieldSerializer(model.custom_fields.all(), many=True)
+        return Response(serializer.data)
+    

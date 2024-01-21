@@ -260,4 +260,3 @@ class ModelTests(TestCase):
             self.assertEqual(customField.attribute.datatype, added.attribute.datatype)
 
             cfields = models.CustomField.objects.all()
-            print(cfields)

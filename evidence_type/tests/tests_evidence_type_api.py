@@ -11,15 +11,20 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Permission
 
 from core import models 
+from eav.models import Attribute
 
 from evidence_type.serializers import (
-    EvidenceTypeSerializer
+    EvidenceTypeSerializer,
+    CustomFieldSerializer
 )
 
 MAIN_URL = reverse('evidencetype:evidencetype-list')
 
 def detail_url(id):
     return reverse('evidencetype:evidencetype-detail', args=[id])
+
+def custom_fields_url(id):
+    return reverse('evidencetype:custom-fields', args=[id])
 
 def create_user(**params):
     """Create an return a new user"""
@@ -118,6 +123,50 @@ class PublicEvidenceTypeTests(TestCase):
         res = self.client.put(detail_url(model.id), data)
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
+    def test_list_custom_fields_unauthorized(self):
+        """Test evidence status partial update unauthorized"""
+        data = {
+            'name': 'name1', 
+            'alias': 'name1', 
+            'attachment_required': False, 
+            'group': self.egroup,
+            'description': 'desc1'
+        }
+        model = create_evidence_type(**data)
+
+        res = self.client.get(custom_fields_url(model.id))
+        self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_update_custom_fields_unauthorized(self):
+        """Test evidence status partial update unauthorized"""
+        data = {
+            'name': 'name1', 
+            'alias': 'name1', 
+            'attachment_required': False, 
+            'group': self.egroup,
+            'description': 'desc1'
+        }
+        model = create_evidence_type(**data)
+
+        customField = models.CustomField.create_custom_field(
+                name="custom 1", 
+                slug="custom1", 
+                datatype=Attribute.TYPE_TEXT,
+                description="Custom field description"
+        )
+
+        customField2 = models.CustomField.create_custom_field(
+                name="custom 2", 
+                slug="custom2", 
+                datatype=Attribute.TYPE_TEXT,
+                description="Custom field description"
+        )
+
+        res = self.client.put(custom_fields_url(model.id), {
+            'custom_fields': [customField.id, customField2.id]
+        })
+        self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
+
 class ForbiddenEvidenceTypeTests(TestCase):
     """Test unauthenticated API requests."""
 
@@ -142,6 +191,11 @@ class ForbiddenEvidenceTypeTests(TestCase):
         self.egroup = egroup
 
         self.client.force_authenticate(user=self.user)
+
+    def test_list_active_evidence_type_forbidden(self):
+        """Test list evidence types forbidden"""
+        res = self.client.get(MAIN_URL)
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_create_evidence_type_forbidden(self):
         """Test creating a entity forbidden"""
@@ -182,8 +236,8 @@ class ForbiddenEvidenceTypeTests(TestCase):
         res = self.client.put(detail_url(model.id), data)
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_evidence_type_delete_success(self):
-        """Test evidence status delete success"""
+    def test_evidence_type_delete_forbidden(self):
+        """Test evidence status delete forbidden"""
         data = {
             'name': 'name1', 
             'alias': 'name1', 
@@ -196,6 +250,49 @@ class ForbiddenEvidenceTypeTests(TestCase):
         res = self.client.delete(detail_url(model.id))
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
+    def test_list_custom_fields_forbidden(self):
+        """Test evidence status partial update forbidden"""
+        data = {
+            'name': 'name1', 
+            'alias': 'name1', 
+            'attachment_required': False, 
+            'group': self.egroup,
+            'description': 'desc1'
+        }
+        model = create_evidence_type(**data)
+
+        res = self.client.get(custom_fields_url(model.id))
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_update_custom_fields_forbidden(self):
+        """Test evidence status partial update forbidden"""
+        data = {
+            'name': 'name1', 
+            'alias': 'name1', 
+            'attachment_required': False, 
+            'group': self.egroup,
+            'description': 'desc1'
+        }
+        model = create_evidence_type(**data)
+
+        customField = models.CustomField.create_custom_field(
+                name="custom 1", 
+                slug="custom1", 
+                datatype=Attribute.TYPE_TEXT,
+                description="Custom field description"
+        )
+
+        customField2 = models.CustomField.create_custom_field(
+                name="custom 2", 
+                slug="custom2", 
+                datatype=Attribute.TYPE_TEXT,
+                description="Custom field description"
+        )
+
+        res = self.client.put(custom_fields_url(model.id), {
+            'custom_fields': [customField.id, customField2.id]
+        })
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
 class EvidenceTypeTests(TestCase):
     """Test unauthenticated API requests."""
@@ -421,9 +518,8 @@ class EvidenceTypeTests(TestCase):
         res = self.client.delete(detail_url(model.id))
         self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
 
-
-    def test_evidence_type_delete_forbidden(self):
-        """Test evidence status delete forbidden"""
+    def test_evidence_type_delete_bad_request(self):
+        """Test evidence status delete bad request"""
 
         data = {
             'name': 'name2', 
@@ -446,3 +542,64 @@ class EvidenceTypeTests(TestCase):
 
         res = self.client.delete(detail_url(model.id))
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_list_custom_fields_success(self):
+        """Test evidence status partial update success"""
+        data = {
+            'name': 'name1', 
+            'alias': 'name1', 
+            'attachment_required': False, 
+            'group': self.egroup,
+            'description': 'desc1'
+        }
+        model = create_evidence_type(**data)
+
+        customField = models.CustomField.create_custom_field(
+                name="custom 1", 
+                slug="custom1", 
+                datatype=Attribute.TYPE_TEXT,
+                description="Custom field description"
+        )
+
+        model.custom_fields.add(customField)
+        model.save()
+
+        res = self.client.get(custom_fields_url(model.id))
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        serializer = CustomFieldSerializer(model.custom_fields.all(), many=True)
+        self.assertEqual(res.data, serializer.data)
+
+    def test_update_custom_fields_success(self):
+        """Test evidence status partial update success"""
+        data = {
+            'name': 'name1', 
+            'alias': 'name1', 
+            'attachment_required': False, 
+            'group': self.egroup,
+            'description': 'desc1'
+        }
+        model = create_evidence_type(**data)
+
+        customField = models.CustomField.create_custom_field(
+                name="custom 1", 
+                slug="custom1", 
+                datatype=Attribute.TYPE_TEXT,
+                description="Custom field description"
+        )
+
+        customField2 = models.CustomField.create_custom_field(
+                name="custom 2", 
+                slug="custom2", 
+                datatype=Attribute.TYPE_TEXT,
+                description="Custom field description"
+        )
+
+        res = self.client.put(custom_fields_url(model.id), {
+            'custom_fields': [customField.id, customField2.id]
+        })
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        serializer = CustomFieldSerializer(model.custom_fields.all(), many=True)
+        self.assertEqual(res.data, serializer.data)
+

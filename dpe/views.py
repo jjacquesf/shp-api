@@ -36,7 +36,7 @@ class DpePermission(permissions.BasePermission):
         if view.action == 'destroy':
             return request.user.has_perm('core.delete_dpe') 
 
-        return True
+        return False
     
     def has_object_permission(self, request, view, obj):
         """Validate user access to a specific object if necessary"""
