@@ -19,8 +19,11 @@ from core import models
 
 from evidence_type.serializers import (
     EvidenceTypeSerializer,
-    CustomFieldSerializer,
     UpdateCustomFieldSerializer
+)
+
+from custom_field.serializers import (
+    CustomFieldSerializer,
 )
 
 class EvidenceTypePermission(permissions.BasePermission):

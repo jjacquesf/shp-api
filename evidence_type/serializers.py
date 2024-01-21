@@ -17,12 +17,3 @@ class EvidenceTypeSerializer(serializers.ModelSerializer):
 class UpdateCustomFieldSerializer(serializers.Serializer):
     """Serializer for user group update."""
     custom_fields = IntegerListField()
-    
-class CustomFieldSerializer(serializers.ModelSerializer):
-    attribute_name = serializers.CharField(source='attribute.name')
-    attribute_slug = serializers.CharField(source='attribute.slug')
-    attribute_datatype = serializers.CharField(source='attribute.datatype')
-    class Meta:
-        model= models.CustomField
-        fields = ['id', 'is_active', 'description', 'attribute', 'attribute_name', 'attribute_slug', 'attribute_datatype']
-        read_only_fields = ['id']

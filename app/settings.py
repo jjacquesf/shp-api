@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     'evidence_stage',
     'evidence_status',
     'evidence_group',
+    'custom_field',
     'evidence_type',
 ]
 

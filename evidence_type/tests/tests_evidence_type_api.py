@@ -15,7 +15,10 @@ from eav.models import Attribute
 
 from evidence_type.serializers import (
     EvidenceTypeSerializer,
-    CustomFieldSerializer
+)
+
+from custom_field.serializers import (
+    CustomFieldSerializer,
 )
 
 MAIN_URL = reverse('evidencetype:evidencetype-list')
