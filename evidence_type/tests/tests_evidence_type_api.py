@@ -145,7 +145,7 @@ class PublicEvidenceTypeTests(TestCase):
         res = self.client.get(custom_fields_url(model.id))
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
-    def test_update_custom_fields_unauthorized(self):
+    def test_add_custom_field_unauthorized(self):
         """Test evidence status partial update unauthorized"""
         data = {
             'name': 'name1', 
@@ -163,16 +163,18 @@ class PublicEvidenceTypeTests(TestCase):
                 description="Custom field description"
         )
 
-        customField2 = models.CustomField.create_custom_field(
-                name="custom 2", 
-                slug="custom2", 
-                datatype=Attribute.TYPE_TEXT,
-                description="Custom field description"
-        )
-
-        res = self.client.put(custom_fields_url(model.id), {
-            'custom_fields': [customField.id, customField2.id]
+        res = self.client.post(custom_fields_url(model.id), {
+            "custom_field": customField.id,
+            "mandatory": True,
         })
+        
+        self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_delete_custom_field_unauthorized(self):
+        """Test evidence status partial update unauthorized"""
+
+        # delete custom field
+        res = self.client.delete(custom_fields_delete_url(1, 1))
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
 class ForbiddenEvidenceTypeTests(TestCase):
@@ -272,7 +274,7 @@ class ForbiddenEvidenceTypeTests(TestCase):
         res = self.client.get(custom_fields_url(model.id))
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_update_custom_fields_forbidden(self):
+    def test_add_custom_field_forbidden(self):
         """Test evidence status partial update forbidden"""
         data = {
             'name': 'name1', 
@@ -290,16 +292,18 @@ class ForbiddenEvidenceTypeTests(TestCase):
                 description="Custom field description"
         )
 
-        customField2 = models.CustomField.create_custom_field(
-                name="custom 2", 
-                slug="custom2", 
-                datatype=Attribute.TYPE_TEXT,
-                description="Custom field description"
-        )
-
-        res = self.client.put(custom_fields_url(model.id), {
-            'custom_fields': [customField.id, customField2.id]
+        res = self.client.post(custom_fields_url(model.id), {
+            "custom_field": customField.id,
+            "mandatory": True,
         })
+        
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_delete_custom_field_forbidden(self):
+        """Test evidence status partial update forbidden"""
+
+        # delete custom field
+        res = self.client.delete(custom_fields_delete_url(1, 1))
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
 class EvidenceTypeTests(TestCase):
@@ -615,7 +619,8 @@ class EvidenceTypeTests(TestCase):
         
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
-        serializer = CustomFieldSerializer(model.custom_fields.all(), many=True)
+        custom_fields = models.EvidenceTypeCustomField.objects.get(evidence_type=model.id, custom_field=customField.id)
+        serializer = EvidenceTypeCustomFielderializer(custom_fields)
         self.assertEqual(res.data, serializer.data)
 
     def test_delete_custom_field_success(self):
@@ -636,13 +641,33 @@ class EvidenceTypeTests(TestCase):
                 description="Custom field description"
         )
 
-        res = self.client.post(custom_fields_url(model.id), {
-            "custom_field": customField.id,
-            "mandatory": True,
-        })
+        model.custom_fields.add(customField, through_defaults={'mandatory': True})
 
+
+        customField2 = models.CustomField.create_custom_field(
+                name="custom 2", 
+                slug="custom2", 
+                datatype=Attribute.TYPE_TEXT,
+                description="Custom field description"
+        )
+
+        model.custom_fields.add(customField2, through_defaults={'mandatory': False})
+
+        model.save()
+
+        # get custom fields
+        res = self.client.get(custom_fields_url(model.id))
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
-
+        # delete custom field
         res = self.client.delete(custom_fields_delete_url(model.id, customField.id))
         self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
+
+        # Validate deleted
+        res = self.client.get(custom_fields_url(model.id))
+
+        custom_fields = models.EvidenceTypeCustomField.objects.filter(evidence_type=model.id)
+        serializer = EvidenceTypeCustomFielderializer(custom_fields, many=True)
+
+        self.assertEqual(res.data, serializer.data)
+

@@ -172,27 +172,35 @@ class EvidenceTypeViewSet(viewsets.ModelViewSet):
 
 
 @extend_schema(tags=['Evidence catalogs'])
+@extend_schema_view(
+    list=extend_schema(
+        description=_('[Protected | ViewEvidenceType] List evidence type custom fields'),
+    ),
+    create=extend_schema(
+        description=_('[Protected | AddEvidenceType] Add an evidence type custom field'),
+        responses={200: EvidenceTypeCustomFielderializer(many=True)}
+    )
+)
 class ListCreateCustomFieldView(views.APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated, EvidenceTypePermission]
 
     @extend_schema(
         description=_("[Protected | ViewEvidenceType] List custom fields by evidence type id"),
-        responses={200: CustomFieldSerializer(many=True)},
+        responses={200: EvidenceTypeCustomFielderializer(many=True)},
     )
     def get(self, request, pk):
         model = models.EvidenceType.objects.get(id=pk)
 
         custom_fields = models.EvidenceTypeCustomField.objects.filter(evidence_type=model.id)
         serializer = EvidenceTypeCustomFielderializer(custom_fields, many=True)
-        # serializer = CustomFieldSerializer(model.custom_fields.all(), many=True)
-        print(serializer.data)
+
         return Response(serializer.data)
     
     @extend_schema(
         description=_("[Protected | ChangeEvidenceType] Update evidence type custom fields by id"),
         request=UpdateEvidenceTypeCustomFieldSerializer,
-        responses={200: CustomFieldSerializer(many=True)},
+        responses={200: EvidenceTypeCustomFielderializer},
     )
     def post(self, request, pk):
         """Update evidence type custom fields"""
@@ -206,7 +214,8 @@ class ListCreateCustomFieldView(views.APIView):
         if custom_field != None:
             model.custom_fields.add(custom_field, through_defaults={'mandatory': body_serializer.validated_data['mandatory']})
 
-        serializer = CustomFieldSerializer(model.custom_fields.all(), many=True)
+        custom_fields = models.EvidenceTypeCustomField.objects.get(evidence_type=model.id, custom_field=custom_field.id)
+        serializer = EvidenceTypeCustomFielderializer(custom_fields)
         return Response(serializer.data)
     
 @extend_schema(tags=['Evidence catalogs'])
@@ -218,11 +227,9 @@ class DeleteCustomFieldView(views.APIView):
         responses={200: CustomFieldSerializer(many=True)},
     )
     def delete(self, request, pk, cf_id):
-        """Update evidence type custom fields"""
+        """Delete evidence type custom fields"""
         model = models.EvidenceType.objects.get(id=pk)
-        custom_field = models.CustomField.objects.get(id=cf_id)
-
-        model.custom_fields.filter(id=custom_field.id).delete()
+        models.EvidenceTypeCustomField.objects.filter(id=cf_id, evidence_type=model.id).delete()
 
         return Response(None, status=status.HTTP_204_NO_CONTENT)
     
