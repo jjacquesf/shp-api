@@ -30,6 +30,28 @@ class CreateCustomFieldSerializer(CustomFieldSerializer):
         created = models.CustomField.create_custom_field(**data)
         serializer = CustomFieldSerializer(created)
         return serializer.data
+    
+class EvidenceTypeCustomFielderializer(serializers.ModelSerializer):
+    """Serializer for the evidence type custom field object"""
+    
+    is_active = serializers.CharField(source='custom_field.is_active')
+    description = serializers.CharField(source='custom_field.description')
+    attribute_name = serializers.CharField(source='custom_field.attribute.name')
+    attribute_slug = serializers.CharField(source='custom_field.attribute.slug')
+    attribute_datatype = serializers.CharField(source='custom_field.attribute.datatype')
+
+    class Meta:
+        model= models.EvidenceTypeCustomField
+        fields = [
+            'id', 
+            'is_active',
+            'description', 
+            'attribute_name',
+            'attribute_slug',
+            'attribute_datatype',
+            'mandatory',
+        ]
+        read_only_fields = ['id']
 
 class UpdateCustomFieldSerializer(CustomFieldSerializer):
     attribute_name = serializers.CharField()

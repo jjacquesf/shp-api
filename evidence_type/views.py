@@ -19,12 +19,12 @@ from core import models
 
 from evidence_type.serializers import (
     EvidenceTypeSerializer,
-    UpdateEvidenceTypeCustomFieldSerializer,
-    UpdateCustomFieldSerializer
+    UpdateEvidenceTypeCustomFieldSerializer
 )
 
 from custom_field.serializers import (
     CustomFieldSerializer,
+    EvidenceTypeCustomFielderializer
 )
 
 class EvidenceTypePermission(permissions.BasePermission):
@@ -182,7 +182,11 @@ class ListCreateCustomFieldView(views.APIView):
     )
     def get(self, request, pk):
         model = models.EvidenceType.objects.get(id=pk)
-        serializer = CustomFieldSerializer(model.custom_fields.all(), many=True)
+
+        custom_fields = models.EvidenceTypeCustomField.objects.filter(evidence_type=model.id)
+        serializer = EvidenceTypeCustomFielderializer(custom_fields, many=True)
+        # serializer = CustomFieldSerializer(model.custom_fields.all(), many=True)
+        print(serializer.data)
         return Response(serializer.data)
     
     @extend_schema(

@@ -19,6 +19,7 @@ from evidence_type.serializers import (
 
 from custom_field.serializers import (
     CustomFieldSerializer,
+    EvidenceTypeCustomFielderializer
 )
 
 MAIN_URL = reverse('evidencetype:evidencetype-list')
@@ -569,12 +570,24 @@ class EvidenceTypeTests(TestCase):
         )
 
         model.custom_fields.add(customField, through_defaults={'mandatory': True})
+
+
+        customField2 = models.CustomField.create_custom_field(
+                name="custom 2", 
+                slug="custom2", 
+                datatype=Attribute.TYPE_TEXT,
+                description="Custom field description"
+        )
+
+        model.custom_fields.add(customField2, through_defaults={'mandatory': False})
+
         model.save()
 
         res = self.client.get(custom_fields_url(model.id))
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
-        serializer = CustomFieldSerializer(model.custom_fields.all(), many=True)
+        custom_fields = models.EvidenceTypeCustomField.objects.filter(evidence_type=model.id)
+        serializer = EvidenceTypeCustomFielderializer(custom_fields, many=True)
         self.assertEqual(res.data, serializer.data)
 
     def test_add_custom_field_success(self):
