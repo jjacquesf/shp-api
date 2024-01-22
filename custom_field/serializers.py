@@ -7,7 +7,7 @@ class CustomFieldSerializer(serializers.ModelSerializer):
     attribute_datatype = serializers.CharField(source='attribute.datatype')
     class Meta:
         model= models.CustomField
-        fields = ['id', 'is_active', 'description', 'attribute', 'attribute_name', 'attribute_slug', 'attribute_datatype']
+        fields = ['id', 'is_active', 'catalog', 'description', 'attribute', 'attribute_name', 'attribute_slug', 'attribute_datatype']
         read_only_fields = ['id']
 
 class CreateCustomFieldSerializer(CustomFieldSerializer):
@@ -16,7 +16,7 @@ class CreateCustomFieldSerializer(CustomFieldSerializer):
     attribute_datatype = serializers.CharField()
     class Meta(CustomFieldSerializer.Meta):
         model= models.CustomField
-        fields = ['id', 'is_active', 'description', 'attribute_name', 'attribute_slug', 'attribute_datatype']
+        fields = ['id', 'is_active', 'catalog', 'description', 'attribute_name', 'attribute_slug', 'attribute_datatype']
 
     def create(self, validated_data):
         data = {
@@ -24,6 +24,7 @@ class CreateCustomFieldSerializer(CustomFieldSerializer):
             "name": validated_data.pop("attribute_name", None),
             "slug": validated_data.pop("attribute_slug", None),
             "datatype": validated_data.pop("attribute_datatype", None),
+            "catalog": validated_data.pop("catalog", None),
             "description": validated_data.pop("description", None),
         }
 
@@ -35,6 +36,7 @@ class EvidenceTypeCustomFielderializer(serializers.ModelSerializer):
     """Serializer for the evidence type custom field object"""
     
     is_active = serializers.CharField(source='custom_field.is_active')
+    catalog = serializers.CharField(source='custom_field.catalog')
     description = serializers.CharField(source='custom_field.description')
     attribute_name = serializers.CharField(source='custom_field.attribute.name')
     attribute_slug = serializers.CharField(source='custom_field.attribute.slug')
@@ -45,6 +47,7 @@ class EvidenceTypeCustomFielderializer(serializers.ModelSerializer):
         fields = [
             'id', 
             'is_active',
+            'catalog',
             'description', 
             'attribute_name',
             'attribute_slug',

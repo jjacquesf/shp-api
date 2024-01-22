@@ -205,6 +205,10 @@ class EvidenceStatus(models.Model):
 
 class CustomField(models.Model):
     is_active = models.BooleanField(default=True)
+    catalog = models.TextField(
+        blank=True, 
+        null=True
+    )
     description = models.TextField(
         blank=True, 
         null=True
@@ -225,12 +229,14 @@ class CustomField(models.Model):
     def create_custom_field(**kwargs: Any):
 
         is_active = kwargs.pop('is_active', True)
+        catalog = kwargs.pop('catalog', None)
         description = kwargs.pop('description', None)
 
         attribute = Attribute.objects.create(**kwargs)
 
         model = CustomField.objects.create(
             is_active=is_active,
+            catalog=catalog,
             description=description,
             attribute=attribute
         )
