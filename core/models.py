@@ -254,7 +254,7 @@ class EvidenceType(models.Model):
         EvidenceGroup,
         on_delete=models.CASCADE
     )
-    custom_fields = models.ManyToManyField(CustomField)
+    custom_fields = models.ManyToManyField(CustomField, through='EvidenceTypeCustomField')
     description = models.TextField(
         blank=True, 
         null=True
@@ -263,6 +263,20 @@ class EvidenceType(models.Model):
     class Meta:
         verbose_name = _('Evidence type')
         verbose_name_plural = _('Evidence types')
+
+class EvidenceTypeCustomField(models.Model):
+    evidence_type = models.ForeignKey(
+        EvidenceType,
+        on_delete=models.CASCADE
+    )
+    custom_field = models.ForeignKey(
+        CustomField,
+        on_delete=models.CASCADE
+    )
+    mandatory = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = [['evidence_type', 'custom_field']]
 
 ## Register eav for models
 eav.register(EvidenceGroup)

@@ -17,5 +17,6 @@ app_name = 'evidencetype'
 
 urlpatterns = [
     path('', include(router.urls)),
-    path('<int:pk>/custom-feilds/', views.ListCreateCustomFieldView.as_view(), name='custom-fields'),
+    path('<int:pk>/custom-fields/', views.ListCreateCustomFieldView.as_view(), name='custom-fields'),
+    path('<int:pk>/custom-fields/<int:cf_id>', views.DeleteCustomFieldView.as_view(), name='custom-fields-delete'),
 ]

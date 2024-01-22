@@ -245,7 +245,7 @@ class ModelTests(TestCase):
                   description="Custom field description"
             )
 
-            evidenceType.custom_fields.add(customField)
+            evidenceType.custom_fields.add(customField, through_defaults={'mandatory': True})
             evidenceType.save()
 
             self.assertEqual(customField.is_active, True)

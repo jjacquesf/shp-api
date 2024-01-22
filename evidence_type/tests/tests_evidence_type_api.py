@@ -29,6 +29,10 @@ def detail_url(id):
 def custom_fields_url(id):
     return reverse('evidencetype:custom-fields', args=[id])
 
+
+def custom_fields_delete_url(id, id2):
+    return reverse('evidencetype:custom-fields-delete', args=[id, id2])
+
 def create_user(**params):
     """Create an return a new user"""
     user = get_user_model().objects.create_user(**params)
@@ -564,7 +568,7 @@ class EvidenceTypeTests(TestCase):
                 description="Custom field description"
         )
 
-        model.custom_fields.add(customField)
+        model.custom_fields.add(customField, through_defaults={'mandatory': True})
         model.save()
 
         res = self.client.get(custom_fields_url(model.id))
@@ -573,7 +577,7 @@ class EvidenceTypeTests(TestCase):
         serializer = CustomFieldSerializer(model.custom_fields.all(), many=True)
         self.assertEqual(res.data, serializer.data)
 
-    def test_update_custom_fields_success(self):
+    def test_add_custom_field_success(self):
         """Test evidence status partial update success"""
         data = {
             'name': 'name1', 
@@ -591,18 +595,41 @@ class EvidenceTypeTests(TestCase):
                 description="Custom field description"
         )
 
-        customField2 = models.CustomField.create_custom_field(
-                name="custom 2", 
-                slug="custom2", 
-                datatype=Attribute.TYPE_TEXT,
-                description="Custom field description"
-        )
-
-        res = self.client.put(custom_fields_url(model.id), {
-            'custom_fields': [customField.id, customField2.id]
+        res = self.client.post(custom_fields_url(model.id), {
+            "custom_field": customField.id,
+            "mandatory": True,
         })
+        
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
         serializer = CustomFieldSerializer(model.custom_fields.all(), many=True)
         self.assertEqual(res.data, serializer.data)
 
+    def test_delete_custom_field_success(self):
+        """Test evidence status partial update success"""
+        data = {
+            'name': 'name1', 
+            'alias': 'name1', 
+            'attachment_required': False, 
+            'group': self.egroup,
+            'description': 'desc1'
+        }
+        model = create_evidence_type(**data)
+
+        customField = models.CustomField.create_custom_field(
+                name="custom 1", 
+                slug="custom1", 
+                datatype=Attribute.TYPE_TEXT,
+                description="Custom field description"
+        )
+
+        res = self.client.post(custom_fields_url(model.id), {
+            "custom_field": customField.id,
+            "mandatory": True,
+        })
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+
+        res = self.client.delete(custom_fields_delete_url(model.id, customField.id))
+        self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)

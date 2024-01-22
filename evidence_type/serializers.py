@@ -16,4 +16,10 @@ class EvidenceTypeSerializer(serializers.ModelSerializer):
 
 class UpdateEvidenceTypeCustomFieldSerializer(serializers.Serializer):
     """Serializer for user group update."""
-    custom_fields = IntegerListField()
+    custom_field = serializers.IntegerField(min_value=1)
+    mandatory = serializers.BooleanField(default=True)
+
+class UpdateCustomFieldSerializer(serializers.Serializer):
+    """Serializer for user group update."""
+    custom_fields = UpdateEvidenceTypeCustomFieldSerializer(many=True)
+    

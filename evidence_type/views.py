@@ -13,13 +13,14 @@ from rest_framework import serializers
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-
+from rest_framework import status
 
 from core import models
 
 from evidence_type.serializers import (
     EvidenceTypeSerializer,
-    UpdateEvidenceTypeCustomFieldSerializer
+    UpdateEvidenceTypeCustomFieldSerializer,
+    UpdateCustomFieldSerializer
 )
 
 from custom_field.serializers import (
@@ -189,20 +190,35 @@ class ListCreateCustomFieldView(views.APIView):
         request=UpdateEvidenceTypeCustomFieldSerializer,
         responses={200: CustomFieldSerializer(many=True)},
     )
-    def put(self, request, pk):
+    def post(self, request, pk):
         """Update evidence type custom fields"""
-        
-        # Get allowed custom fields only
-        body_serializer = UpdateEvidenceTypeCustomFieldSerializer(request.data)
-        cond = Q()
-        for cf in body_serializer.data['custom_fields']:
-            cond |= Q(id=cf)
-
-        custom_fields = models.CustomField.objects.filter(cond)
+        body_serializer = UpdateEvidenceTypeCustomFieldSerializer(data=request.data)    
+        body_serializer.is_valid(raise_exception=True)
 
         model = models.EvidenceType.objects.get(id=pk)
-        model.custom_fields.set(custom_fields)
+
+        custom_field = models.CustomField.objects.get(id=body_serializer.validated_data['custom_field'])
+
+        if custom_field != None:
+            model.custom_fields.add(custom_field, through_defaults={'mandatory': body_serializer.validated_data['mandatory']})
 
         serializer = CustomFieldSerializer(model.custom_fields.all(), many=True)
         return Response(serializer.data)
+    
+@extend_schema(tags=['Evidence catalogs'])
+class DeleteCustomFieldView(views.APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated, EvidenceTypePermission]
+    @extend_schema(
+        description=_("[Protected | DeleteEvidenceType] Delete evidence type custom fields by id"),
+        responses={200: CustomFieldSerializer(many=True)},
+    )
+    def delete(self, request, pk, cf_id):
+        """Update evidence type custom fields"""
+        model = models.EvidenceType.objects.get(id=pk)
+        custom_field = models.CustomField.objects.get(id=cf_id)
+
+        model.custom_fields.filter(id=custom_field.id).delete()
+
+        return Response(None, status=status.HTTP_204_NO_CONTENT)
     
