@@ -172,21 +172,12 @@ class EvidenceTypeViewSet(viewsets.ModelViewSet):
 
 
 @extend_schema(tags=['Evidence catalogs'])
-@extend_schema_view(
-    list=extend_schema(
-        description=_('[Protected | ViewEvidenceType] List evidence type custom fields'),
-    ),
-    create=extend_schema(
-        description=_('[Protected | AddEvidenceType] Add an evidence type custom field'),
-        responses={200: EvidenceTypeCustomFielderializer(many=True)}
-    )
-)
 class ListCreateCustomFieldView(views.APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated, EvidenceTypePermission]
 
     @extend_schema(
-        description=_("[Protected | ViewEvidenceType] List custom fields by evidence type id"),
+        description=_("[Protected | ViewEvidenceType] List evidence type custom fields"),
         responses={200: EvidenceTypeCustomFielderializer(many=True)},
     )
     def get(self, request, pk):
@@ -198,7 +189,7 @@ class ListCreateCustomFieldView(views.APIView):
         return Response(serializer.data)
     
     @extend_schema(
-        description=_("[Protected | ChangeEvidenceType] Update evidence type custom fields by id"),
+        description=_("[Protected | ChangeEvidenceType] Add an evidence type custom field"),
         request=UpdateEvidenceTypeCustomFieldSerializer,
         responses={200: EvidenceTypeCustomFielderializer},
     )

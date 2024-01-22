@@ -164,7 +164,7 @@ REST_FRAMEWORK = {
 SPECTACULAR_SETTINGS = {
     'TITLE': 'SHP API',
     'DESCRIPTION': 'API for evidence/documents control quality management system',
-    'VERSION': '0.0.1',
+    'VERSION': '0.0.2',
     'SERVE_INCLUDE_SCHEMA': False,
     # OTHER SETTINGS
 }
