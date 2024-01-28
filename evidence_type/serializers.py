@@ -9,9 +9,16 @@ class EvidenceTypeSerializer(serializers.ModelSerializer):
         fields = ['id', 'is_active', 'name', 'alias', 'attachment_required', 'level', 'parent', 'group', 'description']
         read_only_fields = ['id']
 
+class AddEvidenceTypeCustomFieldSerializer(serializers.Serializer):
+    """Serializer for user group add."""
+    is_active = serializers.BooleanField(default=True)
+    custom_field = serializers.IntegerField(min_value=1)
+    mandatory = serializers.BooleanField(default=True)
+    group = serializers.CharField(min_length=64)
+
 class UpdateEvidenceTypeCustomFieldSerializer(serializers.Serializer):
     """Serializer for user group update."""
-    custom_field = serializers.IntegerField(min_value=1)
+    is_active = serializers.BooleanField(default=True)
     mandatory = serializers.BooleanField(default=True)
     group = serializers.CharField(min_length=64)
 

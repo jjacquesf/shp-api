@@ -19,7 +19,7 @@ from core import models
 
 from evidence_type.serializers import (
     EvidenceTypeSerializer,
-    UpdateEvidenceTypeCustomFieldSerializer,
+    AddEvidenceTypeCustomFieldSerializer,
     EvidenceTypeQualityControlSerializer,
 )
 
@@ -191,12 +191,12 @@ class ListCreateCustomFieldView(views.APIView):
     
     @extend_schema(
         description=_("[Protected | ChangeEvidenceType] Add an evidence type custom field"),
-        request=UpdateEvidenceTypeCustomFieldSerializer,
+        request=AddEvidenceTypeCustomFieldSerializer,
         responses={200: EvidenceTypeCustomFielderializer},
     )
     def post(self, request, pk):
         """Update evidence type custom fields"""
-        body_serializer = UpdateEvidenceTypeCustomFieldSerializer(data=request.data)    
+        body_serializer = AddEvidenceTypeCustomFieldSerializer(data=request.data)    
         body_serializer.is_valid(raise_exception=True)
 
         model = models.EvidenceType.objects.get(id=pk)

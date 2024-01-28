@@ -30,8 +30,8 @@ def detail_url(id):
 def custom_fields_url(id):
     return reverse('evidencetype:custom-fields', args=[id])
 
-def custom_fields_delete_url(id, id2):
-    return reverse('evidencetype:custom-fields-delete', args=[id, id2])
+def custom_fields_detail_url(id, id2):
+    return reverse('evidencetype:custom-fields-detail', args=[id, id2])
 
 def create_user(**params):
     """Create an return a new user"""
@@ -180,7 +180,7 @@ class PublicEvidenceTypeTests(TestCase):
         """Test evidence status partial update unauthorized"""
 
         # delete custom field
-        res = self.client.delete(custom_fields_delete_url(1, 1))
+        res = self.client.delete(custom_fields_detail_url(1, 1))
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
 class ForbiddenEvidenceTypeTests(TestCase):
@@ -310,7 +310,7 @@ class ForbiddenEvidenceTypeTests(TestCase):
         """Test evidence status partial update forbidden"""
 
         # delete custom field
-        res = self.client.delete(custom_fields_delete_url(1, 1))
+        res = self.client.delete(custom_fields_detail_url(1, 1))
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
 class EvidenceTypeTests(TestCase):
@@ -600,3 +600,60 @@ class EvidenceTypeTests(TestCase):
         custom_fields = models.EvidenceTypeCustomField.objects.filter(type=model.id)
         serializer = EvidenceTypeCustomFielderializer(custom_fields, many=True)
         self.assertEqual(res.data, serializer.data)
+
+    def test_update_custom_fields_success(self):
+        """Test update custom fields success"""
+        data = {
+            'name': 'name1', 
+            'alias': 'name1', 
+            'attachment_required': False, 
+            'group': self.egroup,
+            'description': 'desc1'
+        }
+        model = create_evidence_type(**data)
+
+        customField = models.CustomField.create_custom_field(
+                name="custom 1", 
+                slug="custom1", 
+                datatype=Attribute.TYPE_TEXT,
+                description="Custom field description",
+        )
+
+        model.custom_fields.add(customField, through_defaults={'mandatory': True, 'group': "Generals"})
+
+
+        customField2 = models.CustomField.create_custom_field(
+                name="custom 2", 
+                slug="custom2", 
+                datatype=Attribute.TYPE_TEXT,
+                description="Custom field description",
+        )
+
+        model.custom_fields.add(customField2, through_defaults={'mandatory': False, 'group': "Generals"})
+
+        model.save()
+
+        res = self.client.get(custom_fields_url(model.id))
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        custom_fields = models.EvidenceTypeCustomField.objects.filter(type=model.id)
+        serializer = EvidenceTypeCustomFielderializer(custom_fields, many=True)
+
+        id = serializer.data[0].get('id', None)
+        res = self.client.patch(custom_fields_detail_url(model.id, id), {
+            "mandatory": False,
+            "group": "Other group"
+        })
+
+        print(res.status_code)
+        print(res.data)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        custom_fields = models.EvidenceTypeCustomField.objects.filter(type=model.id)
+        serializer = EvidenceTypeCustomFielderializer(custom_fields, many=True)
+
+        mandatory = serializer.data[0].get('mandatory', None)
+        group = serializer.data[0].get('group', None)
+
+        self.assertEqual(mandatory, False)
+        self.assertEqual(group, "Other group")
