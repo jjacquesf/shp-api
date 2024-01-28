@@ -41,8 +41,8 @@ class PublicEvidenceTests(TestCase):
     def setUp(self):
         self.client = APIClient()
 
-    def test_list_entities_unauthorized(self):
-        """Test list entities unauthorized"""
+    def test_list_evidencies_unauthorized(self):
+        """Test list evidencies unauthorized"""
         res = self.client.get(MAIN_URL)
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
@@ -96,8 +96,8 @@ class ForbiddenEvidenceTests(TestCase):
 
         self.client.force_authenticate(user=self.user)
 
-    def test_list_entities_forbidden(self):
-        """Test list entities forbidden"""
+    def test_list_evidencies_forbidden(self):
+        """Test list evidencies forbidden"""
         res = self.client.get(MAIN_URL)
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
@@ -186,8 +186,8 @@ class EvidenceTests(TestCase):
         self.client = APIClient()
         self.client.force_authenticate(user=user)
 
-    def test_list_active_entities_success(self):
-        """Test list entities success"""
+    def test_list_active_evidencies_success(self):
+        """Test list evidencies success"""
         data = {'name': 'name1', 'level': 0}
         create_evidence(**data)
         data.update({'is_active': False, 'name': 'name2'})
@@ -208,8 +208,8 @@ class EvidenceTests(TestCase):
         self.assertEqual(res.data, serializer.data)
         self.assertEqual(res2.data, serializer.data)
 
-    def test_list_all_entities_success(self):
-        """Test list filtered entities success"""
+    def test_list_all_evidencies_success(self):
+        """Test list filtered evidencies success"""
         data = {'name': 'name1', 'level': 0}
         create_evidence(**data)
         data.update({'is_active': False, 'name': 'name2'})

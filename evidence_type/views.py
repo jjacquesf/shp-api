@@ -19,12 +19,13 @@ from core import models
 
 from evidence_type.serializers import (
     EvidenceTypeSerializer,
-    UpdateEvidenceTypeCustomFieldSerializer
+    UpdateEvidenceTypeCustomFieldSerializer,
+    EvidenceTypeQualityControlSerializer,
 )
 
 from custom_field.serializers import (
     CustomFieldSerializer,
-    EvidenceTypeCustomFielderializer
+    EvidenceTypeCustomFielderializer,
 )
 
 class EvidenceTypePermission(permissions.BasePermission):
@@ -183,7 +184,7 @@ class ListCreateCustomFieldView(views.APIView):
     def get(self, request, pk):
         model = models.EvidenceType.objects.get(id=pk)
 
-        custom_fields = models.EvidenceTypeCustomField.objects.filter(evidence_type=model.id)
+        custom_fields = models.EvidenceTypeCustomField.objects.filter(type=model.id)
         serializer = EvidenceTypeCustomFielderializer(custom_fields, many=True)
 
         return Response(serializer.data)
@@ -205,7 +206,7 @@ class ListCreateCustomFieldView(views.APIView):
         if custom_field != None:
             model.custom_fields.add(custom_field, through_defaults={'mandatory': body_serializer.validated_data['mandatory']})
 
-        custom_fields = models.EvidenceTypeCustomField.objects.get(evidence_type=model.id, custom_field=custom_field.id)
+        custom_fields = models.EvidenceTypeCustomField.objects.get(type=model.id, custom_field=custom_field.id)
         serializer = EvidenceTypeCustomFielderializer(custom_fields)
         return Response(serializer.data)
     
@@ -220,7 +221,107 @@ class DeleteCustomFieldView(views.APIView):
     def delete(self, request, pk, cf_id):
         """Delete evidence type custom fields"""
         model = models.EvidenceType.objects.get(id=pk)
-        models.EvidenceTypeCustomField.objects.filter(id=cf_id, evidence_type=model.id).delete()
+        models.EvidenceTypeCustomField.objects.filter(id=cf_id, type=model.id).delete()
 
         return Response(None, status=status.HTTP_204_NO_CONTENT)
     
+
+@extend_schema(tags=['Evidence catalogs'])
+@extend_schema_view(
+    list=extend_schema(
+        description=_('[Protected | ViewEvidenceType] List evidence types'),
+        parameters=[
+            OpenApiParameter(
+                'active_only',
+                OpenApiTypes.STR,
+                required=False,
+                description=_('Either "true" or "false" depending on the desired query. Default: "true"')
+            ),
+            OpenApiParameter(
+                'name',
+                OpenApiTypes.STR,
+                required=False,
+                description=_('Name filter value')
+            ),
+            OpenApiParameter(
+                'parent',
+                OpenApiTypes.INT,
+                required=False,
+                description=_('Parent id filter value')
+            ),
+            OpenApiParameter(
+                'group',
+                OpenApiTypes.INT,
+                required=False,
+                description=_('Group id filter value')
+            )
+        ]
+    ),
+    create=extend_schema(
+        description=_('[Protected | AddEvidenceType] Add an evidence type')
+    ),
+    retrieve=extend_schema(
+        description=_('[Protected | ViewEvidenceType] Retrieve an evidence type by id')
+    ),
+    partial_update=extend_schema(
+        description=_('[Protected | ChangeEvidenceType] Partial update an evidence type by id')
+    ),
+    update=extend_schema(
+        description=_('[Protected | ChangeEvidenceType] Replace an evidence type by id')
+    ),
+    destroy=extend_schema(
+        description=_('[Protected | DeleteEvidenceType] Delete an evidence type by id')
+    ),
+)
+class EvidenceTypeQualityControlViewSet(viewsets.ModelViewSet):
+    """Viewset for manage evidence type quality control APIs."""
+    serializer_class = EvidenceTypeQualityControlSerializer
+    queryset = models.EvidenceTypeQualityControl.objects.all()
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated, EvidenceTypePermission]
+
+    def get_queryset(self):
+        """Retrieve evidence type quality controls sorted by name"""
+        
+        # Filter objects by active status
+        active_only = self.request.query_params.get('active_only')
+        queryset = self.queryset
+        if self.request.method == 'GET' and (active_only == None or active_only.strip().lower() == 'true'):
+            queryset = queryset.filter(is_active=True)
+
+        name = self.request.query_params.get('name')
+        if name != None:
+            queryset = queryset.filter(name__icontains=name)
+
+        type = self.request.query_params.get('type')
+        if type != None:
+            queryset = queryset.filter(type=type)
+
+        return queryset.order_by('name')
+        
+    
+    # def _update_level(self, serializer):
+    #     # Save level depending on the parent
+    #     level = 0
+    #     parent = serializer.validated_data.get('parent', None)
+    #     if parent != None:
+    #         level = parent.level + 1
+
+    #     return serializer.save(level=level)
+
+    # def perform_create(self, serializer):
+    #     """Create a new evidence type"""
+    #     return self._update_level(serializer)
+
+    # def perform_update(self, serializer):
+    #     """Update a evidence type"""
+    #     return self._update_level(serializer)
+    
+    def perform_destroy(self, instance):
+        """Destroy a evidence type"""
+        related = models.EvidenceFinding.objects.filter(qc=instance).count()
+        if(related > 0):
+            raise serializers.ValidationError(_('Unable to delete parent records. Disable it instead.'))
+        
+        instance.delete()
+

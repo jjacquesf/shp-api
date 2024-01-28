@@ -212,6 +212,7 @@ class EvidenceStatus(TimeStampMixin):
 
 class CustomField(TimeStampMixin):
     is_active = models.BooleanField(default=True)
+    # Catalog name to prefill
     catalog = models.TextField(
         blank=True, 
         null=True
@@ -278,7 +279,19 @@ class EvidenceType(TimeStampMixin):
         verbose_name = _('Evidence type')
         verbose_name_plural = _('Evidence types')
 
+class EvidenceTypeQualityControl(TimeStampMixin):
+    is_active = models.BooleanField(default=True)
+    type = models.ForeignKey(
+        EvidenceType,
+        on_delete=models.CASCADE
+    )
+    name = models.CharField(max_length=128)
+
+    class Meta:
+        unique_together = ('type', 'name')
+
 class EvidenceTypeCustomField(TimeStampMixin):
+    is_active = models.BooleanField(default=True)
     type = models.ForeignKey(
         EvidenceType,
         on_delete=models.CASCADE
@@ -309,16 +322,6 @@ class Evidence(TimeStampMixin):
     pending_auth = models.BooleanField(default=False)
     pending_signature = models.BooleanField(default=False)
     version = models.IntegerField(default=0)
-
-class EvidenceTypeQualityControl(TimeStampMixin):
-    type = models.ForeignKey(
-        EvidenceType,
-        on_delete=models.CASCADE
-    )
-    name = models.CharField(max_length=128)
-
-    class Meta:
-        unique_together = ('type', 'name')
 
 class EvidenceFinding(TimeStampMixin):
     class Status(models.TextChoices):

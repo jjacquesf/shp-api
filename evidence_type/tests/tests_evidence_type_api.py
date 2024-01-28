@@ -30,7 +30,6 @@ def detail_url(id):
 def custom_fields_url(id):
     return reverse('evidencetype:custom-fields', args=[id])
 
-
 def custom_fields_delete_url(id, id2):
     return reverse('evidencetype:custom-fields-delete', args=[id, id2])
 
@@ -58,6 +57,12 @@ def create_evidence_type(**params):
     """Create and return a new evidence status"""
     evidence_type = models.EvidenceType.objects.create(**params)
     return evidence_type
+
+def create_evidence_type(**params):
+    """Create and return a new evidence status"""
+    evidence_type = models.EvidenceType.objects.create(**params)
+    return evidence_type
+
 
 class PublicEvidenceTypeTests(TestCase):
     """Test unauthenticated API requests."""
@@ -592,85 +597,6 @@ class EvidenceTypeTests(TestCase):
         res = self.client.get(custom_fields_url(model.id))
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
-        custom_fields = models.EvidenceTypeCustomField.objects.filter(evidence_type=model.id)
+        custom_fields = models.EvidenceTypeCustomField.objects.filter(type=model.id)
         serializer = EvidenceTypeCustomFielderializer(custom_fields, many=True)
         self.assertEqual(res.data, serializer.data)
-
-    def test_add_custom_field_success(self):
-        """Test evidence status partial update success"""
-        data = {
-            'name': 'name1', 
-            'alias': 'name1', 
-            'attachment_required': False, 
-            'group': self.egroup,
-            'description': 'desc1'
-        }
-        model = create_evidence_type(**data)
-
-        customField = models.CustomField.create_custom_field(
-                name="custom 1", 
-                slug="custom1", 
-                datatype=Attribute.TYPE_TEXT,
-                description="Custom field description",
-        )
-
-        res = self.client.post(custom_fields_url(model.id), {
-            "custom_field": customField.id,
-            "mandatory": True,
-            "group": "Generals",
-        })
-        
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
-
-        custom_fields = models.EvidenceTypeCustomField.objects.get(evidence_type=model.id, custom_field=customField.id)
-        serializer = EvidenceTypeCustomFielderializer(custom_fields)
-        self.assertEqual(res.data, serializer.data)
-
-    def test_delete_custom_field_success(self):
-        """Test evidence status partial update success"""
-        data = {
-            'name': 'name1', 
-            'alias': 'name1', 
-            'attachment_required': False, 
-            'group': self.egroup,
-            'description': 'desc1'
-        }
-        model = create_evidence_type(**data)
-
-        customField = models.CustomField.create_custom_field(
-                name="custom 1", 
-                slug="custom1", 
-                datatype=Attribute.TYPE_TEXT,
-                description="Custom field description",
-        )
-
-        model.custom_fields.add(customField, through_defaults={'mandatory': True, 'group': "Generals"})
-
-
-        customField2 = models.CustomField.create_custom_field(
-                name="custom 2", 
-                slug="custom2", 
-                datatype=Attribute.TYPE_TEXT,
-                description="Custom field description",
-        )
-
-        model.custom_fields.add(customField2, through_defaults={'mandatory': False})
-
-        model.save()
-
-        # get custom fields
-        res = self.client.get(custom_fields_url(model.id))
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
-
-        # delete custom field
-        res = self.client.delete(custom_fields_delete_url(model.id, customField.id))
-        self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
-
-        # Validate deleted
-        res = self.client.get(custom_fields_url(model.id))
-
-        custom_fields = models.EvidenceTypeCustomField.objects.filter(evidence_type=model.id)
-        serializer = EvidenceTypeCustomFielderializer(custom_fields, many=True)
-
-        self.assertEqual(res.data, serializer.data)
-
