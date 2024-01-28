@@ -15,6 +15,13 @@ from django.contrib.auth.models import (
 )
 from django.contrib.auth import get_user_model
 
+class TimeStampMixin(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        abstract = True
+
 class UserManager(BaseUserManager):
     """Manager for users"""
 
@@ -48,10 +55,6 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     USERNAME_FIELD = 'email'
 
-class Profile(models.Model):
-    user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE)
-    job_position = models.CharField(max_length=255)
-
 class CustomGroup(Group):
     description = models.TextField(
         blank=True, 
@@ -61,28 +64,31 @@ class CustomGroup(Group):
     class Meta:
         verbose_name = _('Group')
         verbose_name_plural = _('Groups')
+class Profile(TimeStampMixin):
+    user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE)
+    job_position = models.CharField(max_length=255)
 
-class Municipality(models.Model):
+class Municipality(TimeStampMixin):
     is_active = models.BooleanField(default=True)
     name = models.CharField(max_length=128,unique=True)
     class Meta:
         verbose_name = _('Municipality')
         verbose_name_plural = _('Municipalities')
 
-class Institution(models.Model):
+class Institution(TimeStampMixin):
     is_active = models.BooleanField(default=True)
     name = models.CharField(max_length=128,unique=True)
     class Meta:
         verbose_name = _('Institution')
 
-class Dpe(models.Model):
+class Dpe(TimeStampMixin):
     is_active = models.BooleanField(default=True)
     name = models.CharField(max_length=128,unique=True)
     class Meta:
         verbose_name = _('Decentralized public entity')
         verbose_name_plural = _('Decentralized public entities')
 
-class Supplier(models.Model):
+class Supplier(TimeStampMixin):
     is_active = models.BooleanField(default=True)
     name = models.CharField(max_length=128,unique=True)
     tax_id = models.CharField(max_length=13,unique=True)
@@ -90,7 +96,7 @@ class Supplier(models.Model):
     class Meta:
         verbose_name = _('Supplier')
 
-class Department(models.Model):
+class Department(TimeStampMixin):
     is_active = models.BooleanField(default=True)
     name = models.CharField(max_length=128,unique=True)
     level = models.IntegerField(default=0)
@@ -104,7 +110,7 @@ class Department(models.Model):
         verbose_name = _('SHP Department')
         verbose_name_plural = _('SHP Departments')
 
-class Entity(models.Model):
+class Entity(TimeStampMixin):
     is_active = models.BooleanField(default=True)
     name = models.CharField(max_length=128,unique=True)
     level = models.IntegerField(default=0)
@@ -118,7 +124,7 @@ class Entity(models.Model):
         verbose_name = _('Entity')
         verbose_name_plural = _('Entities')
 
-class StateOrg(models.Model):
+class StateOrg(TimeStampMixin):
     is_active = models.BooleanField(default=True)
     name = models.CharField(max_length=128,unique=True)
     level = models.IntegerField(default=0)
@@ -132,7 +138,7 @@ class StateOrg(models.Model):
         verbose_name = _('State Organization')
         verbose_name_plural = _('State organizations')
 
-class SifUser(models.Model):
+class SifUser(TimeStampMixin):
     is_active = models.BooleanField(default=True)
     name = models.CharField(max_length=128,unique=True)
     stateorg = models.ForeignKey(
@@ -143,7 +149,7 @@ class SifUser(models.Model):
         verbose_name = _('SIF user')
         verbose_name_plural = _('SIF users')
 
-class SianUser(models.Model):
+class SianUser(TimeStampMixin):
     is_active = models.BooleanField(default=True)
     name = models.CharField(max_length=128,unique=True)
     stateorg = models.ForeignKey(
@@ -153,7 +159,7 @@ class SianUser(models.Model):
     class Meta:
         verbose_name = _('SIAN user')
         verbose_name_plural = _('SIAN users')
-class EvidenceGroup(models.Model):
+class EvidenceGroup(TimeStampMixin):
     is_active = models.BooleanField(default=True)
     name = models.CharField(max_length=128,unique=True)
     alias = models.SlugField(max_length=128,unique=True)
@@ -166,7 +172,7 @@ class EvidenceGroup(models.Model):
         verbose_name = _('Evidence group')
         verbose_name_plural = _('Evidence groups')
 
-class EvidenceStage(models.Model):
+class EvidenceStage(TimeStampMixin):
     is_active = models.BooleanField(default=True)
     name = models.CharField(max_length=128,unique=True)
     position = models.IntegerField(default=1)
@@ -179,7 +185,7 @@ class EvidenceStage(models.Model):
         verbose_name = _('Evidence stage')
         verbose_name_plural = _('Evidence stages')
 
-class EvidenceStatus(models.Model):
+class EvidenceStatus(TimeStampMixin):
     is_active = models.BooleanField(default=True)
     name = models.CharField(max_length=128,unique=True)
     position = models.IntegerField(default=1)
@@ -201,7 +207,10 @@ class EvidenceStatus(models.Model):
         verbose_name = _('Evidence satatus')
         verbose_name_plural = _('Evidence satatuses')
 
-class CustomField(models.Model):
+        unique_together = ('stage', 'group', 'name')
+
+
+class CustomField(TimeStampMixin):
     is_active = models.BooleanField(default=True)
     catalog = models.TextField(
         blank=True, 
@@ -241,7 +250,7 @@ class CustomField(models.Model):
 
         return model
 
-class EvidenceType(models.Model):
+class EvidenceType(TimeStampMixin):
     is_active = models.BooleanField(default=True)
     name = models.CharField(max_length=128,unique=True)
     alias = models.SlugField(max_length=128,unique=True)
@@ -269,8 +278,8 @@ class EvidenceType(models.Model):
         verbose_name = _('Evidence type')
         verbose_name_plural = _('Evidence types')
 
-class EvidenceTypeCustomField(models.Model):
-    evidence_type = models.ForeignKey(
+class EvidenceTypeCustomField(TimeStampMixin):
+    type = models.ForeignKey(
         EvidenceType,
         on_delete=models.CASCADE
     )
@@ -281,8 +290,116 @@ class EvidenceTypeCustomField(models.Model):
     mandatory = models.BooleanField(default=False)
     group = models.CharField(max_length=64, default="General")
     class Meta:
-        unique_together = [['evidence_type', 'custom_field']]
+        unique_together = [['type', 'custom_field']]
+
+class Evidence(TimeStampMixin):
+    type = models.ForeignKey(
+        EvidenceType,
+        on_delete=models.CASCADE
+    )
+    owner = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE
+    )
+    status = models.ForeignKey(
+        EvidenceStatus,
+        on_delete=models.CASCADE
+    )
+    dirty = models.BooleanField(default=False)
+    pending_auth = models.BooleanField(default=False)
+    pending_signature = models.BooleanField(default=False)
+    version = models.IntegerField(default=0)
+
+class EvidenceTypeQualityControl(TimeStampMixin):
+    type = models.ForeignKey(
+        EvidenceType,
+        on_delete=models.CASCADE
+    )
+    name = models.CharField(max_length=128)
+
+    class Meta:
+        unique_together = ('type', 'name')
+
+class EvidenceFinding(TimeStampMixin):
+    class Status(models.TextChoices):
+        PENDING = 'PEN', _('Pending')
+        SENT = 'SEN', _('Sent')
+        WAITING_FOR_REVIEW = 'WAI', _('Waiting for review')
+        REVIEWED = 'REV', _('Reviewed')
+        COMPLETED = 'COM', _('Completed')
+        REJECTED = 'REJ', _('Rejected')
+
+    evidence = models.ForeignKey(
+        Evidence,
+        on_delete=models.CASCADE
+    )
+    qc = models.ForeignKey(
+        EvidenceTypeQualityControl,
+        on_delete=models.CASCADE
+    )
+    status = models.CharField(
+        max_length=3,
+        choices=Status.choices,
+        default=Status.PENDING,
+    )
+    comments = models.TextField(
+        blank=True, 
+        null=True
+    )
+    version = models.IntegerField(default=1)
+    
+
+    class Meta:
+        unique_together = ('evidence', 'qc', 'version')
+
+class EvidenceAuth(TimeStampMixin):
+    class Status(models.TextChoices):
+        PENDING = 'PEN', _('Pending')
+        COMPLETED = 'COM', _('Completed')
+    
+    evidence = models.ForeignKey(
+        Evidence,
+        on_delete=models.CASCADE
+    )
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE
+    )
+    status = models.CharField(
+        max_length=3,
+        choices=Status.choices,
+        default=Status.PENDING,
+    )
+    version = models.IntegerField(default=1)
+    
+
+    class Meta:
+        unique_together = ('evidence', 'user', 'version')
+
+
+class EvidenceSignature(TimeStampMixin):
+    class Status(models.TextChoices):
+        PENDING = 'PEN', _('Pending')
+        COMPLETED = 'COM', _('Completed')
+    
+    evidence = models.ForeignKey(
+        Evidence,
+        on_delete=models.CASCADE
+    )
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE
+    )
+    status = models.CharField(
+        max_length=3,
+        choices=Status.choices,
+        default=Status.PENDING,
+    )
+    version = models.IntegerField(default=1)
+    
+    class Meta:
+        unique_together = ('evidence', 'user', 'version')
+
 
 ## Register eav for models
-eav.register(EvidenceGroup)
-eav.register(Dpe)
+eav.register(Evidence)

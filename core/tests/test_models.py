@@ -202,11 +202,11 @@ class ModelTests(TestCase):
             )
 
             qc = models.EvidenceTypeQualityControl.objects.create(
-                  evidence_type=evidence_type,
+                  type=evidence_type,
                   name="QC 1"
             )
 
-            self.assertEqual(qc.evidence_type.id, evidence_type.id)
+            self.assertEqual(qc.type.id, evidence_type.id)
 
       def test_create_evidence_group(self):
             """Test creating a evidence type"""
@@ -361,7 +361,7 @@ class ModelTests(TestCase):
             )
 
             qc = models.EvidenceTypeQualityControl.objects.create(
-                  evidence_type=type,
+                  type=type,
                   name="QC 1"
             )
 
@@ -387,22 +387,22 @@ class ModelTests(TestCase):
                   evidence=evidence,
                   qc=qc,
                   version=1,
-                  status='PENDING_SENT', # PENDING | SENT | WAITING_FOR_REVIEW | REVIEWED | COMPLETED
+                  status='PEN', # PEN | SEN | WAI | REV | COM
                   comments="Comment details"
             )
             
             auth = models.EvidenceAuth.objects.create(
                   evidence=evidence,
                   user=user,
-                  status=status,
+                  status='PEN', # PEN | COM
                   version=1,
             )
 
             signature = models.EvidenceSignature.objects.create(
                   evidence=evidence,
                   user=user,
+                  status='PEN', # PEN | COM
                   version=1,
-                  status=status,
             )
 
 
