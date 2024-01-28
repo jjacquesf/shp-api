@@ -160,12 +160,13 @@ class PublicEvidenceTypeTests(TestCase):
                 name="custom 1", 
                 slug="custom1", 
                 datatype=Attribute.TYPE_TEXT,
-                description="Custom field description"
+                description="Custom field description",
         )
 
         res = self.client.post(custom_fields_url(model.id), {
             "custom_field": customField.id,
             "mandatory": True,
+            "group": "Generals",
         })
         
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
@@ -289,12 +290,13 @@ class ForbiddenEvidenceTypeTests(TestCase):
                 name="custom 1", 
                 slug="custom1", 
                 datatype=Attribute.TYPE_TEXT,
-                description="Custom field description"
+                description="Custom field description",
         )
 
         res = self.client.post(custom_fields_url(model.id), {
             "custom_field": customField.id,
             "mandatory": True,
+            "group": "Generals",
         })
         
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
@@ -570,17 +572,17 @@ class EvidenceTypeTests(TestCase):
                 name="custom 1", 
                 slug="custom1", 
                 datatype=Attribute.TYPE_TEXT,
-                description="Custom field description"
+                description="Custom field description",
         )
 
-        model.custom_fields.add(customField, through_defaults={'mandatory': True})
+        model.custom_fields.add(customField, through_defaults={'mandatory': True, 'group': "Generals"})
 
 
         customField2 = models.CustomField.create_custom_field(
                 name="custom 2", 
                 slug="custom2", 
                 datatype=Attribute.TYPE_TEXT,
-                description="Custom field description"
+                description="Custom field description",
         )
 
         model.custom_fields.add(customField2, through_defaults={'mandatory': False})
@@ -609,12 +611,13 @@ class EvidenceTypeTests(TestCase):
                 name="custom 1", 
                 slug="custom1", 
                 datatype=Attribute.TYPE_TEXT,
-                description="Custom field description"
+                description="Custom field description",
         )
 
         res = self.client.post(custom_fields_url(model.id), {
             "custom_field": customField.id,
             "mandatory": True,
+            "group": "Generals",
         })
         
         self.assertEqual(res.status_code, status.HTTP_200_OK)
@@ -638,17 +641,17 @@ class EvidenceTypeTests(TestCase):
                 name="custom 1", 
                 slug="custom1", 
                 datatype=Attribute.TYPE_TEXT,
-                description="Custom field description"
+                description="Custom field description",
         )
 
-        model.custom_fields.add(customField, through_defaults={'mandatory': True})
+        model.custom_fields.add(customField, through_defaults={'mandatory': True, 'group': "Generals"})
 
 
         customField2 = models.CustomField.create_custom_field(
                 name="custom 2", 
                 slug="custom2", 
                 datatype=Attribute.TYPE_TEXT,
-                description="Custom field description"
+                description="Custom field description",
         )
 
         model.custom_fields.add(customField2, through_defaults={'mandatory': False})

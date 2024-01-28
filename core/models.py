@@ -75,7 +75,6 @@ class Institution(models.Model):
     class Meta:
         verbose_name = _('Institution')
 
-
 class Dpe(models.Model):
     is_active = models.BooleanField(default=True)
     name = models.CharField(max_length=128,unique=True)
@@ -132,7 +131,6 @@ class StateOrg(models.Model):
     class Meta:
         verbose_name = _('State Organization')
         verbose_name_plural = _('State organizations')
-
 
 class SifUser(models.Model):
     is_active = models.BooleanField(default=True)
@@ -243,7 +241,6 @@ class CustomField(models.Model):
 
         return model
 
-
 class EvidenceType(models.Model):
     is_active = models.BooleanField(default=True)
     name = models.CharField(max_length=128,unique=True)
@@ -265,6 +262,8 @@ class EvidenceType(models.Model):
         blank=True, 
         null=True
     )
+    signature_required = models.BooleanField(default=False)
+    auth_required = models.BooleanField(default=False)
     
     class Meta:
         verbose_name = _('Evidence type')
@@ -280,7 +279,7 @@ class EvidenceTypeCustomField(models.Model):
         on_delete=models.CASCADE
     )
     mandatory = models.BooleanField(default=False)
-
+    group = models.CharField(max_length=64, default="General")
     class Meta:
         unique_together = [['evidence_type', 'custom_field']]
 

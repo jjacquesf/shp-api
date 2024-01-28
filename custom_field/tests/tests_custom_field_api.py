@@ -91,7 +91,7 @@ class PublicCustomFieldTests(TestCase):
                 name="custom 1", 
                 slug="custom1", 
                 datatype=Attribute.TYPE_TEXT,
-                description="Custom 1 field description"
+                description="Custom 1 field description",
         )
 
         res = self.client.patch(detail_url(model.id), {
@@ -107,7 +107,7 @@ class PublicCustomFieldTests(TestCase):
                 name="custom 1", 
                 slug="custom1", 
                 datatype=Attribute.TYPE_TEXT,
-                description="Custom 1 field description"
+                description="Custom 1 field description",
         )
 
         res = self.client.delete(detail_url(model.id))
@@ -153,7 +153,7 @@ class ForbiddenCustomFieldTests(TestCase):
                 name="custom 1", 
                 slug="custom1", 
                 datatype=Attribute.TYPE_TEXT,
-                description="Custom 1 field description"
+                description="Custom 1 field description",
         )
 
         res = self.client.patch(detail_url(model.id), {
@@ -170,7 +170,7 @@ class ForbiddenCustomFieldTests(TestCase):
                 name="custom 1", 
                 slug="custom1", 
                 datatype=Attribute.TYPE_TEXT,
-                description="Custom 1 field description"
+                description="Custom 1 field description",
         )
 
         res = self.client.delete(detail_url(model.id))
@@ -227,14 +227,14 @@ class CustomFieldTests(TestCase):
                 name="custom 2", 
                 slug="custom2", 
                 datatype=Attribute.TYPE_TEXT,
-                description="Custom 2 field description"
+                description="Custom 2 field description",
         )
 
         models.CustomField.create_custom_field(
                 name="custom 1", 
                 slug="custom1", 
                 datatype=Attribute.TYPE_TEXT,
-                description="Custom 1 field description"
+                description="Custom 1 field description",
         )
 
         res = self.client.get(MAIN_URL)
@@ -268,7 +268,7 @@ class CustomFieldTests(TestCase):
                 name="custom 1", 
                 slug="custom1", 
                 datatype=Attribute.TYPE_TEXT,
-                description="Custom 1 field description"
+                description="Custom 1 field description",
         )
 
         res = self.client.patch(detail_url(model.id), {
@@ -286,7 +286,7 @@ class CustomFieldTests(TestCase):
                 name="custom 1", 
                 slug="custom1", 
                 datatype=Attribute.TYPE_TEXT,
-                description="Custom 1 field description"
+                description="Custom 1 field description",
         )
 
         res = self.client.delete(detail_url(model.id))

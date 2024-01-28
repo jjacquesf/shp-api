@@ -66,7 +66,6 @@ class ModelTests(TestCase):
             )
             self.assertEqual(model.name, name)
 
-
       def test_create_institution(self):
             name = "Institution name"
             model = models.Institution.objects.create(
@@ -102,7 +101,6 @@ class ModelTests(TestCase):
             )
             self.assertEqual(model.name, name)
 
-
       def test_create_supplier(self):
             """Test creating a supplier"""
             name = "Supplier name"
@@ -121,7 +119,6 @@ class ModelTests(TestCase):
             )
             self.assertEqual(model.name, name)
 
-
       def test_create_evidence_status(self):
             """Test creating an evidence status"""
 
@@ -134,7 +131,9 @@ class ModelTests(TestCase):
             type = models.EvidenceType.objects.create(
                   name="Evidence type name",
                   alias="type",
-                  description="Evidence type description"
+                  description="Evidence type description",
+                  signature_required=True,
+                  auth_required=True,
             )
 
             name = "Evidence status name"
@@ -179,9 +178,35 @@ class ModelTests(TestCase):
                   alias="type",
                   description="Evidence type description",
                   group=group,
-                  attachment_required=True
+                  attachment_required=True,
+                  signature_required=True,
+                  auth_required=True,
             )
             self.assertEqual(model.name, "Evidence type name")
+
+      def test_create_evidence_type_qc(self):
+            group = models.EvidenceGroup.objects.create(
+                  name="Test Group",
+                  alias="group",
+                  description="Group description"
+            )
+
+            evidence_type = models.EvidenceType.objects.create(
+                  name="Evidence type name",
+                  alias="type",
+                  description="Evidence type description",
+                  group=group,
+                  attachment_required=True,
+                  signature_required=True,
+                  auth_required=True,
+            )
+
+            qc = models.EvidenceTypeQualityControl.objects.create(
+                  evidence_type=evidence_type,
+                  name="QC 1"
+            )
+
+            self.assertEqual(qc.evidence_type.id, evidence_type.id)
 
       def test_create_evidence_group(self):
             """Test creating a evidence type"""
@@ -210,7 +235,7 @@ class ModelTests(TestCase):
                   attachment_required=True
             )
             self.assertEqual(model2.name, "Evidence type name2")
-            self.assertEqual(model2.group.id, model.id)
+            self.assertEqual(model2.parent.id, model.id)
 
       def test_create_eav_attribute(self):
             model = Attribute.objects.create(name='Color', slug='color', datatype=Attribute.TYPE_TEXT)
@@ -235,17 +260,19 @@ class ModelTests(TestCase):
                   alias="type",
                   description="Evidence type description",
                   group=group,
-                  attachment_required=True
+                  attachment_required=True,
+                  signature_required=True,
+                  auth_required=True,
             )
 
             customField = models.CustomField.create_custom_field(
                   name="custom 1", 
                   slug="custom1", 
                   datatype=Attribute.TYPE_TEXT,
-                  description="Custom field description"
+                  description="Custom field description",
             )
 
-            evidenceType.custom_fields.add(customField, through_defaults={'mandatory': True})
+            evidenceType.custom_fields.add(customField, through_defaults={'mandatory': True, 'group': "Generals"})
             evidenceType.save()
 
             self.assertEqual(customField.is_active, True)
@@ -260,3 +287,122 @@ class ModelTests(TestCase):
             self.assertEqual(customField.attribute.datatype, added.attribute.datatype)
 
             cfields = models.CustomField.objects.all()
+
+      def test_create_evidence(self):
+            """Test creating an evidence"""
+
+            ## Evidence type
+            group = models.EvidenceGroup.objects.create(
+                  name="Test Group",
+                  alias="group",
+                  description="Group description"
+            )
+
+            evidenceType = models.EvidenceType.objects.create(
+                  name="Evidence type name",
+                  alias="type",
+                  description="Evidence type description",
+                  group=group,
+                  attachment_required=True,
+                  signature_required=True,
+                  auth_required=True,
+            )
+
+            customField = models.CustomField.create_custom_field(
+                  name="custom 1", 
+                  slug="custom1", 
+                  datatype=Attribute.TYPE_TEXT,
+                  description="Custom field description",
+            )
+
+            evidenceType.custom_fields.add(customField, through_defaults={'mandatory': True, 'group': "Generals"})
+            evidenceType.save()
+
+            # print(group)
+            # print(evidenceType)
+            # print(customField)
+            # print('=====')
+
+            ## User
+            email = 'test@example.com'
+            password = 'testpass123'
+            user = get_user_model().objects.create_user(
+                  email=email,
+                  password=password
+            )
+
+            # print(user)
+            # print('=====')
+
+            ## Status
+            stage = models.EvidenceStage.objects.create(
+                  name="Evidence Stage name",
+                  position=1,
+                  description="stage description"
+            )
+
+            name = "Evidence status name"
+            status = models.EvidenceStatus.objects.create(
+                  name=name,
+                  color='#ffffff',
+                  position=1,
+                  description="evidence status description",
+                  stage=stage,
+                  group=group
+            )
+
+            type = models.EvidenceType.objects.create(
+                  name="Evidence type name 2",
+                  alias="type2",
+                  description="Evidence type description2",
+                  signature_required=True,
+                  auth_required=True,
+                  group=group
+            )
+
+            qc = models.EvidenceTypeQualityControl.objects.create(
+                  evidence_type=type,
+                  name="QC 1"
+            )
+
+            # print(stage)
+            # print(status)
+            # print(type)
+            # print('=====')
+
+            # evidence model
+            ## Extend from TimeStampMixin
+            evidence = models.Evidence.objects.create(
+                  type=evidenceType,
+                  owner=user,
+                  status=status,
+                  dirty=False,
+                  pending_auth=False,
+                  pending_signature=False,
+                  version=1, # Equals to to the lower 
+            )
+
+            ## Extend from TimeStampMixin
+            evidence_finding = models.EvidenceFinding.objects.create(
+                  evidence=evidence,
+                  qc=qc,
+                  version=1,
+                  status='PENDING_SENT', # PENDING | SENT | WAITING_FOR_REVIEW | REVIEWED | COMPLETED
+                  comments="Comment details"
+            )
+            
+            auth = models.EvidenceAuth.objects.create(
+                  evidence=evidence,
+                  user=user,
+                  status=status,
+                  version=1,
+            )
+
+            signature = models.EvidenceSignature.objects.create(
+                  evidence=evidence,
+                  user=user,
+                  version=1,
+                  status=status,
+            )
+
+
