@@ -33,6 +33,12 @@ def custom_fields_url(id):
 def custom_fields_detail_url(id, id2):
     return reverse('evidencetype:custom-fields-detail', args=[id, id2])
 
+def quality_controls_url(id):
+    return reverse('evidencetype:quality-controls', args=[id])
+
+def quality_controls_detail_url(id, id2):
+    return reverse('evidencetype:quality-controls-detail', args=[id, id2])
+
 def create_user(**params):
     """Create an return a new user"""
     user = get_user_model().objects.create_user(**params)
@@ -561,6 +567,52 @@ class EvidenceTypeTests(TestCase):
 
         res = self.client.delete(detail_url(model.id))
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_add_custom_field_success(self):
+        """test add custom field success"""
+        data = {
+            'name': 'name1', 
+            'alias': 'name1', 
+            'attachment_required': False, 
+            'group': self.egroup,
+            'description': 'desc1'
+        }
+        model = create_evidence_type(**data)
+
+        customField = models.CustomField.create_custom_field(
+                name="custom 1", 
+                slug="custom1", 
+                datatype=Attribute.TYPE_TEXT,
+                description="Custom field description",
+        )
+
+        res = self.client.post(custom_fields_url(model.id), {
+            "custom_field": customField.id,
+            "mandatory": True,
+            "group": "Generals",
+        })
+        
+
+        print('===')
+        print('===')
+        print('===')
+        print('===')
+        print(res.data)
+        print('===')
+        print('===')
+        print('===')
+        print('===')
+
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+
+
+        # res = self.client.get(custom_fields_url(model.id))
+        # self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        # custom_fields = models.EvidenceTypeCustomField.objects.filter(type=model.id)
+        # serializer = EvidenceTypeCustomFielderializer(custom_fields, many=True)
+        # self.assertEqual(res.data, serializer.data)
+
 
     def test_list_custom_fields_success(self):
         """Test evidence status partial update success"""
