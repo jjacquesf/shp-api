@@ -602,44 +602,44 @@ class EvidenceTypeTests(TestCase):
         self.assertEqual(res.data['id'], serializer.data['id'])
 
 
-    # def test_list_custom_fields_success(self):
-    #     """Test evidence status partial update success"""
-    #     data = {
-    #         'name': 'name1', 
-    #         'alias': 'name1', 
-    #         'attachment_required': False, 
-    #         'group': self.egroup,
-    #         'description': 'desc1'
-    #     }
-    #     model = create_evidence_type(**data)
+    def test_list_custom_fields_success(self):
+        """Test evidence status partial update success"""
+        data = {
+            'name': 'name1', 
+            'alias': 'name1', 
+            'attachment_required': False, 
+            'group': self.egroup,
+            'description': 'desc1'
+        }
+        model = create_evidence_type(**data)
 
-    #     customField = models.CustomField.create_custom_field(
-    #             name="custom 1", 
-    #             slug="custom1", 
-    #             datatype=Attribute.TYPE_TEXT,
-    #             description="Custom field description",
-    #     )
+        customField = models.CustomField.create_custom_field(
+                name="custom 1", 
+                slug="custom1", 
+                datatype=Attribute.TYPE_TEXT,
+                description="Custom field description",
+        )
 
-    #     model.custom_fields.add(customField, through_defaults={'mandatory': True, 'group': "Generals"})
+        model.custom_fields.add(customField, through_defaults={'mandatory': True, 'group': "Generals"})
 
 
-    #     customField2 = models.CustomField.create_custom_field(
-    #             name="custom 2", 
-    #             slug="custom2", 
-    #             datatype=Attribute.TYPE_TEXT,
-    #             description="Custom field description",
-    #     )
+        customField2 = models.CustomField.create_custom_field(
+                name="custom 2", 
+                slug="custom2", 
+                datatype=Attribute.TYPE_TEXT,
+                description="Custom field description",
+        )
 
-    #     model.custom_fields.add(customField2, through_defaults={'mandatory': False})
+        model.custom_fields.add(customField2, through_defaults={'mandatory': False})
 
-    #     model.save()
+        model.save()
 
-    #     res = self.client.get(custom_fields_url(model.id))
-    #     self.assertEqual(res.status_code, status.HTTP_200_OK)
+        res = self.client.get(custom_fields_url(model.id))
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
 
-    #     custom_fields = models.EvidenceTypeCustomField.objects.filter(type=model.id)
-    #     serializer = EvidenceTypeCustomFielderializer(custom_fields, many=True)
-    #     self.assertEqual(res.data, serializer.data)
+        custom_fields = models.EvidenceTypeCustomField.objects.filter(type=model.id)
+        serializer = EvidenceTypeCustomFielderializer(custom_fields, many=True)
+        self.assertEqual(res.data, serializer.data)
 
     # def test_update_custom_fields_success(self):
         # """Test update custom fields success"""
