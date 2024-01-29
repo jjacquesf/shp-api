@@ -201,7 +201,7 @@ class ModelTests(TestCase):
                   auth_required=True,
             )
 
-            qc = models.EvidenceTypeQualityControl.objects.create(
+            qc = models.QualityControl.objects.create(
                   type=evidence_type,
                   name="QC 1"
             )
@@ -360,7 +360,7 @@ class ModelTests(TestCase):
                   group=group
             )
 
-            qc = models.EvidenceTypeQualityControl.objects.create(
+            qc = models.QualityControl.objects.create(
                   type=type,
                   name="QC 1"
             )

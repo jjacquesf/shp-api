@@ -171,6 +171,18 @@ class EvidenceTypeViewSet(viewsets.ModelViewSet):
         if(children > 0):
             raise serializers.ValidationError(_('Unable to delete parent records. Disable it instead.'))
         
+        children = models.EvidenceTypeCustomField.objects.filter(type=instance).count()
+        if(children > 0):
+            raise serializers.ValidationError(_('Unable to delete this record, some others depends on it. Disable it instead.'))
+        
+        children = models.QualityControl.objects.filter(type=instance).count()
+        if(children > 0):
+            raise serializers.ValidationError(_('Unable to delete this record, some others depends on it. Disable it instead.'))
+        
+        children = models.Evidence.objects.filter(type=instance).count()
+        if(children > 0):
+            raise serializers.ValidationError(_('Unable to delete this record, some others depends on it. Disable it instead.'))
+
         instance.delete()
 
 ## CustomField
@@ -223,9 +235,11 @@ class PatchDeleteCustomFieldView(views.APIView):
     def delete(self, request, pk, cf_id):
         """Delete evidence type custom fields"""
         evidence_type = models.EvidenceType.objects.get(id=pk)
-        models.EvidenceTypeCustomField.objects.filter(id=cf_id, type=evidence_type.id).delete()
 
-        return Response(None, status=status.HTTP_204_NO_CONTENT)
+        raise serializers.ValidationError(_('Unable to delete this record, some others depends on it. Disable it instead.'))
+
+        # models.EvidenceTypeCustomField.objects.filter(id=cf_id, type=evidence_type.id).delete()
+        # return Response(None, status=status.HTTP_204_NO_CONTENT)
     
     @extend_schema(
         description=_("[Protected |ChangeEvidenceType]Change evidence type custom fields by id"),
@@ -235,23 +249,21 @@ class PatchDeleteCustomFieldView(views.APIView):
     def patch(self, request, pk, cf_id):
         """Update evidence type custom field"""
         evidence_type = models.EvidenceType.objects.get(id=pk)
-        custom_field = models.CustomField.objects.get(id=cf_id)
+        et_custom_field = models.EvidenceTypeCustomField.objects.get(type=evidence_type.id, id=cf_id)
 
         # Update here
         body_serializer = UpdateEvidenceTypeCustomFieldSerializer(data=request.data)    
         body_serializer.is_valid(raise_exception=True)
 
-        models.EvidenceTypeCustomField.objects.filter(type=evidence_type.id, custom_field=custom_field.id).update(**body_serializer.validated_data)
+        models.EvidenceTypeCustomField.objects.filter(type=evidence_type.id, id=et_custom_field.id).update(**body_serializer.validated_data)
 
         # Return
-        type_custom_field = models.EvidenceTypeCustomField.objects.get(type=evidence_type.id, custom_field=custom_field.id)
+        type_custom_field = models.EvidenceTypeCustomField.objects.get(type=evidence_type.id, id=et_custom_field.id)
 
         serializer = EvidenceTypeCustomFielderializer(type_custom_field)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
 ## Quality control
-
-
 @extend_schema(tags=['Evidence catalogs'])
 class ListCreateQualityControlView(views.APIView):
     authentication_classes = [TokenAuthentication]
@@ -300,6 +312,12 @@ class PatchDeleteQualityControlView(views.APIView):
     def delete(self, request, pk, qc_id):
         """Delete evidence type quality controls"""
         evidence_type = models.EvidenceType.objects.get(id=pk)
+
+        children = models.QualityControl.objects.filter(id=qc_id, type=evidence_type.id).count()
+        if(children > 0):
+            raise serializers.ValidationError(_('Unable to delete this record, some others depends on it. Disable it instead.'))
+
+        ## Delete
         models.QualityControl.objects.filter(id=qc_id, type=evidence_type.id).delete()
 
         return Response(None, status=status.HTTP_204_NO_CONTENT)

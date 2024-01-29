@@ -686,11 +686,11 @@ class EvidenceTypeTests(TestCase):
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
-        custom_fields = models.EvidenceTypeCustomField.objects.filter(type=model.id)
-        serializer = EvidenceTypeCustomFielderializer(custom_fields, many=True)
+        custom_field = models.EvidenceTypeCustomField.objects.get(type=model.id, id=res.data['id'])
+        serializer = EvidenceTypeCustomFielderializer(custom_field)
 
-        mandatory = serializer.data[0].get('mandatory', None)
-        group = serializer.data[0].get('group', None)
+        mandatory = serializer.data.get('mandatory', None)
+        group = serializer.data.get('group', None)
 
         self.assertEqual(mandatory, False)
         self.assertEqual(group, "Other group")
