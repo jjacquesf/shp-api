@@ -246,7 +246,7 @@ class CustomField(TimeStampMixin):
             is_active=is_active,
             catalog=catalog,
             description=description,
-            attribute=attribute
+            attribute=attribute,
         )
 
         return model

@@ -26,7 +26,6 @@ class CreateCustomFieldSerializer(CustomFieldSerializer):
             "datatype": validated_data.pop("attribute_datatype", None),
             "catalog": validated_data.pop("catalog", None),
             "description": validated_data.pop("description", None),
-            "group": validated_data.pop("group", None),
         }
 
         created = models.CustomField.create_custom_field(**data)
