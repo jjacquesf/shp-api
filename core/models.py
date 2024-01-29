@@ -279,7 +279,7 @@ class EvidenceType(TimeStampMixin):
         verbose_name = _('Evidence type')
         verbose_name_plural = _('Evidence types')
 
-class EvidenceTypeQualityControl(TimeStampMixin):
+class QualityControl(TimeStampMixin):
     is_active = models.BooleanField(default=True)
     type = models.ForeignKey(
         EvidenceType,
@@ -337,7 +337,7 @@ class EvidenceFinding(TimeStampMixin):
         on_delete=models.CASCADE
     )
     qc = models.ForeignKey(
-        EvidenceTypeQualityControl,
+        QualityControl,
         on_delete=models.CASCADE
     )
     status = models.CharField(

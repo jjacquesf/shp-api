@@ -22,10 +22,16 @@ class UpdateEvidenceTypeCustomFieldSerializer(serializers.Serializer):
     mandatory = serializers.BooleanField(default=True)
     group = serializers.CharField(max_length=64)
 
-class EvidenceTypeQualityControlSerializer(serializers.ModelSerializer):
-    """Serializer for the evidence type quality control object"""
+class QualityControlSerializer(serializers.ModelSerializer):
+    """Serializer for the evidence type object"""
     
     class Meta:
-        model= models.EvidenceTypeQualityControl
-        fields = ['id', 'is_active', 'type', 'name']
+        model= models.QualityControl
+        fields = ['id', 'type', 'is_active', 'name']
         read_only_fields = ['id']
+
+class AddPatchQualityControlSerializer(QualityControlSerializer):
+    """Serializer for the evidence type object"""
+    
+    class Meta(QualityControlSerializer.Meta):
+        fields = ['id', 'is_active', 'name']

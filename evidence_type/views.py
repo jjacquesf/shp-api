@@ -21,7 +21,8 @@ from evidence_type.serializers import (
     EvidenceTypeSerializer,
     AddEvidenceTypeCustomFieldSerializer,
     UpdateEvidenceTypeCustomFieldSerializer,
-    EvidenceTypeQualityControlSerializer,
+    QualityControlSerializer,
+    AddPatchQualityControlSerializer,
 )
 
 from custom_field.serializers import (
@@ -172,7 +173,7 @@ class EvidenceTypeViewSet(viewsets.ModelViewSet):
         
         instance.delete()
 
-
+## CustomField
 @extend_schema(tags=['Evidence catalogs'])
 class ListCreateCustomFieldView(views.APIView):
     authentication_classes = [TokenAuthentication]
@@ -246,5 +247,81 @@ class PatchDeleteCustomFieldView(views.APIView):
         type_custom_field = models.EvidenceTypeCustomField.objects.get(type=evidence_type.id, custom_field=custom_field.id)
 
         serializer = EvidenceTypeCustomFielderializer(type_custom_field)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+## Quality control
+
+
+@extend_schema(tags=['Evidence catalogs'])
+class ListCreateQualityControlView(views.APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated, EvidenceTypePermission]
+
+    @extend_schema(
+        description=_("[Protected | ViewEvidenceType] List evidence type quality controls"),
+        responses={200: QualityControlSerializer(many=True)},
+    )
+    def get(self, request, pk):
+        model = models.EvidenceType.objects.get(id=pk)
+
+        custom_fields = models.QualityControl.objects.filter(type=model.id)
+        serializer = QualityControlSerializer(custom_fields, many=True)
+
+        return Response(serializer.data)
+    
+    @extend_schema(
+        description=_("[Protected | ChangeEvidenceType] Add an evidence type quality control"),
+        request=AddPatchQualityControlSerializer,
+        responses={200: QualityControlSerializer},
+    )
+    def post(self, request, pk):
+        """Add evidence type quality controls"""
+        body_serializer = AddPatchQualityControlSerializer(data=request.data)    
+        body_serializer.is_valid(raise_exception=True)
+
+        type = models.EvidenceType.objects.get(id=pk)
+
+        qc = models.QualityControl.objects.create(
+            type=type,
+            **body_serializer.validated_data
+        )
+
+        serializer = QualityControlSerializer(qc)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    
+@extend_schema(tags=['Evidence catalogs'])
+class PatchDeleteQualityControlView(views.APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated, EvidenceTypePermission]
+    @extend_schema(
+        description=_("[Protected | DeleteEvidenceType] Delete evidence type quality controls by id"),
+        responses={200: CustomFieldSerializer(many=True)},
+    )
+    def delete(self, request, pk, qc_id):
+        """Delete evidence type quality controls"""
+        evidence_type = models.EvidenceType.objects.get(id=pk)
+        models.QualityControl.objects.filter(id=qc_id, type=evidence_type.id).delete()
+
+        return Response(None, status=status.HTTP_204_NO_CONTENT)
+    
+    @extend_schema(
+        description=_("[Protected |ChangeEvidenceType]Change evidence type quality controls by id"),
+        request=AddPatchQualityControlSerializer,
+        responses={200: CustomFieldSerializer},
+    )
+    def patch(self, request, pk, qc_id):
+        """Update evidence type custom field"""
+        evidence_type = models.EvidenceType.objects.get(id=pk)
+        qc = models.QualityControl.objects.get(id=qc_id)
+
+        # Update here
+        body_serializer = AddPatchQualityControlSerializer(data=request.data)    
+        body_serializer.is_valid(raise_exception=True)
+
+        models.QualityControl.objects.filter(id=qc.id).update(**body_serializer.validated_data)
+
+        # Return
+        qc = models.QualityControl.objects.get(id=qc.id)
+        serializer = QualityControlSerializer(qc)
         return Response(serializer.data, status=status.HTTP_200_OK)
     

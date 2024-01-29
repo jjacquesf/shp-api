@@ -15,10 +15,10 @@ from eav.models import Attribute
 
 from evidence_type.serializers import (
     EvidenceTypeSerializer,
+    QualityControlSerializer
 )
 
 from custom_field.serializers import (
-    CustomFieldSerializer,
     EvidenceTypeCustomFielderializer
 )
 
@@ -601,7 +601,6 @@ class EvidenceTypeTests(TestCase):
         serializer = EvidenceTypeCustomFielderializer(custom_field)
         self.assertEqual(res.data['id'], serializer.data['id'])
 
-
     def test_list_custom_fields_success(self):
         """Test evidence status partial update success"""
         data = {
@@ -695,3 +694,84 @@ class EvidenceTypeTests(TestCase):
 
         self.assertEqual(mandatory, False)
         self.assertEqual(group, "Other group")
+
+    #### Quality control
+
+    def test_add_quality_control_success(self):
+        """test add custom field success"""
+        data = {
+            'name': 'name2', 
+            'alias': 'name2', 
+            'attachment_required': False, 
+            'group': self.egroup,
+            'description': 'desc2'
+        }
+        model = create_evidence_type(**data)
+
+        res = self.client.post(quality_controls_url(model.id), {
+            'is_active': True,
+            'name': 'Quality control name', 
+        })
+        
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+
+        quality_control = models.QualityControl.objects.filter(type=model.id).first()
+
+        self.assertNotEqual(quality_control, None)
+
+        serializer = QualityControlSerializer(quality_control)
+        self.assertEqual(res.data['id'], serializer.data['id'])
+
+    def test_list_quality_controls_success(self):
+        """test list quality controls success"""
+        data = {
+            'name': 'name2', 
+            'alias': 'name2', 
+            'attachment_required': False, 
+            'group': self.egroup,
+            'description': 'desc2'
+        }
+        model = create_evidence_type(**data)
+
+        res = self.client.post(quality_controls_url(model.id), {
+            'is_active': True,
+            'name': 'Quality control name', 
+        })
+        
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+
+        quality_controls= models.QualityControl.objects.get(id=res.data['id'])
+        serializer = QualityControlSerializer(quality_controls)
+        self.assertEqual(res.data, serializer.data)
+
+    def test_update_quality_controls_success(self):
+        """test update quality controls success"""
+        data = {
+            'name': 'name2', 
+            'alias': 'name2', 
+            'attachment_required': False, 
+            'group': self.egroup,
+            'description': 'desc2'
+        }
+        model = create_evidence_type(**data)
+
+        res = self.client.post(quality_controls_url(model.id), {
+            'is_active': True,
+            'name': 'Quality control name', 
+        })
+        
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+
+        id = res.data.get('id', None)
+
+        res2 = self.client.patch(quality_controls_detail_url(model.id, id), {
+            'name': 'Quality control name updated', 
+        })
+        
+        self.assertEqual(res2.status_code, status.HTTP_200_OK)
+
+        quality_control= models.QualityControl.objects.get(id=id)
+        serializer = QualityControlSerializer(quality_control)
+        self.assertEqual(res2.data, serializer.data)
+
+

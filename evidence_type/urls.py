@@ -19,4 +19,6 @@ urlpatterns = [
     path('', include(main_router.urls)),
     path('<int:pk>/custom-fields/', views.ListCreateCustomFieldView.as_view(), name='custom-fields'),
     path('<int:pk>/custom-fields/<int:cf_id>', views.PatchDeleteCustomFieldView.as_view(), name='custom-fields-detail'),
+    path('<int:pk>/quality-controls/', views.ListCreateQualityControlView.as_view(), name='quality-controls'),
+    path('<int:pk>/quality-controls/<int:qc_id>', views.PatchDeleteQualityControlView.as_view(), name='quality-controls-detail'),
 ]
