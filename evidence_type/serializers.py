@@ -14,13 +14,13 @@ class AddEvidenceTypeCustomFieldSerializer(serializers.Serializer):
     is_active = serializers.BooleanField(default=True)
     custom_field = serializers.IntegerField(min_value=1)
     mandatory = serializers.BooleanField(default=True)
-    group = serializers.CharField(min_length=64)
+    group = serializers.CharField(max_length=64)
 
 class UpdateEvidenceTypeCustomFieldSerializer(serializers.Serializer):
     """Serializer for user group update."""
     is_active = serializers.BooleanField(default=True)
     mandatory = serializers.BooleanField(default=True)
-    group = serializers.CharField(min_length=64)
+    group = serializers.CharField(max_length=64)
 
 class EvidenceTypeQualityControlSerializer(serializers.ModelSerializer):
     """Serializer for the evidence type quality control object"""

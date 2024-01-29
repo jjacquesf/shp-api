@@ -208,7 +208,7 @@ class ListCreateCustomFieldView(views.APIView):
 
         custom_fields = models.EvidenceTypeCustomField.objects.get(type=model.id, custom_field=custom_field.id)
         serializer = EvidenceTypeCustomFielderializer(custom_fields)
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
     
 @extend_schema(tags=['Evidence catalogs'])
 class DeleteCustomFieldView(views.APIView):
