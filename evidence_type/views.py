@@ -20,6 +20,7 @@ from core import models
 from evidence_type.serializers import (
     EvidenceTypeSerializer,
     AddEvidenceTypeCustomFieldSerializer,
+    UpdateEvidenceTypeCustomFieldSerializer,
     EvidenceTypeQualityControlSerializer,
 )
 
@@ -206,8 +207,8 @@ class ListCreateCustomFieldView(views.APIView):
         if custom_field != None:
             model.custom_fields.add(custom_field, through_defaults={'mandatory': body_serializer.validated_data['mandatory']})
 
-        custom_fields = models.EvidenceTypeCustomField.objects.get(type=model.id, custom_field=custom_field.id)
-        serializer = EvidenceTypeCustomFielderializer(custom_fields)
+        custom_field = models.EvidenceTypeCustomField.objects.get(type=model.id, custom_field=custom_field.id)
+        serializer = EvidenceTypeCustomFielderializer(custom_field)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     
 @extend_schema(tags=['Evidence catalogs'])
@@ -220,10 +221,32 @@ class DeleteCustomFieldView(views.APIView):
     )
     def delete(self, request, pk, cf_id):
         """Delete evidence type custom fields"""
-        model = models.EvidenceType.objects.get(id=pk)
-        models.EvidenceTypeCustomField.objects.filter(id=cf_id, type=model.id).delete()
+        evidence_type = models.EvidenceType.objects.get(id=pk)
+        models.EvidenceTypeCustomField.objects.filter(id=cf_id, type=evidence_type.id).delete()
 
         return Response(None, status=status.HTTP_204_NO_CONTENT)
+    
+    @extend_schema(
+        description=_("[Protected |ChangeEvidenceType]Change evidence type custom fields by id"),
+        request=UpdateEvidenceTypeCustomFieldSerializer,
+        responses={200: CustomFieldSerializer},
+    )
+    def patch(self, request, pk, cf_id):
+        """Update evidence type custom field"""
+        evidence_type = models.EvidenceType.objects.get(id=pk)
+        custom_field = models.CustomField.objects.get(id=cf_id)
+
+        # Update here
+        body_serializer = UpdateEvidenceTypeCustomFieldSerializer(data=request.data)    
+        body_serializer.is_valid(raise_exception=True)
+
+        models.EvidenceTypeCustomField.objects.filter(type=evidence_type.id, custom_field=custom_field.id).update(**body_serializer.validated_data)
+
+        # Return
+        type_custom_field = models.EvidenceTypeCustomField.objects.get(type=evidence_type.id, custom_field=custom_field.id)
+
+        serializer = EvidenceTypeCustomFielderializer(type_custom_field)
+        return Response(serializer.data, status=status.HTTP_200_OK)
     
 
 @extend_schema(tags=['Evidence catalogs'])
