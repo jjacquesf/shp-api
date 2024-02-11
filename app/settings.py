@@ -30,6 +30,11 @@ ALLOWED_HOSTS = [
 ]
 
 
+# CORS_ORIGIN_ALLOW_ALL=True
+CORS_ORIGIN_WHITELIST = (
+    'http://localhost:5173',
+)
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -43,6 +48,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'drf_spectacular',
+    'corsheaders',
     'eav',
     #'django_jsonfield_backport',
     'user',
@@ -65,6 +71,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -170,6 +177,7 @@ SPECTACULAR_SETTINGS = {
 }
 
 EAV2_PRIMARY_KEY_FIELD = "django.db.models.BigAutoField"
+
 
 # LOGGING = {
 #     'version': 1,

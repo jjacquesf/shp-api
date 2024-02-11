@@ -188,6 +188,11 @@ class CreateUserView(views.APIView):
     authentication_classes = [authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated, UserPermission]
 
+    @extend_schema(
+        description=_("[Protected | ChangeUser] Set user groups ny user id"),
+        request=UserProfileSerializer,
+        responses={200: UserProfileSerializer},
+    )
     def post(self, request):
         serializer = UserProfileSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
