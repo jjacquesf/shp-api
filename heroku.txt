@@ -1,0 +1,3 @@
+heroku pg:reset DATABASE --confirm shp-api --app=shp-api
+push heroku main
+heroku run python manage.py createsuperuser --app=shp-api
