@@ -209,7 +209,6 @@ class EvidenceStatus(TimeStampMixin):
 
         unique_together = ('stage', 'group', 'name')
 
-
 class CustomField(TimeStampMixin):
     is_active = models.BooleanField(default=True)
     # Catalog name to prefill

@@ -126,6 +126,12 @@ class StateOrgViewSet(viewsets.ModelViewSet):
 
     def perform_update(self, serializer):
         """Update a supplier"""
+        
+        parent = serializer.validated_data.get('parent', None)
+        current = self.queryset[0]
+        if parent != None and parent.id == current.id:
+            raise serializers.ValidationError(_('Invalid parent record.'))
+        
         return self._update_level(serializer)
     
     def perform_destroy(self, instance):
