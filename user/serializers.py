@@ -6,6 +6,7 @@ from django.contrib.auth import (
     authenticate
 )
 from django.utils.translation import gettext as _
+from group.serializers import StringListField
 
 from rest_framework import serializers
 from core import models
@@ -152,7 +153,17 @@ class UserProfileSerializer(serializers.Serializer):
         serializer = serialize_user_profile(instance)
 
         return serializer.data
-    
+
+class FullUserProfileSerializer(serializers.Serializer):
+    """Serializer for user creation."""
+    id = serializers.EmailField(required=False)
+    email = serializers.EmailField(required=True)
+    name = serializers.CharField(required=True, max_length=255)
+    password = serializers.CharField(required=False, allow_blank=True, min_length=5, max_length=255)
+    job_position = serializers.CharField(required=True, max_length=255)
+    permissions = StringListField()
+
+
 def serialize_user_profile(user):
     profile = models.Profile.objects.get(user=user)
     serializer = UserProfileSerializer({
@@ -163,3 +174,18 @@ def serialize_user_profile(user):
     })
 
     return serializer
+
+
+def serialize_full_user_profile(user):
+    profile = models.Profile.objects.get(user=user)
+    serializer = FullUserProfileSerializer({
+        "id": user.id,
+        "name": user.name,
+        "email": user.email,
+        "job_position": profile.job_position,
+        "permissions": user.get_group_permissions(),
+    })
+
+    return serializer
+
+

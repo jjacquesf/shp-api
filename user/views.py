@@ -19,9 +19,11 @@ from django.contrib.auth import get_user_model
 from core import models
 
 from user.serializers import (
+    FullUserProfileSerializer,
     UpdateUserGroupSerializer,
     AuthTokenSerializer,
     UserProfileSerializer,
+    serialize_full_user_profile,
     serialize_user_profile
 )
 
@@ -70,18 +72,11 @@ class SelfManageUserView(views.APIView):
 
     @extend_schema(
         description=_("[Protected | IsAuthenticated] Get user self profile"),
-        responses={200: UserProfileSerializer},
+        responses={200: FullUserProfileSerializer},
     )
     def get(self, request):
         user = self.request.user
-        # profile = models.Profile.objects.get(user=user)
-        # serializer = UserProfileSerializer({
-        #     "name": user.name,
-        #     "email": user.email,
-        #     "password": user.password,
-        #     "job_position": profile.job_position
-        # })
-        serializer = serialize_user_profile(user)
+        serializer = serialize_full_user_profile(user)
         return Response(serializer.data)
     
     @extend_schema(
