@@ -178,7 +178,6 @@ SPECTACULAR_SETTINGS = {
 
 EAV2_PRIMARY_KEY_FIELD = "django.db.models.BigAutoField"
 
-
 # LOGGING = {
 #     'version': 1,
 #     'filters': {
