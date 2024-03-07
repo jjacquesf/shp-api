@@ -249,8 +249,8 @@ class PatchDeleteCustomFieldView(views.APIView):
     def patch(self, request, pk, cf_id):
         """Update evidence type custom field"""
         evidence_type = models.EvidenceType.objects.get(id=pk)
-        et_custom_field = models.EvidenceTypeCustomField.objects.get(type=evidence_type.id, id=cf_id)
-
+        et_custom_field = models.EvidenceTypeCustomField.objects.get(type=evidence_type.id, custom_field=cf_id)
+        
         # Update here
         body_serializer = UpdateEvidenceTypeCustomFieldSerializer(data=request.data)    
         body_serializer.is_valid(raise_exception=True)

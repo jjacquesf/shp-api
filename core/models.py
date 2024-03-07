@@ -304,6 +304,10 @@ class EvidenceTypeCustomField(TimeStampMixin):
     class Meta:
         unique_together = [['type', 'custom_field']]
 
+    def __str__(self):
+        return f'{self.type.is_active} / {self.type.id} / {self.custom_field.id}'
+
+
 class Evidence(TimeStampMixin):
     type = models.ForeignKey(
         EvidenceType,

@@ -59,7 +59,10 @@ class UserPermission(permissions.BasePermission):
         return True
     
 @extend_schema(tags=['Auth'])
-@extend_schema(description=_("[Public] Create a new auth token for user"))
+@extend_schema(
+    description=_("[Public] Create a new auth token for user"),
+    request=AuthTokenSerializer,
+)
 class CreateTokenView(ObtainAuthToken):
     serializer_class = AuthTokenSerializer
     renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES
