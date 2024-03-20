@@ -678,8 +678,8 @@ class EvidenceTypeTests(TestCase):
         custom_fields = models.EvidenceTypeCustomField.objects.filter(type=model.id)
         serializer = EvidenceTypeCustomFielderializer(custom_fields, many=True)
 
-        id = serializer.data[0].get('id', None)
-        res = self.client.patch(custom_fields_detail_url(model.id, id), {
+        # id = serializer.data[0].get('id', None)
+        res = self.client.patch(custom_fields_detail_url(model.id, customField2.id), {
             "mandatory": False,
             "group": "Other group"
         })

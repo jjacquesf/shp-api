@@ -46,4 +46,5 @@ urlpatterns = [
     path('api/evidence-status/', include('evidence_status.urls')),
     path('api/custom-field/', include('custom_field.urls')),
     path('api/evidence-type/', include('evidence_type.urls')),
+    path('api/evidence/', include('evidence.urls')),
 ]
