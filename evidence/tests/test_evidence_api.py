@@ -13,7 +13,7 @@ from core import models
 from django.contrib.auth.models import Permission
 
 LIST_USER_URL = reverse('evidence:list')
-# CREATE_USER_URL = reverse('evidence:create')
+CREATE_USER_URL = reverse('evidence:create')
 
 def create_user(**params):
     """Create an return a new user"""
@@ -112,7 +112,7 @@ class PrivateUserApiTests(TestCase):
         self.client = APIClient()
         self.client.force_authenticate(user=self.user)
 
-    def test_list_user_success(self):
+    def test_list_evidence_success(self):
         """Test get all evidences success."""
         payload = {
             'type': self.etype,
@@ -133,5 +133,32 @@ class PrivateUserApiTests(TestCase):
         for record in records:
             serializer = serialize_evidence(record)
             result.append(serializer.data)
-            
         self.assertEqual(res.data, result)
+
+
+    def test_create_evidence_success(self):
+        """Test create evidences success."""
+        payload = {
+            'type_id': self.etype.id,
+            'status_id': self.estatus.id,
+            'authorizers': [self.user.id],
+            'signers': [self.user.id],
+        }
+
+        res = self.client.post(CREATE_USER_URL, payload, format='json')
+
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+
+        record = models.Evidence.objects.filter().order_by('-id').first()
+        # result = []
+        # for record in records:
+        serializer = serialize_evidence(record)
+        
+
+        print('======')
+        print(res.data)
+        print('==')
+        print(serializer.data)
+        print('======')
+
+        self.assertEqual(res.data, serializer.data)

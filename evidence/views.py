@@ -87,16 +87,13 @@ class CreateEvidenceView(views.APIView):
         responses={200: EvidenceSerializer},
     )
     def post(self, request):
-        serializer = CreateEvidenceSerializer(data=request.data)
+
+        payload=request.data
+        payload.update({"owner_id": self.request.user.id})
+
+        serializer = CreateEvidenceSerializer(data=payload)
         serializer.is_valid(raise_exception=True)
 
-        if("password" not in request.data):
-            return Response({"password": [_("Password is required for user creation")]}, status=status.HTTP_400_BAD_REQUEST)
-
-        user = get_user_model().objects.filter(email=serializer.validated_data['email'])
-        if len(user) != 0:
-            return Response({"email": [_("User already exists")]}, status=status.HTTP_400_BAD_REQUEST)
+        res = serializer.save()
         
-        serializer.save()
-
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(res, status=status.HTTP_201_CREATED)

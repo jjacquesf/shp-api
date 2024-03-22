@@ -307,8 +307,23 @@ class EvidenceTypeCustomField(TimeStampMixin):
     def __str__(self):
         return f'{self.type.is_active} / {self.type.id} / {self.custom_field.id}'
 
+class UploadedFile(models.Model):
+    file = models.FileField()
+    owner = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE
+    )
+    uploaded_on = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return self.uploaded_on.date()
 
 class Evidence(TimeStampMixin):
+    status = models.ForeignKey(
+        EvidenceStatus,
+        on_delete=models.CASCADE
+    )
+    dirty = models.BooleanField(default=False)
     type = models.ForeignKey(
         EvidenceType,
         on_delete=models.CASCADE
@@ -317,13 +332,20 @@ class Evidence(TimeStampMixin):
         User,
         on_delete=models.CASCADE
     )
-    status = models.ForeignKey(
-        EvidenceStatus,
-        on_delete=models.CASCADE
+    parent = models.ForeignKey(
+        'self',
+        on_delete=models.CASCADE,
+        blank=True, 
+        null=True
     )
-    dirty = models.BooleanField(default=False)
     pending_auth = models.BooleanField(default=False)
     pending_signature = models.BooleanField(default=False)
+    uploaded_file = models.ForeignKey(
+        UploadedFile,
+        on_delete=models.CASCADE,
+        blank=True, 
+        null=True
+    )
     version = models.IntegerField(default=0)
 
 class EvidenceFinding(TimeStampMixin):
