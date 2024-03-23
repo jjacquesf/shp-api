@@ -1,6 +1,9 @@
 """
 Serializer for the user API view
 """
+import json
+from django.forms.models import model_to_dict
+
 from django.contrib.auth import (
     get_user_model,
     authenticate
@@ -28,9 +31,18 @@ class EvidenceSerializer(serializers.Serializer):
     pending_auth = serializers.BooleanField(default=False)
     pending_signature = serializers.BooleanField(default=False)
     version = serializers.IntegerField(required=True)
+    eav = serializers.CharField(required=False)
 
 def serialize_evidence(model):
     evidence = models.Evidence.objects.get(id=model.id)
+
+    attrs = evidence.eav_values.all()
+    eav = []
+    for attr in attrs:
+        eav.append(model_to_dict(attr))
+
+    # print()
+
     serializer = EvidenceSerializer({
         "id": evidence.id,
         "type": evidence.type.id,
@@ -43,6 +55,7 @@ def serialize_evidence(model):
         "pending_signature": evidence.pending_signature,
         "version": evidence.version,
         # "permissions": user.get_group_permissions(),
+        "eav": json.dumps(eav, default=str)
     })
 
     return serializer
@@ -57,6 +70,7 @@ class CreateEvidenceSerializer(serializers.Serializer):
     uploaded_file_id = serializers.IntegerField(required=False)
     authorizers = IntegerListField(required=False)
     signers = IntegerListField(required=False)
+    eav = serializers.CharField(required=False)
 
     def create(self, validated_data):
 
@@ -95,6 +109,14 @@ class CreateEvidenceSerializer(serializers.Serializer):
             "pending_signature": pending_signature,
             "dirty": False,
             "version": 1
+        }
+
+        eav = validated_data.get('eav')
+        eav_attrs = json.loads(eav)
+
+        data = {
+            **data,
+            **eav_attrs
         }
 
         evidence = models.Evidence.objects.create(**data)

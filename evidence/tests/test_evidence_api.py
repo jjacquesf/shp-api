@@ -10,6 +10,7 @@ from rest_framework.test import APIClient
 from rest_framework import status
 
 from core import models
+from eav.models import Attribute
 from django.contrib.auth.models import Permission
 
 LIST_USER_URL = reverse('evidence:list')
@@ -138,27 +139,22 @@ class PrivateUserApiTests(TestCase):
 
     def test_create_evidence_success(self):
         """Test create evidences success."""
+        Attribute.objects.create(name='Color', slug='color', datatype=Attribute.TYPE_TEXT)
+        Attribute.objects.create(name='Responsable', slug='responsible', datatype=Attribute.TYPE_TEXT)
         payload = {
             'type_id': self.etype.id,
             'status_id': self.estatus.id,
             'authorizers': [self.user.id],
             'signers': [self.user.id],
+            'eav': '{"eav__color": "#ff0000", "eav__responsible": "Me"}'
         }
+
 
         res = self.client.post(CREATE_USER_URL, payload, format='json')
 
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
 
         record = models.Evidence.objects.filter().order_by('-id').first()
-        # result = []
-        # for record in records:
+
         serializer = serialize_evidence(record)
-        
-
-        print('======')
-        print(res.data)
-        print('==')
-        print(serializer.data)
-        print('======')
-
         self.assertEqual(res.data, serializer.data)
