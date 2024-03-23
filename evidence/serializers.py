@@ -2,6 +2,9 @@
 Serializer for the user API view
 """
 import json
+from django.core.exceptions import ObjectDoesNotExist
+
+
 from django.forms.models import model_to_dict
 
 from django.contrib.auth import (
@@ -121,25 +124,56 @@ class CreateEvidenceSerializer(serializers.Serializer):
 
         evidence = models.Evidence.objects.create(**data)
 
-        for v in authorizers:
-            user = get_user_model().objects.get(id=v)
-            data = {
-                "status": "PEN",
-                "evidence": evidence,
-                "user": user,
-                "version": 1
-            }
-            models.EvidenceAuth.objects.create(**data)
+        # Delete not requiered authorizations
+        current_auths = models.EvidenceAuth.objects.filter(evidence=evidence)
+        current_ids = [item.id for item in current_auths]
 
-        for v in signers:
+        s = set(authorizers)
+        delete_ids = [x for x in current_ids if x not in s]
+
+        for di in delete_ids:
+            models.EvidenceAuth.objects.filter(id=di).delete()
+
+        ## Create athorizers
+        s = set(current_ids)
+        to_add_ids = [x for x in authorizers if x not in s]
+        for v in to_add_ids:
             user = get_user_model().objects.get(id=v)
-            data = {
-                "status": "PEN",
-                "evidence": evidence,
-                "user": user,
-                "version": 1
-            }
-            models.EvidenceSignature.objects.create(**data)
+            try:
+                models.EvidenceAuth.objects.get(evidence=evidence, user=user)
+            except ObjectDoesNotExist:
+                data = {
+                    "status": "PEN",
+                    "evidence": evidence,
+                    "user": user,
+                    "version": 1
+                }
+                models.EvidenceAuth.objects.create(**data)
+
+        # Delete not requiered signers
+        current_signers = models.EvidenceSignature.objects.filter(evidence=evidence)
+        if current_signers.count() > 0:
+            current_ids = [item.id for item in current_signers]
+            s = set(signers)
+            delete_ids = [x for x in current_ids if x not in s]
+            for di in delete_ids:
+                models.EvidenceSignature.objects.filter(id=di).delete()
+
+        # Create signers
+        s = set(current_ids)
+        to_add_ids = [x for x in signers if x not in s]
+        for v in to_add_ids:
+            user = get_user_model().objects.get(id=v)
+            try:
+                models.EvidenceSignature.objects.get(evidence=evidence, user=user)
+            except ObjectDoesNotExist:
+                data = {
+                    "status": "PEN",
+                    "evidence": evidence,
+                    "user": user,
+                    "version": 1
+                }
+                models.EvidenceSignature.objects.create(**data)
 
         serializer = serialize_evidence(evidence)
 
