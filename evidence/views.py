@@ -19,7 +19,7 @@ from django.contrib.auth import get_user_model
 from core import models
 
 from evidence.serializers import (
-    CreateEvidenceSerializer,
+    # EvidenceSerializer,
     EvidenceSerializer,
     serialize_evidence
 )
@@ -83,7 +83,7 @@ class CreateEvidenceView(views.APIView):
 
     @extend_schema(
         description=_("[Protected | ChangeUser] Set user groups ny user id"),
-        request=CreateEvidenceSerializer,
+        request=EvidenceSerializer,
         responses={200: EvidenceSerializer},
     )
     def post(self, request):
@@ -91,7 +91,7 @@ class CreateEvidenceView(views.APIView):
         payload=request.data
         payload.update({"owner_id": self.request.user.id})
 
-        serializer = CreateEvidenceSerializer(data=payload)
+        serializer = EvidenceSerializer(data=payload)
         serializer.is_valid(raise_exception=True)
 
         res = serializer.save()

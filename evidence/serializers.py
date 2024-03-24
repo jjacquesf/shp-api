@@ -23,47 +23,7 @@ from core.serializers import (
     IntegerListField,
 )
 
-
 class EvidenceSerializer(serializers.Serializer):
-    """Serializer for user creation."""
-    id = serializers.IntegerField(required=False)
-    type = serializers.IntegerField(required=True)
-    owner = serializers.IntegerField(required=True)
-    status = serializers.IntegerField(required=True)
-    dirty = serializers.BooleanField(default=False)
-    pending_auth = serializers.BooleanField(default=False)
-    pending_signature = serializers.BooleanField(default=False)
-    version = serializers.IntegerField(required=True)
-    eav = serializers.CharField(required=False)
-
-def serialize_evidence(model):
-    evidence = models.Evidence.objects.get(id=model.id)
-
-    attrs = evidence.eav_values.all()
-    eav = []
-    for attr in attrs:
-        eav.append(model_to_dict(attr))
-
-    # print()
-
-    serializer = EvidenceSerializer({
-        "id": evidence.id,
-        "type": evidence.type.id,
-        # "parent": evidence.parent.id,
-        "owner": evidence.owner.id,
-        # "uploaded_file": evidence.uploaded_file.id,
-        "status": evidence.status.id,
-        "dirty": evidence.dirty,
-        "pending_auth": evidence.pending_auth,
-        "pending_signature": evidence.pending_signature,
-        "version": evidence.version,
-        # "permissions": user.get_group_permissions(),
-        "eav": json.dumps(eav, default=str)
-    })
-
-    return serializer
-
-class CreateEvidenceSerializer(serializers.Serializer):
     """Serializer for user creation."""
     # id = serializers.IntegerField(required=False)
     owner_id = serializers.IntegerField(required=False)
@@ -179,3 +139,30 @@ class CreateEvidenceSerializer(serializers.Serializer):
 
         return serializer.data
 
+
+def serialize_evidence(model):
+    evidence = models.Evidence.objects.get(id=model.id)
+
+    attrs = evidence.eav_values.all()
+    eav = []
+    for attr in attrs:
+        eav.append(model_to_dict(attr))
+
+    # print()
+
+    serializer = EvidenceSerializer({
+        "id": evidence.id,
+        "type_id": evidence.type.id,
+        # "parent": evidence.parent.id,
+        "owner_id": evidence.owner.id,
+        # "uploaded_file": evidence.uploaded_file.id,
+        "status_id": evidence.status.id,
+        "dirty": evidence.dirty,
+        "pending_auth": evidence.pending_auth,
+        "pending_signature": evidence.pending_signature,
+        "version": evidence.version,
+        # "permissions": user.get_group_permissions(),
+        "eav": json.dumps(eav, default=str)
+    })
+
+    return serializer
