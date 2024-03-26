@@ -4,7 +4,8 @@ Test for the user API
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 from django.urls import reverse
-from evidence.serializers import serialize_evidence
+from evidence.serializers import EvidenceSerializer
+# from evidence.serializers import serialize_evidence
 
 from rest_framework.test import APIClient
 from rest_framework import status
@@ -13,8 +14,10 @@ from core import models
 from eav.models import Attribute
 from django.contrib.auth.models import Permission
 
-LIST_USER_URL = reverse('evidence:list')
-CREATE_USER_URL = reverse('evidence:create')
+MAIN_URL = reverse('evidence:evidence-list')
+
+def detail_url(id):
+    return reverse('evidence:evidence-detail', args=[id])
 
 def create_user(**params):
     """Create an return a new user"""
@@ -125,36 +128,69 @@ class PrivateUserApiTests(TestCase):
             'version': 1,
         }
         models.Evidence.objects.create(**payload)
-        res = self.client.get(LIST_USER_URL)
+        res = self.client.get(MAIN_URL)
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
-        records = models.Evidence.objects.filter().order_by('-id')
-        result = []
-        for record in records:
-            serializer = serialize_evidence(record)
-            result.append(serializer.data)
-        self.assertEqual(res.data, result)
+        rows = models.Evidence.objects.filter().order_by('-id')
+        s = EvidenceSerializer(rows, many=True)
+        self.assertEqual(s.data, res.data)
 
+        print(res.data)
+
+    def test_evidence_detail_success(self):
+        """Test department detail success"""
+        payload = {
+            'type': self.etype,
+            'owner': self.user,
+            'status': self.estatus,
+            'dirty': True,
+            'pending_auth': False,
+            'pending_signature': False,
+            'version': 1,
+        }
+        model = models.Evidence.objects.create(**payload)
+
+        res = self.client.get(detail_url(model.id), format='json')
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        s = EvidenceSerializer(model)
+        self.assertEqual(s.data, res.data)
 
     def test_create_evidence_success(self):
         """Test create evidences success."""
         Attribute.objects.create(name='Color', slug='color', datatype=Attribute.TYPE_TEXT)
         Attribute.objects.create(name='Responsable', slug='responsible', datatype=Attribute.TYPE_TEXT)
         payload = {
-            'type_id': self.etype.id,
-            'status_id': self.estatus.id,
+            'type': self.etype.id,
+            'status': self.estatus.id,
             'authorizers': [self.user.id],
             'signers': [self.user.id],
             'eav': '{"eav__color": "#ff0000", "eav__responsible": "Me"}'
         }
 
 
-        res = self.client.post(CREATE_USER_URL, payload, format='json')
-
+        res = self.client.post(MAIN_URL, payload, format='json')
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
 
-        record = models.Evidence.objects.filter().order_by('-id').first()
+    def test_update_evidence_success(self):
+        """Test update evidences success."""
+        Attribute.objects.create(name='Color', slug='color', datatype=Attribute.TYPE_TEXT)
+        Attribute.objects.create(name='Responsable', slug='responsible', datatype=Attribute.TYPE_TEXT)
+        payload = {
+            'owner': self.user,
+            'type': self.etype,
+            'status': self.estatus,
+            "eav__color": "#ff0000",
+            "eav__responsible": "Me"
+        }
+        model = models.Evidence.objects.create(**payload)
 
-        serializer = serialize_evidence(record)
-        self.assertEqual(res.data, serializer.data)
+
+        data = {
+            'status': self.estatus.id,
+            'eav': '{"color": "#00ff00", "responsible": "You"}',
+        }
+
+        res = self.client.patch(detail_url(model.id), data, format='json')
+        self.assertEqual(res.status_code, status.HTTP_200_OK)

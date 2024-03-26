@@ -1,17 +1,20 @@
 """
-URL mappings for the user API
+URL mappings for the evidence app
 """
-from django.urls import path
+from django.urls import (
+    path,
+    include
+)
+
+from rest_framework.routers import DefaultRouter
 
 from evidence import views
+
+router = DefaultRouter()
+router.register('', views.EvidenceViewSet)
 
 app_name = 'evidence'
 
 urlpatterns = [
-    # path('token/', views.CreateTokenView.as_view(), name='token'),
-    # path('me/', views.SelfManageUserView.as_view(), name='me'),
-    path('create/', views.CreateEvidenceView.as_view(), name='create'),
-    path('list/', views.ListEvidence.as_view(), name='list'),
-    # path('<int:pk>/', views.ManageUserView.as_view(), name='detail'),
-    # path('<int:pk>/group/', views.ListCreateUserGroupView.as_view(), name='group'),
+    path('', include(router.urls)),
 ]
