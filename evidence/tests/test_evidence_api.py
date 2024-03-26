@@ -136,8 +136,6 @@ class PrivateUserApiTests(TestCase):
         s = EvidenceSerializer(rows, many=True)
         self.assertEqual(s.data, res.data)
 
-        print(res.data)
-
     def test_evidence_detail_success(self):
         """Test department detail success"""
         payload = {
