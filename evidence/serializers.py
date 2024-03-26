@@ -106,19 +106,16 @@ class CreateEvidenceSerializer(serializers.Serializer):
             "version": 1
         }
 
-
+        evidence = models.Evidence.objects.create(**data)
 
 
         eav = validated_data.get('eav')
         if eav != None:
             eav_attrs = json.loads(eav)
+            for k in eav_attrs:
+                setattr(evidence.eav, k, eav_attrs[k])
 
-            data = {
-                **data,
-                **eav_attrs
-            }
-
-        evidence = models.Evidence.objects.create(**data)
+        evidence.save()
 
         # Create authorizers
         if authorizers != None:

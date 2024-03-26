@@ -164,7 +164,7 @@ class PrivateUserApiTests(TestCase):
             'status': self.estatus.id,
             'authorizers': [self.user.id],
             'signers': [self.user.id],
-            'eav': '{"eav__color": "#ff0000", "eav__responsible": "Me"}'
+            'eav': '{"color": "#ff0000", "responsible": "Me"}'
         }
 
 
