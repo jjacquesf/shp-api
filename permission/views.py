@@ -35,7 +35,8 @@ class PermissionQuerySet(query.QuerySet):
         content_type12 = ContentType.objects.get_for_model(models.EvidenceStatus)
         content_type13 = ContentType.objects.get_for_model(models.EvidenceType)
         content_type14 = ContentType.objects.get_for_model(models.CustomField)
-        bd_q = Q(content_type=content_type) | Q(content_type=content_type2) | Q(content_type=content_type3) | Q(content_type=content_type4) | Q(content_type=content_type5) | Q(content_type=content_type6) | Q(content_type=content_type7) | Q(content_type=content_type8) | Q(content_type=content_type9) | Q(content_type=content_type10) | Q(content_type=content_type11) | Q(content_type=content_type12) | Q(content_type=content_type13) | Q(content_type=content_type14)
+        content_type15 = ContentType.objects.get_for_model(models.Evidence)
+        bd_q = Q(content_type=content_type) | Q(content_type=content_type2) | Q(content_type=content_type3) | Q(content_type=content_type4) | Q(content_type=content_type5) | Q(content_type=content_type6) | Q(content_type=content_type7) | Q(content_type=content_type8) | Q(content_type=content_type9) | Q(content_type=content_type10) | Q(content_type=content_type11) | Q(content_type=content_type12) | Q(content_type=content_type13) | Q(content_type=content_type14) | Q(content_type=content_type15)
 
         return Permission.objects.filter(bd_q & additional_cond)
 

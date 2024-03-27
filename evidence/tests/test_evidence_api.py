@@ -5,6 +5,7 @@ from django.test import TestCase
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 from evidence.serializers import EvidenceSerializer
+from permission.views import PermissionQuerySet
 # from evidence.serializers import serialize_evidence
 
 from rest_framework.test import APIClient

@@ -47,6 +47,5 @@ urlpatterns = [
     path('api/custom-field/', include('custom_field.urls')),
     path('api/evidence-type/', include('evidence_type.urls')),
     path('api/evidence/', include('evidence.urls')),
-    path('api/evidence/', include('evidence.urls')),
     path('api/assets/', include('assets.urls')),
 ]

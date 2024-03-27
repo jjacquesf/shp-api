@@ -105,7 +105,7 @@ class PrivatePermissionApiTests(TestCase):
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
-        permissions = perms = PermissionQuerySet().business_domain()
+        permissions = PermissionQuerySet().business_domain()
         serializer = PermissionSerializer(permissions, many=True)
 
         self.assertEqual(res.data, serializer.data)
