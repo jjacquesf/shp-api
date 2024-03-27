@@ -1,7 +1,12 @@
 """
 Database models
 """
+import os
+
+from django.core.files.storage import FileSystemStorage
+
 from django.utils.translation import gettext_lazy as _
+from app import settings
 import eav
 from eav.models import Attribute
 from typing import Any
@@ -307,8 +312,13 @@ class EvidenceTypeCustomField(TimeStampMixin):
     def __str__(self):
         return f'{self.type.is_active} / {self.type.id} / {self.custom_field.id}'
 
+
+def get_upload_path(instance, filename):
+    return os.path.join(
+      "user_%d" % instance.owner.id, filename)
+
 class UploadedFile(models.Model):
-    file = models.FileField()
+    file = models.FileField(storage=FileSystemStorage(location=settings.MEDIA_ROOT), upload_to=get_upload_path)
     owner = models.ForeignKey(
         User,
         on_delete=models.CASCADE

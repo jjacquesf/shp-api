@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'eav',
     #'django_jsonfield_backport',
+    'assets',
     'user',
     'group',
     'permission',
@@ -199,3 +200,5 @@ EAV2_PRIMARY_KEY_FIELD = "django.db.models.BigAutoField"
 #         }
 #     }
 # }
+
+MEDIA_ROOT = "uploads/"
