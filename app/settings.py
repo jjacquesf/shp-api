@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'drf_spectacular',
     'corsheaders',
+    'auditlog',
     'eav',
     #'django_jsonfield_backport',
     'assets',

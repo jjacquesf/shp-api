@@ -4,6 +4,7 @@ Database models
 import os
 
 from django.core.files.storage import FileSystemStorage
+from auditlog.registry import auditlog
 
 from django.utils.translation import gettext_lazy as _
 from app import settings
@@ -441,3 +442,6 @@ class EvidenceSignature(TimeStampMixin):
 
 ## Register eav for models
 eav.register(Evidence)
+
+## Enable auditlog
+auditlog.register(Evidence)
