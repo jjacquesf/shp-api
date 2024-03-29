@@ -4,6 +4,7 @@ Database models
 import os
 
 from django.core.files.storage import FileSystemStorage
+from auditlog.models import AuditlogHistoryField
 from auditlog.registry import auditlog
 
 from django.utils.translation import gettext_lazy as _
@@ -330,6 +331,8 @@ class UploadedFile(models.Model):
         return self.uploaded_on.date()
 
 class Evidence(TimeStampMixin):
+    history = AuditlogHistoryField()
+
     status = models.ForeignKey(
         EvidenceStatus,
         on_delete=models.CASCADE
@@ -444,4 +447,8 @@ class EvidenceSignature(TimeStampMixin):
 eav.register(Evidence)
 
 ## Enable auditlog
-auditlog.register(Evidence)
+auditlog.register(
+    Evidence,
+    # serialize_data=True,
+    # serialize_kwargs={"fields": ["status", "type"]}
+)

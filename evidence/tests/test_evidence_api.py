@@ -155,6 +155,7 @@ class PrivateUserApiTests(TestCase):
 
         s = EvidenceSerializer(model)
         self.assertEqual(s.data, res.data)
+        print(res.data)
 
     def test_create_evidence_success(self):
         """Test create evidences success."""

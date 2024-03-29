@@ -41,10 +41,11 @@ class EvidenceSerializer(serializers.ModelSerializer):
 
     authorizers = serializers.SerializerMethodField()
     signers = serializers.SerializerMethodField()
+    versions = serializers.SerializerMethodField()
 
     class Meta:
         model=models.Evidence
-        fields = ['owner', 'status', 'status', 'type', 'parent', 'uploaded_file', 'authorizers', 'signers']
+        fields = ['owner', 'status', 'status', 'type', 'parent', 'uploaded_file', 'authorizers', 'signers', 'versions']
         read_only_fields = ['id']
 
     def get_authorizers(self, obj):
@@ -58,6 +59,14 @@ class EvidenceSerializer(serializers.ModelSerializer):
         s = EvidenceSignatureSerializer(rows, many=True)
         return s.data
     
+    def get_versions(self, obj):
+        versions = []
+        for v in obj.history.all():
+            versions.append(v.changes_dict)
+        return versions
+    
+
+
 class CreateEvidenceSerializer(serializers.Serializer):
     """Serializer for user creation."""
     owner = serializers.IntegerField(required=False)
