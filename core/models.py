@@ -443,12 +443,26 @@ class EvidenceSignature(TimeStampMixin):
         unique_together = ('evidence', 'user', 'version')
 
 
+class EvidenceComment(TimeStampMixin):
+    
+    evidence = models.ForeignKey(
+        Evidence,
+        on_delete=models.CASCADE
+    )
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE
+    )
+
+    comments = models.CharField(max_length=512)
+    
+    class Meta:
+        unique_together = ('evidence', 'user', 'comments')
+
 ## Register eav for models
 eav.register(Evidence)
 
 ## Enable auditlog
 auditlog.register(
-    Evidence,
-    # serialize_data=True,
-    # serialize_kwargs={"fields": ["status", "type"]}
+    Evidence
 )

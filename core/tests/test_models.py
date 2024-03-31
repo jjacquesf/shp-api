@@ -405,4 +405,8 @@ class ModelTests(TestCase):
                   version=1,
             )
 
-
+            comment = models.EvidenceComment.objects.create(
+                  evidence=evidence,
+                  user=user,
+                  comments="Comment details"
+            )

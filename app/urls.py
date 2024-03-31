@@ -48,4 +48,5 @@ urlpatterns = [
     path('api/evidence-type/', include('evidence_type.urls')),
     path('api/evidence/', include('evidence.urls')),
     path('api/assets/', include('assets.urls')),
+    path('api/evidence-comment/', include('evidence_comment.urls')),
 ]
