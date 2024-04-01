@@ -71,6 +71,8 @@ INSTALLED_APPS = [
     'custom_field',
     'evidence_type',
     'evidence_comment',
+    'quality_control',
+    'evidence_finding',
 ]
 
 MIDDLEWARE = [

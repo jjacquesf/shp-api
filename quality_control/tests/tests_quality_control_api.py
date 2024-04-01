@@ -4,7 +4,7 @@ Test for the user API
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 from django.urls import reverse
-from evidence_comment.serializers import EvidenceCommentSerializer
+from quality_control.serializers import QualityControlSerializer
 from permission.views import PermissionQuerySet
 # from evidence.serializers import serialize_evidence
 
@@ -15,10 +15,10 @@ from core import models
 from eav.models import Attribute
 from django.contrib.auth.models import Permission
 
-MAIN_URL = reverse('evidencecomment:evidencecomment-list')
+MAIN_URL = reverse('qualitycontrol:qualitycontrol-list')
 
 def detail_url(id):
-    return reverse('evidencecomment:evidencecomment-detail', args=[id])
+    return reverse('qualitycontrol:qualitycontrol-detail', args=[id])
 
 def create_user(**params):
     """Create an return a new user"""
@@ -61,8 +61,8 @@ class PrivateUserApiTests(TestCase):
 
         group, created = models.CustomGroup.objects.get_or_create(name='admin')
         
-        vperm = Permission.objects.get(codename='view_evidencecomment')
-        aperm = Permission.objects.get(codename='add_evidencecomment')
+        vperm = Permission.objects.get(codename='view_qualitycontrol')
+        aperm = Permission.objects.get(codename='add_qualitycontrol')
 
         group.permissions.add(vperm)
         group.permissions.add(aperm)
@@ -116,55 +116,41 @@ class PrivateUserApiTests(TestCase):
         self.client.force_authenticate(user=self.user)
 
 
-        payload = {
-            'type': self.etype,
-            'owner': self.user,
-            'status': self.estatus,
-            'dirty': True,
-            'pending_auth': False,
-            'pending_signature': False,
-            'version': 1,
-        }
-        evidence = models.Evidence.objects.create(**payload)
-        self.evidence = evidence
-
     def test_list_evidence_comment_success(self):
         """Test get all evidence comments success."""
         payload = {
-            'evidence': self.evidence,
-            'user': self.user,
-            'comments': "My comments"
+            'type': self.etype,
+            'name': "My name",
         }
-        models.EvidenceComment.objects.create(**payload)
+        models.QualityControl.objects.create(**payload)
 
         res = self.client.get(MAIN_URL)
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
-        rows = models.EvidenceComment.objects.filter().order_by('-id')
-        s = EvidenceCommentSerializer(rows, many=True)
+        rows = models.QualityControl.objects.filter().order_by('-id')
+        s = QualityControlSerializer(rows, many=True)
         self.assertEqual(s.data, res.data)
 
     def test_evidence_comment_detail_success(self):
         """Test department detail success"""
         payload = {
-            'evidence': self.evidence,
-            'user': self.user,
-            'comments': "My comments"
+            'type': self.etype,
+            'name': "My name"
         }
-        model = models.EvidenceComment.objects.create(**payload)
+        model = models.QualityControl.objects.create(**payload)
 
         res = self.client.get(detail_url(model.id), format='json')
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
-        s = EvidenceCommentSerializer(model)
+        s = QualityControlSerializer(model)
         self.assertEqual(s.data, res.data)
 
     def test_create_evidence_comment_success(self):
         """Test create evidence comment success."""
         payload = {
-            'evidence': self.evidence.id,
-            'comments': "My comments",
+            'type': self.etype.id,
+            'name': "My name",
         }
 
 
