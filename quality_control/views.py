@@ -90,9 +90,9 @@ class QualityControlViewSet(viewsets.ModelViewSet):
         # Filter objects by active status
         queryset = self.queryset
 
-        evidence = self.request.query_params.get('evidence')
-        if evidence != None:
-            queryset = queryset.filter(evidence=evidence)
+        type = self.request.query_params.get('type')
+        if type != None:
+            queryset = queryset.filter(type=type)
 
         return queryset.order_by('-id')
     
