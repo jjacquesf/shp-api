@@ -55,6 +55,21 @@ class EvidenceTypeCustomFielderializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['id']
 
+
+class EvidenceTypeQualityControlSerializer(serializers.ModelSerializer):
+    """Serializer for the evidence type custom field object"""
+    name = serializers.CharField(source='quality_control.name')
+
+    class Meta:
+        model= models.EvidenceTypeQualityControl
+        fields = [
+            'id', 
+            'is_active',
+            'name'
+        ]
+        read_only_fields = ['id']
+
+
 class UpdateCustomFieldSerializer(CustomFieldSerializer):
     attribute_name = serializers.CharField()
     attribute_slug = serializers.CharField()

@@ -256,6 +256,10 @@ class CustomField(TimeStampMixin):
         )
 
         return model
+    
+class QualityControl(TimeStampMixin):
+    is_active = models.BooleanField(default=True)
+    name = models.CharField(max_length=128, unique=True)
 
 class EvidenceType(TimeStampMixin):
     is_active = models.BooleanField(default=True)
@@ -274,6 +278,7 @@ class EvidenceType(TimeStampMixin):
         on_delete=models.CASCADE
     )
     custom_fields = models.ManyToManyField(CustomField, through='EvidenceTypeCustomField')
+    quality_controls = models.ManyToManyField(QualityControl, through='EvidenceTypeQualityControl')
     description = models.TextField(
         blank=True, 
         null=True
@@ -285,16 +290,7 @@ class EvidenceType(TimeStampMixin):
         verbose_name = _('Evidence type')
         verbose_name_plural = _('Evidence types')
 
-class QualityControl(TimeStampMixin):
-    is_active = models.BooleanField(default=True)
-    type = models.ForeignKey(
-        EvidenceType,
-        on_delete=models.CASCADE
-    )
-    name = models.CharField(max_length=128)
 
-    class Meta:
-        unique_together = ('type', 'name')
 
 class EvidenceTypeCustomField(TimeStampMixin):
     is_active = models.BooleanField(default=True)
@@ -313,6 +309,22 @@ class EvidenceTypeCustomField(TimeStampMixin):
 
     def __str__(self):
         return f'{self.type.is_active} / {self.type.id} / {self.custom_field.id}'
+    
+class EvidenceTypeQualityControl(TimeStampMixin):
+    is_active = models.BooleanField(default=True)
+    type = models.ForeignKey(
+        EvidenceType,
+        on_delete=models.CASCADE
+    )
+    quality_control = models.ForeignKey(
+        QualityControl,
+        on_delete=models.CASCADE
+    )
+    class Meta:
+        unique_together = [['type', 'quality_control']]
+
+    def __str__(self):
+        return f'{self.type.is_active} / {self.type.id} / {self.quality_control.id}'
 
 
 def get_upload_path(instance, filename):

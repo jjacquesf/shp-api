@@ -90,10 +90,6 @@ class QualityControlViewSet(viewsets.ModelViewSet):
         # Filter objects by active status
         queryset = self.queryset
 
-        type = self.request.query_params.get('type')
-        if type != None:
-            queryset = queryset.filter(type=type)
-
         return queryset.order_by('-id')
     
     # def get_serializer_class(self):

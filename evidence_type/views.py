@@ -28,6 +28,7 @@ from evidence_type.serializers import (
 from custom_field.serializers import (
     CustomFieldSerializer,
     EvidenceTypeCustomFielderializer,
+    EvidenceTypeQualityControlSerializer,
 )
 
 class EvidenceTypePermission(permissions.BasePermission):
@@ -175,7 +176,7 @@ class EvidenceTypeViewSet(viewsets.ModelViewSet):
         if(children > 0):
             raise serializers.ValidationError(_('Unable to delete this record, some others depends on it. Disable it instead.'))
         
-        children = models.QualityControl.objects.filter(type=instance).count()
+        children = models.EvidenceTypeQualityControl.objects.filter(type=instance).count()
         if(children > 0):
             raise serializers.ValidationError(_('Unable to delete this record, some others depends on it. Disable it instead.'))
         
@@ -271,13 +272,13 @@ class ListCreateQualityControlView(views.APIView):
 
     @extend_schema(
         description=_("[Protected | ViewEvidenceType] List evidence type quality controls"),
-        responses={200: QualityControlSerializer(many=True)},
+        responses={200: EvidenceTypeQualityControlSerializer(many=True)},
     )
     def get(self, request, pk):
         model = models.EvidenceType.objects.get(id=pk)
 
-        custom_fields = models.QualityControl.objects.filter(type=model.id)
-        serializer = QualityControlSerializer(custom_fields, many=True)
+        custom_fields = models.EvidenceTypeQualityControl.objects.filter(type=model.id)
+        serializer = EvidenceTypeQualityControlSerializer(custom_fields, many=True)
 
         return Response(serializer.data)
     
@@ -313,12 +314,12 @@ class PatchDeleteQualityControlView(views.APIView):
         """Delete evidence type quality controls"""
         evidence_type = models.EvidenceType.objects.get(id=pk)
 
-        children = models.QualityControl.objects.filter(id=qc_id, type=evidence_type.id).count()
+        children = models.EvidenceTypeQualityControl.objects.filter(id=qc_id, type=evidence_type.id).count()
         if(children > 0):
             raise serializers.ValidationError(_('Unable to delete this record, some others depends on it. Disable it instead.'))
 
         ## Delete
-        models.QualityControl.objects.filter(id=qc_id, type=evidence_type.id).delete()
+        models.EvidenceTypeQualityControl.objects.filter(id=qc_id, type=evidence_type.id).delete()
 
         return Response(None, status=status.HTTP_204_NO_CONTENT)
     
@@ -336,10 +337,10 @@ class PatchDeleteQualityControlView(views.APIView):
         body_serializer = AddPatchQualityControlSerializer(data=request.data)    
         body_serializer.is_valid(raise_exception=True)
 
-        models.QualityControl.objects.filter(id=qc.id).update(**body_serializer.validated_data)
+        models.EvidenceTypeQualityControl.objects.filter(id=qc.id).update(**body_serializer.validated_data)
 
         # Return
-        qc = models.QualityControl.objects.get(id=qc.id)
-        serializer = QualityControlSerializer(qc)
+        qc = models.EvidenceTypeQualityControl.objects.get(id=qc.id)
+        serializer = EvidenceTypeQualityControlSerializer(qc)
         return Response(serializer.data, status=status.HTTP_200_OK)
     

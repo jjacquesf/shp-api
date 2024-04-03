@@ -102,16 +102,6 @@ class PrivateUserApiTests(TestCase):
         estatus = create_evidence_status(**data)
         self.estatus = estatus
 
-        data = {
-            'name': 'name1', 
-            'alias': 'name1', 
-            'attachment_required': False, 
-            'group': self.egroup,
-            'description': 'desc1'
-        }
-        etype = create_evidence_type(**data)
-        self.etype = etype
-
         self.client = APIClient()
         self.client.force_authenticate(user=self.user)
 
@@ -119,7 +109,6 @@ class PrivateUserApiTests(TestCase):
     def test_list_evidence_comment_success(self):
         """Test get all evidence comments success."""
         payload = {
-            'type': self.etype,
             'name': "My name",
         }
         models.QualityControl.objects.create(**payload)
@@ -135,7 +124,6 @@ class PrivateUserApiTests(TestCase):
     def test_evidence_comment_detail_success(self):
         """Test department detail success"""
         payload = {
-            'type': self.etype,
             'name': "My name"
         }
         model = models.QualityControl.objects.create(**payload)
@@ -149,7 +137,6 @@ class PrivateUserApiTests(TestCase):
     def test_create_evidence_comment_success(self):
         """Test create evidence comment success."""
         payload = {
-            'type': self.etype.id,
             'name': "My name",
         }
 

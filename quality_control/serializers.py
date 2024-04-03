@@ -6,7 +6,7 @@ class QualityControlSerializer(serializers.ModelSerializer):
     
     class Meta:
         model= models.QualityControl
-        fields = ['id', 'is_active', 'type', 'name']
+        fields = ['id', 'is_active', 'name']
         read_only_fields = ['id']
 
     def __str__(self):
