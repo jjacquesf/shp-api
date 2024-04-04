@@ -388,7 +388,7 @@ class EvidenceFinding(TimeStampMixin):
         on_delete=models.CASCADE
     )
     qc = models.ForeignKey(
-        QualityControl,
+        EvidenceTypeQualityControl,
         on_delete=models.CASCADE
     )
     status = models.CharField(

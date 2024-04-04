@@ -201,12 +201,12 @@ class ModelTests(TestCase):
                   auth_required=True,
             )
 
-            qc = models.QualityControl.objects.create(
-                  type=evidence_type,
-                  name="QC 1"
-            )
+            # qc = models.QualityControl.objects.create(
+            #       type=evidence_type,
+            #       name="QC 1"
+            # )
 
-            self.assertEqual(qc.type.id, evidence_type.id)
+            # self.assertEqual(qc.type.id, evidence_type.id)
 
       def test_create_evidence_group(self):
             """Test creating a evidence type"""
@@ -351,6 +351,11 @@ class ModelTests(TestCase):
                   group=group
             )
 
+
+            qc = models.QualityControl.objects.create(
+                  name="QC 1"
+            )
+
             type = models.EvidenceType.objects.create(
                   name="Evidence type name 2",
                   alias="type2",
@@ -360,10 +365,7 @@ class ModelTests(TestCase):
                   group=group
             )
 
-            qc = models.QualityControl.objects.create(
-                  type=type,
-                  name="QC 1"
-            )
+            type.quality_controls.add(qc)
 
             # print(stage)
             # print(status)
@@ -383,9 +385,10 @@ class ModelTests(TestCase):
             )
 
             ## Extend from TimeStampMixin
+            etqc = models.EvidenceTypeQualityControl.objects.get(quality_control=qc.id)
             evidence_finding = models.EvidenceFinding.objects.create(
                   evidence=evidence,
-                  qc=qc,
+                  qc=etqc,
                   version=1,
                   status='PEN', # PEN | SEN | WAI | REV | COM
                   comments="Comment details"

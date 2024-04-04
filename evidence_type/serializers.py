@@ -27,7 +27,7 @@ class QualityControlSerializer(serializers.ModelSerializer):
     
     class Meta:
         model= models.QualityControl
-        fields = ['id', 'type', 'is_active', 'name']
+        fields = ['id', 'is_active', 'name']
         read_only_fields = ['id']
 
 class AddPatchQualityControlSerializer(QualityControlSerializer):

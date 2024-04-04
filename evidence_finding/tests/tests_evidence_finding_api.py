@@ -113,11 +113,15 @@ class PrivateUserApiTests(TestCase):
         self.etype = etype
 
         payload = {
-            'type': self.etype,
             'name': "My name"
         }
         qc = models.QualityControl.objects.create(**payload)
         self.qc = qc
+        
+        self.etype.quality_controls.add(qc)
+
+        etqc = models.EvidenceTypeQualityControl.objects.get(quality_control=qc.id)
+        self.etqc = etqc
 
         payload = {
             'type': self.etype,
@@ -141,7 +145,7 @@ class PrivateUserApiTests(TestCase):
         payload = {
             'status': 'PEN',
             'evidence': self.evidence,
-            'qc': self.qc,
+            'qc': self.etqc,
             'comments': "My comments",
         }
         models.EvidenceFinding.objects.create(**payload)
@@ -159,7 +163,7 @@ class PrivateUserApiTests(TestCase):
         payload = {
             'status': 'PEN',
             'evidence': self.evidence,
-            'qc': self.qc,
+            'qc': self.etqc,
             'comments': "My comments",
         }
         model = models.EvidenceFinding.objects.create(**payload)
@@ -175,7 +179,7 @@ class PrivateUserApiTests(TestCase):
         payload = {
             'status': 'PEN',
             'evidence': self.evidence.id,
-            'qc': self.qc.id,
+            'qc': self.etqc.id,
             'comments': "My comments",
         }
 
