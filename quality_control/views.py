@@ -102,3 +102,10 @@ class QualityControlViewSet(viewsets.ModelViewSet):
     #     """Create a new quality control"""
     #     return serializer.save()
     
+    def perform_destroy(self, instance):
+        """Destroy a evidence type"""
+        children = models.EvidenceQualityControl.objects.filter(parent=instance).count()
+        if(children > 0):
+            raise serializers.ValidationError(_('Unable to delete parent records. Disable it instead.'))
+
+        instance.delete()

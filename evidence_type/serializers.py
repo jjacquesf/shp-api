@@ -35,3 +35,13 @@ class AddPatchQualityControlSerializer(QualityControlSerializer):
     
     class Meta(QualityControlSerializer.Meta):
         fields = ['id', 'is_active', 'name']
+
+
+class AddEvidenceTypeQualityControlSerializer(serializers.Serializer):
+    """Serializer for user group add."""
+    is_active = serializers.BooleanField(default=True)
+    quality_control = serializers.IntegerField(min_value=1)
+class UpdateEvidenceTypeQualityControlSerializer(serializers.Serializer):
+    """Serializer for user group update."""
+    is_active = serializers.BooleanField(default=True)
+    # quality_control = serializers.IntegerField(min_value=1)

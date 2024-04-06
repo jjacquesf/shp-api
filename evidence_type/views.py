@@ -18,11 +18,13 @@ from rest_framework import status
 from core import models
 
 from evidence_type.serializers import (
+    AddEvidenceTypeQualityControlSerializer,
     EvidenceTypeSerializer,
     AddEvidenceTypeCustomFieldSerializer,
     UpdateEvidenceTypeCustomFieldSerializer,
     QualityControlSerializer,
     AddPatchQualityControlSerializer,
+    UpdateEvidenceTypeQualityControlSerializer,
 )
 
 from custom_field.serializers import (
@@ -284,22 +286,23 @@ class ListCreateQualityControlView(views.APIView):
     
     @extend_schema(
         description=_("[Protected | ChangeEvidenceType] Add an evidence type quality control"),
-        request=AddPatchQualityControlSerializer,
-        responses={200: QualityControlSerializer},
+        request=AddEvidenceTypeQualityControlSerializer,
+        responses={200: EvidenceTypeQualityControlSerializer},
     )
     def post(self, request, pk):
-        """Add evidence type quality controls"""
-        body_serializer = AddPatchQualityControlSerializer(data=request.data)    
+        """Update evidence type custom fields"""
+        body_serializer = AddEvidenceTypeQualityControlSerializer(data=request.data)    
         body_serializer.is_valid(raise_exception=True)
 
-        type = models.EvidenceType.objects.get(id=pk)
+        model = models.EvidenceType.objects.get(id=pk)
 
-        qc = models.QualityControl.objects.create(
-            type=type,
-            **body_serializer.validated_data
-        )
+        quality_control = models.QualityControl.objects.get(id=body_serializer.validated_data['quality_control'])
 
-        serializer = QualityControlSerializer(qc)
+        if quality_control != None:
+            model.quality_controls.add(quality_control)
+
+        quality_control = models.EvidenceTypeQualityControl.objects.get(type=model.id, quality_control=quality_control.id)
+        serializer = EvidenceTypeQualityControlSerializer(quality_control)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     
 @extend_schema(tags=['Evidence catalogs'])
@@ -307,40 +310,35 @@ class PatchDeleteQualityControlView(views.APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated, EvidenceTypePermission]
     @extend_schema(
-        description=_("[Protected | DeleteEvidenceType] Delete evidence type quality controls by id"),
-        responses={200: CustomFieldSerializer(many=True)},
+        description=_("[Protected | DeleteEvidenceType] Delete evidence type custom fields by id"),
     )
     def delete(self, request, pk, qc_id):
-        """Delete evidence type quality controls"""
-        evidence_type = models.EvidenceType.objects.get(id=pk)
+        """Delete evidence type custom fields"""
+        # evidence_type = models.EvidenceType.objects.get(id=pk)
 
-        children = models.EvidenceTypeQualityControl.objects.filter(id=qc_id, type=evidence_type.id).count()
-        if(children > 0):
-            raise serializers.ValidationError(_('Unable to delete this record, some others depends on it. Disable it instead.'))
+        raise serializers.ValidationError(_('Unable to delete this record, some others depends on it. Disable it instead.'))
 
-        ## Delete
-        models.EvidenceTypeQualityControl.objects.filter(id=qc_id, type=evidence_type.id).delete()
-
-        return Response(None, status=status.HTTP_204_NO_CONTENT)
+        # models.EvidenceTypeCustomField.objects.filter(id=qc_id, type=evidence_type.id).delete()
+        # return Response(None, status=status.HTTP_204_NO_CONTENT)
     
     @extend_schema(
-        description=_("[Protected |ChangeEvidenceType]Change evidence type quality controls by id"),
-        request=AddPatchQualityControlSerializer,
-        responses={200: CustomFieldSerializer},
+        description=_("[Protected |ChangeEvidenceType]Change evidence type custom fields by id"),
+        request=UpdateEvidenceTypeQualityControlSerializer,
+        responses={200: EvidenceTypeQualityControlSerializer},
     )
     def patch(self, request, pk, qc_id):
         """Update evidence type custom field"""
         evidence_type = models.EvidenceType.objects.get(id=pk)
-        qc = models.QualityControl.objects.get(id=qc_id)
-
+        et_quality_control = models.EvidenceTypeQualityControl.objects.get(type=evidence_type.id, quality_control=qc_id)
+        
         # Update here
-        body_serializer = AddPatchQualityControlSerializer(data=request.data)    
+        body_serializer = UpdateEvidenceTypeQualityControlSerializer(data=request.data)    
         body_serializer.is_valid(raise_exception=True)
 
-        models.EvidenceTypeQualityControl.objects.filter(id=qc.id).update(**body_serializer.validated_data)
+        models.EvidenceTypeQualityControl.objects.filter(type=evidence_type.id, id=et_quality_control.id).update(**body_serializer.validated_data)
 
         # Return
-        qc = models.EvidenceTypeQualityControl.objects.get(id=qc.id)
-        serializer = EvidenceTypeQualityControlSerializer(qc)
+        type_quality_control = models.EvidenceTypeQualityControl.objects.get(type=evidence_type.id, id=et_quality_control.id)
+
+        serializer = EvidenceTypeQualityControlSerializer(type_quality_control)
         return Response(serializer.data, status=status.HTTP_200_OK)
-    
