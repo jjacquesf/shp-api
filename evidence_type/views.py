@@ -136,6 +136,10 @@ class EvidenceTypeViewSet(viewsets.ModelViewSet):
         if self.request.method == 'GET' and (active_only == None or active_only.strip().lower() == 'true'):
             queryset = queryset.filter(is_active=True)
 
+        is_owner_open = self.request.query_params.get('is_owner_open')
+        if is_owner_open != None:
+            queryset = queryset.filter(is_owner_open=is_owner_open.strip().lower())
+
         name = self.request.query_params.get('name')
         if name != None:
             queryset = queryset.filter(name__icontains=name)

@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
+    'easyaudit',
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'core',
@@ -49,7 +50,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'drf_spectacular',
     'corsheaders',
-    'auditlog',
+    # 'auditlog',
     'eav',
     #'django_jsonfield_backport',
     'assets',
@@ -84,7 +85,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'auditlog.middleware.AuditlogMiddleware',
+    # 'auditlog.middleware.AuditlogMiddleware',
+    'easyaudit.middleware.easyaudit.EasyAuditMiddleware',
 ]
 
 ROOT_URLCONF = 'app.urls'

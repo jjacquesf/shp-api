@@ -41,11 +41,13 @@ class EvidenceSerializer(serializers.ModelSerializer):
 
     authorizers = serializers.SerializerMethodField()
     signers = serializers.SerializerMethodField()
-    versions = serializers.SerializerMethodField()
+    # versions = serializers.SerializerMethodField()
 
     class Meta:
         model=models.Evidence
-        fields = ['owner', 'status', 'status', 'type', 'parent', 'uploaded_file', 'authorizers', 'signers', 'versions']
+        fields = ['owner', 'status', 'status', 'type', 'parent', 'uploaded_file', 'authorizers', 'signers', 
+                #   'versions'
+                  ]
         read_only_fields = ['id']
 
     def get_authorizers(self, obj):
@@ -59,18 +61,18 @@ class EvidenceSerializer(serializers.ModelSerializer):
         s = EvidenceSignatureSerializer(rows, many=True)
         return s.data
     
-    def get_versions(self, obj):
-        versions = []
-        for v in obj.history.all():
-            versions.append(v.changes_dict)
-        return versions
+    # def get_versions(self, obj):
+    #     versions = []
+    #     for v in obj.history.all():
+    #         versions.append(v.changes_dict)
+    #     return versions
     
 
 
 class CreateEvidenceSerializer(serializers.Serializer):
     """Serializer for user creation."""
     owner = serializers.IntegerField(required=False)
-    status = serializers.IntegerField(required=True)
+    # status = serializers.IntegerField(required=True)
     type = serializers.IntegerField(required=True)
     parent = serializers.IntegerField(required=False)
     uploaded_file = serializers.IntegerField(required=False)
@@ -83,8 +85,7 @@ class CreateEvidenceSerializer(serializers.Serializer):
         owner = get_user_model().objects.get(id=validated_data.get('owner'))
 
         type = models.EvidenceType.objects.get(id=validated_data.get('type'))
-        status = models.EvidenceStatus.objects.get(id=validated_data.get('status'), group=type.group)
-
+        
         parent = validated_data.get('parent')
         if parent != None:
             parent = models.Evidence.objects.get(id=parent)
@@ -104,8 +105,8 @@ class CreateEvidenceSerializer(serializers.Serializer):
             pending_signature = True
 
         data = {
-            "status": status,
             "type": type,
+            "status": type.creation_status,
             "parent": parent,
             "uploaded_file": uploaded_file,
             "owner": owner,

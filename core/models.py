@@ -4,8 +4,6 @@ Database models
 import os
 
 from django.core.files.storage import FileSystemStorage
-from auditlog.models import AuditlogHistoryField
-from auditlog.registry import auditlog
 
 from django.utils.translation import gettext_lazy as _
 from app import settings
@@ -62,6 +60,9 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     USERNAME_FIELD = 'email'
 
+    def __str__(self):
+        return f"User: {self.id}"
+
 class CustomGroup(Group):
     description = models.TextField(
         blank=True, 
@@ -71,9 +72,16 @@ class CustomGroup(Group):
     class Meta:
         verbose_name = _('Group')
         verbose_name_plural = _('Groups')
+
+    def __str__(self):
+        return f"CustomGroup: {self.id}"
+    
 class Profile(TimeStampMixin):
     user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE)
     job_position = models.CharField(max_length=255)
+
+    def __str__(self):
+        return f"Profile: {self.id}"
 
 class Municipality(TimeStampMixin):
     is_active = models.BooleanField(default=True)
@@ -82,11 +90,17 @@ class Municipality(TimeStampMixin):
         verbose_name = _('Municipality')
         verbose_name_plural = _('Municipalities')
 
+    def __str__(self):
+        return f"Municipality: {self.id}"
+
 class Institution(TimeStampMixin):
     is_active = models.BooleanField(default=True)
     name = models.CharField(max_length=128,unique=True)
     class Meta:
         verbose_name = _('Institution')
+
+    def __str__(self):
+        return f"Institution: {self.id}"
 
 class Dpe(TimeStampMixin):
     is_active = models.BooleanField(default=True)
@@ -95,6 +109,9 @@ class Dpe(TimeStampMixin):
         verbose_name = _('Decentralized public entity')
         verbose_name_plural = _('Decentralized public entities')
 
+    def __str__(self):
+        return f"Dpe: {self.id}"
+
 class Supplier(TimeStampMixin):
     is_active = models.BooleanField(default=True)
     name = models.CharField(max_length=128,unique=True)
@@ -102,6 +119,9 @@ class Supplier(TimeStampMixin):
     tax_name = models.CharField(max_length=255,unique=True)
     class Meta:
         verbose_name = _('Supplier')
+
+    def __str__(self):
+        return f"Supplier: {self.id}"
 
 class Department(TimeStampMixin):
     is_active = models.BooleanField(default=True)
@@ -117,6 +137,9 @@ class Department(TimeStampMixin):
         verbose_name = _('SHP Department')
         verbose_name_plural = _('SHP Departments')
 
+    def __str__(self):
+        return f"Department: {self.id}"
+
 class Entity(TimeStampMixin):
     is_active = models.BooleanField(default=True)
     name = models.CharField(max_length=128,unique=True)
@@ -130,6 +153,9 @@ class Entity(TimeStampMixin):
     class Meta:
         verbose_name = _('Entity')
         verbose_name_plural = _('Entities')
+
+    def __str__(self):
+        return f"Entity: {self.id}"
 
 class StateOrg(TimeStampMixin):
     is_active = models.BooleanField(default=True)
@@ -145,6 +171,9 @@ class StateOrg(TimeStampMixin):
         verbose_name = _('State Organization')
         verbose_name_plural = _('State organizations')
 
+    def __str__(self):
+        return f"StateOrg: {self.id}"
+
 class SifUser(TimeStampMixin):
     is_active = models.BooleanField(default=True)
     name = models.CharField(max_length=128,unique=True)
@@ -156,6 +185,9 @@ class SifUser(TimeStampMixin):
         verbose_name = _('SIF user')
         verbose_name_plural = _('SIF users')
 
+    def __str__(self):
+        return f"SifUser: {self.id}"
+
 class SianUser(TimeStampMixin):
     is_active = models.BooleanField(default=True)
     name = models.CharField(max_length=128,unique=True)
@@ -166,6 +198,10 @@ class SianUser(TimeStampMixin):
     class Meta:
         verbose_name = _('SIAN user')
         verbose_name_plural = _('SIAN users')
+
+    def __str__(self):
+        return f"SianUser: {self.id}"
+
 class EvidenceGroup(TimeStampMixin):
     is_active = models.BooleanField(default=True)
     name = models.CharField(max_length=128,unique=True)
@@ -179,6 +215,9 @@ class EvidenceGroup(TimeStampMixin):
         verbose_name = _('Evidence group')
         verbose_name_plural = _('Evidence groups')
 
+    def __str__(self):
+        return f"EvidenceGroup: {self.id}"
+
 class EvidenceStage(TimeStampMixin):
     is_active = models.BooleanField(default=True)
     name = models.CharField(max_length=128,unique=True)
@@ -191,6 +230,9 @@ class EvidenceStage(TimeStampMixin):
     class Meta:
         verbose_name = _('Evidence stage')
         verbose_name_plural = _('Evidence stages')
+
+    def __str__(self):
+        return f"EvidenceStage: {self.id}"
 
 class EvidenceStatus(TimeStampMixin):
     is_active = models.BooleanField(default=True)
@@ -215,6 +257,9 @@ class EvidenceStatus(TimeStampMixin):
         verbose_name_plural = _('Evidence satatuses')
 
         unique_together = ('stage', 'group', 'name')
+
+    def __str__(self):
+        return f"EvidenceStatus: {self.id}"
 
 class CustomField(TimeStampMixin):
     is_active = models.BooleanField(default=True)
@@ -257,12 +302,23 @@ class CustomField(TimeStampMixin):
 
         return model
     
+    def __str__(self):
+        return f"CustomField: {self.id}"
+
 class QualityControl(TimeStampMixin):
     is_active = models.BooleanField(default=True)
     name = models.CharField(max_length=128, unique=True)
 
+    def __str__(self):
+        return f"QualityControl: {self.id}"
+
 class EvidenceType(TimeStampMixin):
     is_active = models.BooleanField(default=True)
+    is_owner_open = models.BooleanField(default=False)
+    creation_status = models.ForeignKey(
+        EvidenceStatus,
+        on_delete=models.CASCADE
+    )
     name = models.CharField(max_length=128,unique=True)
     alias = models.SlugField(max_length=128,unique=True)
     level = models.IntegerField(default=0)
@@ -290,7 +346,8 @@ class EvidenceType(TimeStampMixin):
         verbose_name = _('Evidence type')
         verbose_name_plural = _('Evidence types')
 
-
+    def __str__(self):
+        return f"EvidenceType: {self.id}"
 
 class EvidenceTypeCustomField(TimeStampMixin):
     is_active = models.BooleanField(default=True)
@@ -308,7 +365,7 @@ class EvidenceTypeCustomField(TimeStampMixin):
         unique_together = [['type', 'custom_field']]
 
     def __str__(self):
-        return f'{self.type.is_active} / {self.type.id} / {self.custom_field.id}'
+        return f"EvidenceTypeCustomField: {self.id}"
     
 class EvidenceTypeQualityControl(TimeStampMixin):
     is_active = models.BooleanField(default=True)
@@ -324,7 +381,7 @@ class EvidenceTypeQualityControl(TimeStampMixin):
         unique_together = [['type', 'quality_control']]
 
     def __str__(self):
-        return f'{self.type.is_active} / {self.type.id} / {self.quality_control.id}'
+        return f"EvidenceTypeQualityControl: {self.id}"
 
 
 def get_upload_path(instance, filename):
@@ -341,9 +398,12 @@ class UploadedFile(models.Model):
     
     def __str__(self):
         return self.uploaded_on.date()
+    
+    def __str__(self):
+        return f"UploadedFile: {self.id}"
 
 class Evidence(TimeStampMixin):
-    history = AuditlogHistoryField()
+    # history = AuditlogHistoryField()
 
     status = models.ForeignKey(
         EvidenceStatus,
@@ -374,6 +434,9 @@ class Evidence(TimeStampMixin):
     )
     version = models.IntegerField(default=0)
 
+    def __str__(self):
+        return f"Evidence: {self.id}"
+
 class EvidenceFinding(TimeStampMixin):
     class Status(models.TextChoices):
         PENDING = 'PEN', _('Pending')
@@ -402,9 +465,11 @@ class EvidenceFinding(TimeStampMixin):
     )
     version = models.IntegerField(default=1)
     
-
     class Meta:
         unique_together = ('evidence', 'qc', 'version')
+
+    def __str__(self):
+        return f"EvidenceFinding: {self.id}"
 
 class EvidenceAuth(TimeStampMixin):
     class Status(models.TextChoices):
@@ -426,10 +491,11 @@ class EvidenceAuth(TimeStampMixin):
     )
     version = models.IntegerField(default=1)
     
-
     class Meta:
         unique_together = ('evidence', 'user', 'version')
 
+    def __str__(self):
+        return f"EvidenceAuth: {self.id}"
 
 class EvidenceSignature(TimeStampMixin):
     class Status(models.TextChoices):
@@ -454,6 +520,8 @@ class EvidenceSignature(TimeStampMixin):
     class Meta:
         unique_together = ('evidence', 'user', 'version')
 
+    def __str__(self):
+        return f"EvidenceSignature: {self.id}"
 
 class EvidenceComment(TimeStampMixin):
     
@@ -471,10 +539,10 @@ class EvidenceComment(TimeStampMixin):
     class Meta:
         unique_together = ('evidence', 'user', 'comments')
 
+    def __str__(self):
+        return f"EvidenceComment: {self.id}"
+
+
 ## Register eav for models
 eav.register(Evidence)
 
-## Enable auditlog
-auditlog.register(
-    Evidence
-)

@@ -70,6 +70,10 @@ def create_evidence_type(**params):
     evidence_type = models.EvidenceType.objects.create(**params)
     return evidence_type
 
+def create_evidence_status(**params):
+    """Create and return a new evidence status"""
+    evidence_status = models.EvidenceStatus.objects.create(**params)
+    return evidence_status
 
 class PublicEvidenceTypeTests(TestCase):
     """Test unauthenticated API requests."""
@@ -214,6 +218,16 @@ class ForbiddenEvidenceTypeTests(TestCase):
         self.egroup = egroup
 
         self.client.force_authenticate(user=self.user)
+
+        data = {
+            'name': 'name1', 
+            'position': 1, 
+            'color': '#ffffff', 
+            'group': self.egroup, 
+            'stage': self.stage
+        }
+        estatus = create_evidence_status(**data)
+        self.estatus = estatus
 
     def test_list_active_evidence_type_forbidden(self):
         """Test list evidence types forbidden"""
@@ -368,6 +382,16 @@ class EvidenceTypeTests(TestCase):
         egroup = create_evidence_group(**data)
         self.egroup = egroup
 
+        data = {
+            'name': 'name1', 
+            'position': 1, 
+            'color': '#ffffff', 
+            'group': self.egroup, 
+            'stage': self.stage
+        }
+        estatus = create_evidence_status(**data)
+        self.estatus = estatus
+
         self.client = APIClient()
         self.client.force_authenticate(user=user)
 
@@ -378,6 +402,7 @@ class EvidenceTypeTests(TestCase):
             'alias': 'name1', 
             'attachment_required': False, 
             'group': self.egroup,
+            'creation_status': self.estatus,
             'description': 'desc1'
         }
         create_evidence_type(**data)
@@ -406,6 +431,7 @@ class EvidenceTypeTests(TestCase):
             'alias': 'name2', 
             'attachment_required': False, 
             'group': self.egroup,
+            'creation_status': self.estatus,
             'description': 'desc2'
         }
         create_evidence_type(**data)
@@ -427,6 +453,7 @@ class EvidenceTypeTests(TestCase):
             'alias': 'name1', 
             'attachment_required': False, 
             'group': self.egroup,
+            'creation_status': self.estatus,
             'description': 'desc1'
         }
         model = create_evidence_type(**data)
@@ -445,6 +472,7 @@ class EvidenceTypeTests(TestCase):
             'alias': 'name1', 
             'attachment_required': False, 
             'group': self.egroup.id, 
+            'status': self.estatus.id,
             'description': 'desc1'
         }
 
@@ -480,6 +508,7 @@ class EvidenceTypeTests(TestCase):
             'alias': 'name1', 
             'attachment_required': False, 
             'group': self.egroup.id, 
+            'status': self.estatus.id,
             'description': 'desc1'
         }
         res = self.client.post(MAIN_URL, payload)
@@ -495,6 +524,7 @@ class EvidenceTypeTests(TestCase):
             'alias': 'name1', 
             'attachment_required': False, 
             'group': self.egroup,
+            'creation_status': self.estatus,
             'description': 'desc1'
         }
         model = create_evidence_type(**data)
@@ -503,6 +533,7 @@ class EvidenceTypeTests(TestCase):
             'alias': 'name1', 
             'attachment_required': False, 
             'group': self.egroup.id,
+            'status': self.estatus.id,
             'description': 'desc1'
         })
         res = self.client.put(detail_url(model.id), data)
@@ -519,6 +550,7 @@ class EvidenceTypeTests(TestCase):
             'alias': 'name1', 
             'attachment_required': False, 
             'group': self.egroup,
+            'creation_status': self.estatus,
             'description': 'desc1'
         }
         model = create_evidence_type(**data)
@@ -537,6 +569,7 @@ class EvidenceTypeTests(TestCase):
             'alias': 'name1', 
             'attachment_required': False, 
             'group': self.egroup,
+            'creation_status': self.estatus,
             'description': 'desc1'
         }
         model = create_evidence_type(**data)
@@ -552,6 +585,7 @@ class EvidenceTypeTests(TestCase):
             'alias': 'name2', 
             'attachment_required': False, 
             'group': self.egroup,
+            'creation_status': self.estatus,
             'description': 'desc2'
         }
         model = create_evidence_type(**data)
@@ -561,6 +595,7 @@ class EvidenceTypeTests(TestCase):
             'alias': 'name3', 
             'attachment_required': False, 
             'group': self.egroup,
+            'creation_status': self.estatus,
             'parent': model,
             'description': 'desc3'
         }
@@ -576,6 +611,7 @@ class EvidenceTypeTests(TestCase):
             'alias': 'name2', 
             'attachment_required': False, 
             'group': self.egroup,
+            'creation_status': self.estatus,
             'description': 'desc2'
         }
         model = create_evidence_type(**data)
@@ -609,6 +645,7 @@ class EvidenceTypeTests(TestCase):
             'alias': 'name1', 
             'attachment_required': False, 
             'group': self.egroup,
+            'creation_status': self.estatus,
             'description': 'desc1'
         }
         model = create_evidence_type(**data)
@@ -660,6 +697,7 @@ class EvidenceTypeTests(TestCase):
             'alias': 'name1', 
             'attachment_required': False, 
             'group': self.egroup,
+            'creation_status': self.estatus,
             'description': 'desc1'
         }
         model = create_evidence_type(**data)

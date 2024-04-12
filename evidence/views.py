@@ -124,9 +124,14 @@ class EvidenceViewSet(viewsets.ModelViewSet):
     
     def perform_create(self, serializer):
         """Create a new evidence"""
-
-        payload={'owner': self.request.user.id}
-        payload.update(serializer.data)
+        
+        type = models.EvidenceType.objects.get(id=serializer.validated_data.get('type'))
+        owner = serializer.validated_data.get('owner')
+        if type.is_owner_open == False or owner == None:
+            payload={'owner': self.request.user.id}
+            payload.update(serializer.data)
+        else:
+            payload = serializer.validated_data
 
         s = CreateEvidenceSerializer(data=payload)
         s.is_valid(raise_exception=True)

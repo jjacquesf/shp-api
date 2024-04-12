@@ -6,7 +6,7 @@ class EvidenceTypeSerializer(serializers.ModelSerializer):
     
     class Meta:
         model= models.EvidenceType
-        fields = ['id', 'is_active', 'name', 'alias', 'attachment_required', 'level', 'parent', 'group', 'description']
+        fields = ['id', 'is_active', 'is_owner_open', 'name', 'alias', 'attachment_required', 'level', 'parent', 'group', 'creation_status','description']
         read_only_fields = ['id']
 
 class AddEvidenceTypeCustomFieldSerializer(serializers.Serializer):
@@ -36,11 +36,11 @@ class AddPatchQualityControlSerializer(QualityControlSerializer):
     class Meta(QualityControlSerializer.Meta):
         fields = ['id', 'is_active', 'name']
 
-
 class AddEvidenceTypeQualityControlSerializer(serializers.Serializer):
     """Serializer for user group add."""
     is_active = serializers.BooleanField(default=True)
     quality_control = serializers.IntegerField(min_value=1)
+
 class UpdateEvidenceTypeQualityControlSerializer(serializers.Serializer):
     """Serializer for user group update."""
     is_active = serializers.BooleanField(default=True)
