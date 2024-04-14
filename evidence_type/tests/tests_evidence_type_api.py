@@ -19,7 +19,7 @@ from evidence_type.serializers import (
 )
 
 from custom_field.serializers import (
-    EvidenceTypeCustomFielderializer,
+    EvidenceTypeCustomFieldSerializer,
     EvidenceTypeQualityControlSerializer
 )
 
@@ -635,7 +635,7 @@ class EvidenceTypeTests(TestCase):
 
         self.assertNotEqual(custom_field, None)
 
-        serializer = EvidenceTypeCustomFielderializer(custom_field)
+        serializer = EvidenceTypeCustomFieldSerializer(custom_field)
         self.assertEqual(res.data['id'], serializer.data['id'])
 
     def test_list_custom_fields_success(self):
@@ -682,7 +682,7 @@ class EvidenceTypeTests(TestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
         custom_fields = models.EvidenceTypeCustomField.objects.filter(type=model.id)
-        serializer = EvidenceTypeCustomFielderializer(custom_fields, many=True)
+        serializer = EvidenceTypeCustomFieldSerializer(custom_fields, many=True)
         self.assertEqual(res.data, serializer.data)
 
         res = self.client.get(quality_controls_url(model.id))
@@ -727,7 +727,7 @@ class EvidenceTypeTests(TestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
         custom_fields = models.EvidenceTypeCustomField.objects.filter(type=model.id)
-        serializer = EvidenceTypeCustomFielderializer(custom_fields, many=True)
+        serializer = EvidenceTypeCustomFieldSerializer(custom_fields, many=True)
 
         # id = serializer.data[0].get('id', None)
         res = self.client.patch(custom_fields_detail_url(model.id, customField2.id), {
@@ -738,7 +738,7 @@ class EvidenceTypeTests(TestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
         custom_field = models.EvidenceTypeCustomField.objects.get(type=model.id, id=res.data['id'])
-        serializer = EvidenceTypeCustomFielderializer(custom_field)
+        serializer = EvidenceTypeCustomFieldSerializer(custom_field)
 
         mandatory = serializer.data.get('mandatory', None)
         group = serializer.data.get('group', None)

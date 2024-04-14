@@ -29,7 +29,7 @@ from evidence_type.serializers import (
 
 from custom_field.serializers import (
     CustomFieldSerializer,
-    EvidenceTypeCustomFielderializer,
+    EvidenceTypeCustomFieldSerializer,
     EvidenceTypeQualityControlSerializer,
 )
 
@@ -200,20 +200,20 @@ class ListCreateCustomFieldView(views.APIView):
 
     @extend_schema(
         description=_("[Protected | ViewEvidenceType] List evidence type custom fields"),
-        responses={200: EvidenceTypeCustomFielderializer(many=True)},
+        responses={200: EvidenceTypeCustomFieldSerializer(many=True)},
     )
     def get(self, request, pk):
         model = models.EvidenceType.objects.get(id=pk)
 
         custom_fields = models.EvidenceTypeCustomField.objects.filter(type=model.id)
-        serializer = EvidenceTypeCustomFielderializer(custom_fields, many=True)
+        serializer = EvidenceTypeCustomFieldSerializer(custom_fields, many=True)
 
         return Response(serializer.data)
     
     @extend_schema(
         description=_("[Protected | ChangeEvidenceType] Add an evidence type custom field"),
         request=AddEvidenceTypeCustomFieldSerializer,
-        responses={200: EvidenceTypeCustomFielderializer},
+        responses={200: EvidenceTypeCustomFieldSerializer},
     )
     def post(self, request, pk):
         """Update evidence type custom fields"""
@@ -228,7 +228,7 @@ class ListCreateCustomFieldView(views.APIView):
             model.custom_fields.add(custom_field, through_defaults={'mandatory': body_serializer.validated_data['mandatory']})
 
         custom_field = models.EvidenceTypeCustomField.objects.get(type=model.id, custom_field=custom_field.id)
-        serializer = EvidenceTypeCustomFielderializer(custom_field)
+        serializer = EvidenceTypeCustomFieldSerializer(custom_field)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     
 @extend_schema(tags=['Evidence catalogs'])
@@ -267,7 +267,7 @@ class PatchDeleteCustomFieldView(views.APIView):
         # Return
         type_custom_field = models.EvidenceTypeCustomField.objects.get(type=evidence_type.id, id=et_custom_field.id)
 
-        serializer = EvidenceTypeCustomFielderializer(type_custom_field)
+        serializer = EvidenceTypeCustomFieldSerializer(type_custom_field)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
 ## Quality control

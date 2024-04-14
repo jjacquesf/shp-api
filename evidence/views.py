@@ -112,6 +112,10 @@ class EvidenceViewSet(viewsets.ModelViewSet):
         if status != None:
             queryset = queryset.filter(status=status)
 
+        group = self.request.query_params.get('group')
+        if group != None:
+            queryset = queryset.filter(group=group)
+
         type = self.request.query_params.get('type')
         if type != None:
             queryset = queryset.filter(type=type)
@@ -128,10 +132,11 @@ class EvidenceViewSet(viewsets.ModelViewSet):
         type = models.EvidenceType.objects.get(id=serializer.validated_data.get('type'))
         owner = serializer.validated_data.get('owner')
         if type.is_owner_open == False or owner == None:
-            payload={'owner': self.request.user.id}
-            payload.update(serializer.data)
+            payload={'group': type.group.id, 'owner': self.request.user.id,  'creator': self.request.user.id}
+            payload.update(serializer.validated_data)
         else:
-            payload = serializer.validated_data
+            payload={'group': type.group.id, 'creator': self.request.user.id}
+            payload.update(serializer.validated_data)
 
         s = CreateEvidenceSerializer(data=payload)
         s.is_valid(raise_exception=True)

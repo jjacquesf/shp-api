@@ -410,9 +410,18 @@ class Evidence(TimeStampMixin):
         on_delete=models.CASCADE
     )
     dirty = models.BooleanField(default=False)
+    group = models.ForeignKey(
+        EvidenceGroup,
+        on_delete=models.CASCADE
+    )
     type = models.ForeignKey(
         EvidenceType,
         on_delete=models.CASCADE
+    )
+    creator = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="creators"
     )
     owner = models.ForeignKey(
         User,

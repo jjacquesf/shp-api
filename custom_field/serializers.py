@@ -32,7 +32,7 @@ class CreateCustomFieldSerializer(CustomFieldSerializer):
         serializer = CustomFieldSerializer(created)
         return serializer.data
     
-class EvidenceTypeCustomFielderializer(serializers.ModelSerializer):
+class EvidenceTypeCustomFieldSerializer(serializers.ModelSerializer):
     """Serializer for the evidence type custom field object"""
     catalog = serializers.CharField(source='custom_field.catalog')
     description = serializers.CharField(source='custom_field.description')

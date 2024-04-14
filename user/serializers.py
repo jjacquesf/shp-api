@@ -163,6 +163,11 @@ class FullUserProfileSerializer(serializers.Serializer):
     job_position = serializers.CharField(required=True, max_length=255)
     permissions = StringListField()
 
+class BaseUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model= models.Supplier
+        fields = ['id', 'name']
+        read_only_fields = ['id']
 
 def serialize_user_profile(user):
     profile = models.Profile.objects.get(user=user)

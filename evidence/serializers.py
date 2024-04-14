@@ -1,6 +1,7 @@
 """
 Serializer for the user API view
 """
+from datetime import datetime
 import json
 from django.core.exceptions import ObjectDoesNotExist
 
@@ -23,14 +24,38 @@ from core.serializers import (
     IntegerListField,
 )
 
+from evidence_group.serializers import (
+    EvidenceGroupSerializer
+)
+
+from evidence_type.serializers import (
+    EvidenceTypeSerializer,
+)
+
+from evidence_status.serializers import (
+    EvidenceStatusSerializer
+)
+
+from user.serializers import (
+    BaseUserSerializer
+)
+
+from assets.serializers import (
+    FileUploadSerializer,
+)
+
+
+
 class EvidenceAuthSerializer(serializers.ModelSerializer):
     """Serializer for evidence auth creation."""
+    user = BaseUserSerializer()
     class Meta:
         model=models.EvidenceAuth
         fields = ['evidence', 'status', 'user', 'version']
 
 class EvidenceSignatureSerializer(serializers.ModelSerializer):
     """Serializer for evidence auth creation."""
+    user = BaseUserSerializer()
     class Meta:
         model=models.EvidenceSignature
         fields = ['evidence', 'status', 'user', 'version']
@@ -41,39 +66,44 @@ class EvidenceSerializer(serializers.ModelSerializer):
 
     authorizers = serializers.SerializerMethodField()
     signers = serializers.SerializerMethodField()
-    # versions = serializers.SerializerMethodField()
+    eav = serializers.SerializerMethodField()
+
+    status = EvidenceStatusSerializer()
+    group = EvidenceGroupSerializer()
+    owner = BaseUserSerializer()
+    creator = BaseUserSerializer()
+    type = EvidenceTypeSerializer()
+    uploaded_file = FileUploadSerializer()
 
     class Meta:
         model=models.Evidence
-        fields = ['owner', 'status', 'status', 'type', 'parent', 'uploaded_file', 'authorizers', 'signers', 
-                #   'versions'
-                  ]
-        read_only_fields = ['id']
+        fields = ['id', 'owner', 'creator', 'status', 'status', 'group', 'type', 'parent', 'uploaded_file', 'authorizers', 'signers', 'eav']
 
     def get_authorizers(self, obj):
         rows = models.EvidenceAuth.objects.filter(evidence=obj)
         s = EvidenceAuthSerializer(rows, many=True)
         return s.data
-    
 
     def get_signers(self, obj):
         rows = models.EvidenceSignature.objects.filter(evidence=obj)
         s = EvidenceSignatureSerializer(rows, many=True)
         return s.data
     
-    # def get_versions(self, obj):
-    #     versions = []
-    #     for v in obj.history.all():
-    #         versions.append(v.changes_dict)
-    #     return versions
-    
-
+    def get_eav(self, obj):
+        eav = {}
+        custom_fields = models.EvidenceTypeCustomField.objects.filter(type=obj.type)
+        for cf in custom_fields:
+            value = getattr(obj.eav, cf.custom_field.attribute.slug)
+            eav.update({cf.custom_field.attribute.slug: value})
+        return eav
 
 class CreateEvidenceSerializer(serializers.Serializer):
     """Serializer for user creation."""
     owner = serializers.IntegerField(required=False)
+    creator = serializers.IntegerField(required=False)
     # status = serializers.IntegerField(required=True)
     type = serializers.IntegerField(required=True)
+    group = serializers.IntegerField(required=False)
     parent = serializers.IntegerField(required=False)
     uploaded_file = serializers.IntegerField(required=False)
     authorizers = IntegerListField(required=False)
@@ -83,7 +113,9 @@ class CreateEvidenceSerializer(serializers.Serializer):
     def create(self, validated_data):
 
         owner = get_user_model().objects.get(id=validated_data.get('owner'))
+        creator = get_user_model().objects.get(id=validated_data.get('creator'))
 
+        group = models.EvidenceGroup.objects.get(id=validated_data.get('group'))
         type = models.EvidenceType.objects.get(id=validated_data.get('type'))
         
         parent = validated_data.get('parent')
@@ -105,10 +137,12 @@ class CreateEvidenceSerializer(serializers.Serializer):
             pending_signature = True
 
         data = {
+            "group": group,
             "type": type,
             "status": type.creation_status,
             "parent": parent,
             "uploaded_file": uploaded_file,
+            "creator": creator,
             "owner": owner,
             "pending_auth": pending_auth,
             "pending_signature": pending_signature,
@@ -119,11 +153,17 @@ class CreateEvidenceSerializer(serializers.Serializer):
         evidence = models.Evidence.objects.create(**data)
 
 
+        custom_fields = models.EvidenceTypeCustomField.objects.filter(type=type)
         eav = validated_data.get('eav')
         if eav != None:
             eav_attrs = json.loads(eav)
             for k in eav_attrs:
-                setattr(evidence.eav, k, eav_attrs[k])
+                attrs = [x for x in custom_fields if x.custom_field.attribute.slug == k]
+                if len(attrs) and attrs[0].custom_field.attribute.datatype == "date":
+                    date = datetime.strptime(eav_attrs[k], '%Y-%m-%d').date()
+                    setattr(evidence.eav, k, date)
+                else:
+                    setattr(evidence.eav, k, eav_attrs[k])
 
         evidence.save()
 
