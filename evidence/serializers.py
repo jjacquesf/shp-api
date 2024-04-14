@@ -160,8 +160,11 @@ class CreateEvidenceSerializer(serializers.Serializer):
             for k in eav_attrs:
                 attrs = [x for x in custom_fields if x.custom_field.attribute.slug == k]
                 if len(attrs) and attrs[0].custom_field.attribute.datatype == "date":
-                    date = datetime.strptime(eav_attrs[k], '%Y-%m-%d').date()
-                    setattr(evidence.eav, k, date)
+                    try:
+                        date = datetime.strptime(eav_attrs[k], '%Y-%m-%d').date()
+                        setattr(evidence.eav, k, date)
+                    except ValueError as ve1:
+                        setattr(evidence.eav, k, None)
                 else:
                     setattr(evidence.eav, k, eav_attrs[k])
 
