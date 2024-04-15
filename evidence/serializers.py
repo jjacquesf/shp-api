@@ -202,96 +202,13 @@ class CreateEvidenceSerializer(serializers.Serializer):
 
         serializer = EvidenceSerializer(evidence)
         return serializer.data
-
-class PartialUpdateEvidenceSerializer(serializers.Serializer):
-    """Serializer for user creation."""
-    owner = serializers.IntegerField(required=True)
-    status = serializers.IntegerField(required=False)
-    uploaded_file = serializers.IntegerField(required=False)
-    authorizers = IntegerListField(required=False)
-    signers = IntegerListField(required=False)
+    
+class UpdateEvidenceSerializer(serializers.ModelSerializer):
     eav = serializers.CharField(required=False)
-
-    def update(self, instance, validated_data):
-
-
-        status = validated_data.get('status')
-        if status != None:
-            instance.status = models.EvidenceStatus.objects.get(id=status, group=instance.type.group)
-
-        uploaded_file = validated_data.get('uploaded_file')
-        if uploaded_file != None:
-            instance.uploaded_file = models.UploadedFile.objects.get(id=uploaded_file)
-        
-        eav = validated_data.get('eav')
-        if eav != None:
-            eav_attrs = json.loads(eav)
-            for k in eav_attrs:
-                setattr(instance.eav, k, eav_attrs[k])
-
-        instance.version = instance.version + 1
-        instance.save()
-
-
-        # Delete not requiered authorizations
-        current_auths = models.EvidenceAuth.objects.filter(evidence=instance)
-        current_ids = [item.id for item in current_auths]
-        
-        authorizers = validated_data.get('authorizers')
-        if authorizers != None:
-            s = set(authorizers)
-            delete_ids = [x for x in current_ids if x not in s]
-
-            for di in delete_ids:
-                models.EvidenceAuth.objects.filter(id=di).delete()
-
-            ## Create athorizers
-            s = set(current_ids)
-            to_add_ids = [x for x in authorizers if x not in s]
-            for v in to_add_ids:
-                user = get_user_model().objects.get(id=v)
-                try:
-                    models.EvidenceAuth.objects.get(evidence=instance, user=user)
-                except ObjectDoesNotExist:
-                    data = {
-                        "status": "PEN",
-                        "evidence": instance,
-                        "user": user,
-                        "version": 1
-                    }
-                    models.EvidenceAuth.objects.create(**data)
-
-
-
-        # Delete not requiered signatures
-        current_signers = models.EvidenceSignature.objects.filter(evidence=instance)
-        current_ids = [item.id for item in current_signers]
-        
-        signers = validated_data.get('signers')
-        if signers != None:
-            s = set(signers)
-            delete_ids = [x for x in current_ids if x not in s]
-
-            for di in delete_ids:
-                models.EvidenceSignature.objects.filter(id=di).delete()
-
-            ## Create athorizers
-            s = set(current_ids)
-            to_add_ids = [x for x in signers if x not in s]
-            for v in to_add_ids:
-                user = get_user_model().objects.get(id=v)
-                try:
-                    models.EvidenceSignature.objects.get(evidence=instance, user=user)
-                except ObjectDoesNotExist:
-                    data = {
-                        "status": "PEN",
-                        "evidence": instance,
-                        "user": user,
-                        "version": 1
-                    }
-                    models.EvidenceSignature.objects.create(**data)
-
-
-
-        s = EvidenceSerializer(instance)
-        return s.data
+    
+    class Meta:
+        model=models.Evidence
+        fields = ['status',
+                  'uploaded_file',
+                  'eav'
+                  ]

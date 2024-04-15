@@ -1,6 +1,8 @@
 """
 Views fro the evidence APIs
 """
+from datetime import datetime
+import json
 from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter
 from drf_spectacular.types import OpenApiTypes
 
@@ -19,7 +21,7 @@ from core import models
 from evidence.serializers import (
     CreateEvidenceSerializer,
     EvidenceSerializer,
-    PartialUpdateEvidenceSerializer
+    UpdateEvidenceSerializer
 )
 
 class EvidencePermission(permissions.BasePermission):
@@ -95,7 +97,7 @@ class EvidenceViewSet(viewsets.ModelViewSet):
             return CreateEvidenceSerializer
         
         if self.action == 'partial_update':
-            return PartialUpdateEvidenceSerializer
+            return UpdateEvidenceSerializer
 
         return self.serializer_class
 
@@ -144,4 +146,34 @@ class EvidenceViewSet(viewsets.ModelViewSet):
     
     def perform_update(self, serializer):
         """Update a evidence"""
-        return serializer.save()
+        
+        instance = self.get_object() 
+
+        custom_fields = models.EvidenceTypeCustomField.objects.filter(type=instance.type)
+        eav = serializer.validated_data.get('eav')
+        if eav != None:
+            eav_attrs = json.loads(eav)
+            print(eav_attrs)
+            for k in eav_attrs:
+                attrs = [x for x in custom_fields if x.custom_field.attribute.slug == k]
+                if len(attrs) and attrs[0].custom_field.attribute.datatype == "date":
+                    try:
+                        date = datetime.strptime(eav_attrs[k], '%Y-%m-%d').date()
+                        setattr(instance.eav, k, date)
+                    except ValueError as ve1:
+                        setattr(instance.eav, k, None)
+                else:
+                    setattr(instance.eav, k, eav_attrs[k])
+
+        status = serializer.validated_data.get('status')
+        if status != None:
+            instance.status = status
+
+        uploaded_file = serializer.validated_data.get('uploaded_file')
+        if uploaded_file != None:
+            instance.uploaded_file = uploaded_file
+
+        instance.refresh_from_db()
+
+        s = EvidenceSerializer(instance)
+        return s.data
