@@ -19,7 +19,12 @@ from group.serializers import StringListField
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 
+
+from django.contrib.contenttypes.models import ContentType
+
 from core import models
+
+from easyaudit.models import CRUDEvent
 
 from core.serializers import (
     IntegerListField,
@@ -61,7 +66,18 @@ class EvidenceSignatureSerializer(serializers.ModelSerializer):
         model=models.EvidenceSignature
         fields = ['evidence', 'status', 'user', 'version']
 
-
+class CRUDEventSerializer(serializers.ModelSerializer):
+    user = BaseUserSerializer()
+    class Meta:
+        model=CRUDEvent
+        fields = ['id',
+                  'event_type',
+                  'datetime',
+                  'changed_fields',
+                  'object_json_repr',
+                  'user',
+                  ]
+        
 class EvidenceSerializer(serializers.ModelSerializer):
     """Serializer for evidence creation."""
 
@@ -69,6 +85,7 @@ class EvidenceSerializer(serializers.ModelSerializer):
     signers = serializers.SerializerMethodField()
     eav = serializers.SerializerMethodField()
     comments = serializers.SerializerMethodField()
+    logs = serializers.SerializerMethodField()
 
     status = EvidenceStatusSerializer()
     group = EvidenceGroupSerializer()
@@ -79,7 +96,7 @@ class EvidenceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model=models.Evidence
-        fields = ['id', 'owner', 'creator', 'status', 'status', 'group', 'type', 'parent', 'uploaded_file', 'authorizers', 'signers', 'eav', 'comments']
+        fields = ['id', 'owner', 'creator', 'status', 'status', 'group', 'type', 'parent', 'uploaded_file', 'authorizers', 'signers', 'eav', 'comments', 'logs']
 
     def get_authorizers(self, obj):
         rows = models.EvidenceAuth.objects.filter(evidence=obj)
@@ -100,9 +117,18 @@ class EvidenceSerializer(serializers.ModelSerializer):
         return eav
     
     def get_comments(self, obj):
-        rows = models.EvidenceComment.objects.filter(evidence=obj)
+        rows = models.EvidenceComment.objects.filter(evidence=obj).order_by('-id')
         s = EvidenceCommentSerializer(rows, many=True)
         return s.data
+    
+    def get_logs(self, obj):
+        evidence_type = ContentType.objects.get(app_label="core", model="evidence")
+        logs = CRUDEvent.objects.filter(content_type_id=evidence_type.id, object_id=obj.id).order_by('-id')
+
+        s = CRUDEventSerializer(logs, many=True)
+        print(s.data)
+        return s.data
+
 
 class CreateEvidenceSerializer(serializers.Serializer):
     """Serializer for user creation."""
