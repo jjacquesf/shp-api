@@ -83,8 +83,6 @@ class EvidenceCommentViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         """Retrieve evidence status sorted by name"""
-        active_only = self.request.query_params.get('active_only')
-
         # Filter objects by active status
         queryset = self.queryset
 

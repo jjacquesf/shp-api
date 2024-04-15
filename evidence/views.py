@@ -173,6 +173,9 @@ class EvidenceViewSet(viewsets.ModelViewSet):
         if uploaded_file != None:
             instance.uploaded_file = uploaded_file
 
+        instance.version = instance.version + 1
+        instance.save()
+
         instance.refresh_from_db()
 
         s = EvidenceSerializer(instance)

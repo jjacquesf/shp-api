@@ -551,6 +551,29 @@ class EvidenceComment(TimeStampMixin):
     def __str__(self):
         return f"EvidenceComment: {self.id}"
 
+class EvidenceQualityControl(TimeStampMixin):
+    class Status(models.TextChoices):
+        PENDING = 'PEN', _('Pending')
+        COMPLETED = 'COM', _('Completed')
+        
+    status = models.CharField(
+        max_length=3,
+        choices=Status.choices,
+        default=Status.PENDING,
+    )
+    evidence = models.ForeignKey(
+        Evidence,
+        on_delete=models.CASCADE
+    )
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE
+    )
+    quality_control = models.ForeignKey(
+        QualityControl,
+        on_delete=models.CASCADE
+    )
+    comments = models.CharField(max_length=512)
 
 ## Register eav for models
 eav.register(Evidence)

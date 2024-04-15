@@ -51,4 +51,5 @@ urlpatterns = [
     path('api/evidence-comment/', include('evidence_comment.urls')),
     path('api/quality-control/', include('quality_control.urls')),
     path('api/evidence-finding/', include('evidence_finding.urls')),
+    path('api/evidence-quality-control/', include('evidence_quality_control.urls')),
 ]
