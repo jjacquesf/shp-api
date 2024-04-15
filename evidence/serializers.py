@@ -13,6 +13,7 @@ from django.contrib.auth import (
     authenticate
 )
 from django.utils.translation import gettext as _
+from evidence_comment.serializers import EvidenceCommentSerializer
 from group.serializers import StringListField
 
 from rest_framework import serializers
@@ -67,6 +68,7 @@ class EvidenceSerializer(serializers.ModelSerializer):
     authorizers = serializers.SerializerMethodField()
     signers = serializers.SerializerMethodField()
     eav = serializers.SerializerMethodField()
+    comments = serializers.SerializerMethodField()
 
     status = EvidenceStatusSerializer()
     group = EvidenceGroupSerializer()
@@ -77,7 +79,7 @@ class EvidenceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model=models.Evidence
-        fields = ['id', 'owner', 'creator', 'status', 'status', 'group', 'type', 'parent', 'uploaded_file', 'authorizers', 'signers', 'eav']
+        fields = ['id', 'owner', 'creator', 'status', 'status', 'group', 'type', 'parent', 'uploaded_file', 'authorizers', 'signers', 'eav', 'comments']
 
     def get_authorizers(self, obj):
         rows = models.EvidenceAuth.objects.filter(evidence=obj)
@@ -96,6 +98,11 @@ class EvidenceSerializer(serializers.ModelSerializer):
             value = getattr(obj.eav, cf.custom_field.attribute.slug)
             eav.update({cf.custom_field.attribute.slug: value})
         return eav
+    
+    def get_comments(self, obj):
+        rows = models.EvidenceComment.objects.filter(evidence=obj)
+        s = EvidenceCommentSerializer(rows, many=True)
+        return s.data
 
 class CreateEvidenceSerializer(serializers.Serializer):
     """Serializer for user creation."""

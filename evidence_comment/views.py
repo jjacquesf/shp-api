@@ -110,7 +110,7 @@ class EvidenceCommentViewSet(viewsets.ModelViewSet):
         payload={'user': self.request.user.id}
         payload.update(serializer.data)
 
-        s = self.serializer_class(data=payload)
+        s = CreateEvidenceCommentSerializer(data=payload)
         s.is_valid(raise_exception=True)
         return s.save()
     
