@@ -55,7 +55,7 @@ class ViewPermissionsPermission(permissions.BasePermission):
 class ListPermissionView(generics.ListAPIView):
     serializer_class = PermissionSerializer
     authentication_classes = [authentication.TokenAuthentication]
-    permission_classes = [permissions.IsAuthenticated, ViewPermissionsPermission]
+    permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
         return PermissionQuerySet().business_domain()

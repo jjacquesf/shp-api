@@ -33,7 +33,7 @@ class EvidenceCommentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model= models.EvidenceComment
-        fields = ['evidence', 'user', 'comments', 'created_at']
+        fields = ['id', 'evidence', 'user', 'comments', 'created_at']
         read_only_fields = ['id', 'created_at']
 
     def __str__(self):
