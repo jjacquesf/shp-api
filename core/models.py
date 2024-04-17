@@ -574,6 +574,7 @@ class EvidenceQualityControl(TimeStampMixin):
         on_delete=models.CASCADE
     )
     comments = models.CharField(max_length=512)
+    resolution = models.CharField(max_length=512, blank=True, null=True)
 
 ## Register eav for models
 eav.register(Evidence)

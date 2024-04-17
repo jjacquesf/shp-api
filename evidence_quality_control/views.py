@@ -6,8 +6,8 @@ from drf_spectacular.types import OpenApiTypes
 
 
 from django.utils.translation import gettext as _
-from evidence.views import EvidencePermission
 
+from rest_framework import permissions
 from rest_framework import viewsets
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
@@ -17,8 +17,29 @@ from core import models
 
 from evidence_quality_control.serializers import (
     CreateEvidenceQualityControlSerializer,
-    EvidenceQualityControlSerializer
+    EvidenceQualityControlSerializer,
+    UpdateEvidenceQualityControlSerializer
 )
+
+class EvidenceQualityControlPermission(permissions.BasePermission):
+    message = _('Requested action is not authorized')
+
+    def has_permission(self, request, view):
+        """Validate user permissions depending on the request method"""
+
+        if view.action == 'list' or view.action == 'retrieve':
+            return request.user.has_perm('core.view_evidence') 
+        
+        if view.action == 'partial_update':
+            return request.user.has_perm('core.change_evidence') 
+
+        return False
+    
+    def has_object_permission(self, request, view, obj):
+        """Validate user access to a specific object if necessary"""
+        return True
+
+
 @extend_schema(tags=['Evidence catalogs'])
 @extend_schema_view(
     list=extend_schema(
@@ -83,7 +104,7 @@ class EvidenceQualityControlViewSet(viewsets.ModelViewSet):
     serializer_class = EvidenceQualityControlSerializer
     queryset = models.EvidenceQualityControl.objects.all()
     authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated, EvidencePermission]
+    permission_classes = [IsAuthenticated, EvidenceQualityControlPermission]
 
     def get_queryset(self):
         """Retrieve evidence status sorted by name"""
@@ -112,6 +133,9 @@ class EvidenceQualityControlViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.request.method == 'POST':
             return CreateEvidenceQualityControlSerializer
+        
+        if self.request.method == 'PATCH':
+            return UpdateEvidenceQualityControlSerializer
 
         return self.serializer_class
 
