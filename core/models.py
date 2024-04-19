@@ -20,6 +20,11 @@ from django.contrib.auth.models import (
 )
 from django.contrib.auth import get_user_model
 
+
+def get_upload_path(instance, filename):
+    return os.path.join(
+      "user_%d" % instance.owner.id, filename)
+
 class TimeStampMixin(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -75,13 +80,6 @@ class CustomGroup(Group):
 
     def __str__(self):
         return f"CustomGroup: {self.id}"
-    
-class Profile(TimeStampMixin):
-    user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE)
-    job_position = models.CharField(max_length=255)
-
-    def __str__(self):
-        return f"Profile: {self.id}"
 
 class Municipality(TimeStampMixin):
     is_active = models.BooleanField(default=True)
@@ -217,6 +215,28 @@ class EvidenceGroup(TimeStampMixin):
 
     def __str__(self):
         return f"EvidenceGroup: {self.id}"
+    
+class Division(TimeStampMixin):
+    is_active = models.BooleanField(default=True)
+    name = models.CharField(max_length=128,unique=True)
+    
+    class Meta:
+        verbose_name = _('Division')
+        verbose_name_plural = _('Divisions')
+
+    def __str__(self):
+        return f"Division: {self.id}"
+
+class Profile(TimeStampMixin):
+    user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE)
+    division = models.ForeignKey(
+        Division,
+        on_delete=models.CASCADE
+    )
+    job_position = models.CharField(max_length=255)
+    
+    def __str__(self):
+        return f"Profile: {self.id}"
 
 class EvidenceStage(TimeStampMixin):
     is_active = models.BooleanField(default=True)
@@ -383,11 +403,6 @@ class EvidenceTypeQualityControl(TimeStampMixin):
     def __str__(self):
         return f"EvidenceTypeQualityControl: {self.id}"
 
-
-def get_upload_path(instance, filename):
-    return os.path.join(
-      "user_%d" % instance.owner.id, filename)
-
 class UploadedFile(models.Model):
     file = models.FileField(storage=FileSystemStorage(location=settings.MEDIA_ROOT), upload_to=get_upload_path)
     owner = models.ForeignKey(
@@ -404,7 +419,6 @@ class UploadedFile(models.Model):
 
 class Evidence(TimeStampMixin):
     # history = AuditlogHistoryField()
-
     status = models.ForeignKey(
         EvidenceStatus,
         on_delete=models.CASCADE
@@ -442,6 +456,19 @@ class Evidence(TimeStampMixin):
         null=True
     )
     version = models.IntegerField(default=0)
+
+    class Meta:
+        # set_indian_status permission
+        permissions = [
+            (
+                "work_evidence",
+                "Daily work for non manager users"
+            ),
+            (
+                "manage_evidence",
+                "Daily work for manager users"
+            )
+        ]
 
     def __str__(self):
         return f"Evidence: {self.id}"

@@ -31,14 +31,14 @@ class EvidencePermission(permissions.BasePermission):
         """Validate user permissions depending on the request method"""
 
         if view.action == 'list' or view.action == 'retrieve':
-            return request.user.has_perm('core.view_evidence') 
+            return request.user.has_perm('core.view_evidence') or request.user.has_perm('core.manage_evidence')  or request.user.has_perm('core.work_evidence') 
 
         if view.action == 'create':
-            return request.user.has_perm('core.add_evidence')
+            return request.user.has_perm('core.add_evidence') or request.user.has_perm('core.manage_evidence')  or request.user.has_perm('core.work_evidence') 
 
         # if view.action == 'update' or view.action == 'partial_update':
         if view.action == 'partial_update':
-            return request.user.has_perm('core.change_evidence') 
+            return request.user.has_perm('core.change_evidence') or request.user.has_perm('core.manage_evidence')  or request.user.has_perm('core.work_evidence') 
 
         if view.action == 'destroy':
             return request.user.has_perm('core.delete_evidence') 
@@ -47,6 +47,22 @@ class EvidencePermission(permissions.BasePermission):
     
     def has_object_permission(self, request, view, obj):
         """Validate user access to a specific object if necessary"""
+
+        print('========')
+        print('========')
+        print('========')
+        print('========')
+        print('========')
+        print(view)
+        print('========')
+        print('========')
+        print('========')
+        print('========')
+        print(obj)
+        print('========')
+        print('========')
+        print('========')
+        print('========')
         return True
 
 @extend_schema(tags=[_('Catalogs')])

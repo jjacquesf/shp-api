@@ -6,6 +6,7 @@ from django.contrib.auth import (
     authenticate
 )
 from django.utils.translation import gettext as _
+from division.serializers import DivisionSerializer
 from group.serializers import StringListField
 
 from rest_framework import serializers
@@ -75,7 +76,7 @@ class ProfileSerializer(serializers.ModelSerializer):
     """Serializer for the profile object"""
     class Meta:
         model=models.Profile
-        fields = ['user', 'job_position']
+        fields = ['user', 'job_position', 'division']
 
     def create(self, validated_data):
         """Create and return profile"""
@@ -95,6 +96,7 @@ class UserProfileSerializer(serializers.Serializer):
     name = serializers.CharField(required=True, max_length=255)
     password = serializers.CharField(required=False, allow_blank=True, min_length=5, max_length=255)
     job_position = serializers.CharField(required=True, max_length=255)
+    division = DivisionSerializer()
 
     def create(self, validated_data):
         user_data = {
@@ -104,10 +106,12 @@ class UserProfileSerializer(serializers.Serializer):
         }
 
         user = get_user_model().objects.create_user(**user_data)
+        division = models.Division.objects.get(id=validated_data.get('division'))
 
         profile_data = {
             "user": user.id,
             "job_position": validated_data.get("job_position"),
+            "division": division
         }
 
         profile_serializer = ProfileSerializer(data=profile_data)
@@ -122,7 +126,8 @@ class UserProfileSerializer(serializers.Serializer):
         serializer = UserProfileSerializer({
             "name": user.name,
             "email": user.email,
-            "job_position": profile.job_position
+            "job_position": profile.job_position,
+            "division": profile.division
         })
         return serializer.data
 
@@ -130,6 +135,7 @@ class UserProfileSerializer(serializers.Serializer):
         """Update and return user"""
         password = validated_data.pop('password', None)
         job_position = validated_data.pop('job_position', None)
+        division = validated_data.pop('division', None)
 
         if password:
             instance.set_password(password)
@@ -139,7 +145,14 @@ class UserProfileSerializer(serializers.Serializer):
 
         instance.refresh_from_db()
 
-        profile_data = {"job_position": job_position}
+        profile_data = {}
+        
+        if(job_position != None):
+            profile_data.update({"job_position": job_position})
+
+        if(division != None):
+            profile_data.update({"division": division})
+
         models.Profile.objects.filter(user=instance).update(**profile_data)
         
 
@@ -162,6 +175,7 @@ class FullUserProfileSerializer(serializers.Serializer):
     password = serializers.CharField(required=False, allow_blank=True, min_length=5, max_length=255)
     job_position = serializers.CharField(required=True, max_length=255)
     permissions = StringListField()
+    division = DivisionSerializer()
 
 class BaseUserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -175,7 +189,8 @@ def serialize_user_profile(user):
         "id": user.id,
         "name": user.name,
         "email": user.email,
-        "job_position": profile.job_position
+        "job_position": profile.job_position,
+        "division": profile.division,
     })
 
     return serializer
@@ -188,6 +203,7 @@ def serialize_full_user_profile(user):
         "name": user.name,
         "email": user.email,
         "job_position": profile.job_position,
+        "division": profile.division,
         "permissions": user.get_group_permissions(),
     })
 

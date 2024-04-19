@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     #'django_jsonfield_backport',
     'assets',
     'user',
+    'division',
     'group',
     'permission',
     'municipality',
