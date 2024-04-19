@@ -14,6 +14,7 @@ from rest_framework import permissions
 from rest_framework import serializers
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
+from django.contrib.auth import get_user_model
 
 
 from core import models
@@ -122,9 +123,18 @@ class EvidenceViewSet(viewsets.ModelViewSet):
         # Filter objects by active status
         queryset = self.queryset
 
-        owner = self.request.query_params.get('owner')
-        if owner != None:
-            queryset = queryset.filter(owner=owner)
+        if self.request.user.has_perm('core.manage_evidence'): 
+            profiles = models.Profile.objects.filter(division=self.request.user.profile.division)
+            owners = []
+            for v in profiles:
+                owners.append(v.user)
+            queryset = queryset.filter(owner__in=owners)
+        elif self.request.user.has_perm('core.work_evidence'):
+            queryset = queryset.filter(owner=self.request.user)
+        elif self.request.user.has_perm('core.view_evidence'):
+            owner = self.request.query_params.get('owner')
+            if owner != None:
+                queryset = queryset.filter(owner=owner)
 
         status = self.request.query_params.get('status')
         if status != None:
