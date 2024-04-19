@@ -13,6 +13,7 @@ from django.contrib.auth import (
     authenticate
 )
 from django.utils.translation import gettext as _
+from division.serializers import DivisionSerializer
 from evidence_comment.serializers import EvidenceCommentSerializer
 from evidence_quality_control.serializers import EvidenceQualityControlSerializer
 from group.serializers import StringListField
@@ -88,6 +89,7 @@ class EvidenceSerializer(serializers.ModelSerializer):
     comments = serializers.SerializerMethodField()
     logs = serializers.SerializerMethodField()
     quality_controls = serializers.SerializerMethodField()
+    division = serializers.SerializerMethodField()
 
     status = EvidenceStatusSerializer()
     group = EvidenceGroupSerializer()
@@ -99,8 +101,7 @@ class EvidenceSerializer(serializers.ModelSerializer):
     class Meta:
         model=models.Evidence
         fields = ['id', 'owner', 'creator', 'status', 'status', 'group', 'type', 'parent', 'uploaded_file', 'authorizers', 'signers', 'eav', 'comments', 'logs', 
-                  'quality_controls'
-                  ]
+                  'quality_controls', 'division']
 
     def get_authorizers(self, obj):
         rows = models.EvidenceAuth.objects.filter(evidence=obj)
@@ -130,7 +131,6 @@ class EvidenceSerializer(serializers.ModelSerializer):
         logs = CRUDEvent.objects.filter(content_type_id=evidence_type.id, object_id=obj.id).order_by('-id')
 
         s = CRUDEventSerializer(logs, many=True)
-        print(s.data)
         return s.data
 
     def get_quality_controls(self, obj):
@@ -138,6 +138,11 @@ class EvidenceSerializer(serializers.ModelSerializer):
         s = EvidenceQualityControlSerializer(rows, many=True)
         return s.data
     
+    def get_division(self, obj):
+        s = DivisionSerializer(obj.owner.profile.division)
+        return s.data
+    
+
 class CreateEvidenceSerializer(serializers.Serializer):
     """Serializer for user creation."""
     owner = serializers.IntegerField(required=False)
