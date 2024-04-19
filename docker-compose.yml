@@ -7,9 +7,10 @@ services:
       args:
         - DEV=true
     ports:
-      - "8000:8000"
+      - "80:8000"
     volumes:
       - ./:/app
+      - repository:/repo
     command: >
       sh -c "python manage.py wait_for_db &&
              python manage.py migrate &&:
@@ -23,14 +24,26 @@ services:
       - SECRET_KEY=!crCG/e:iwYA{b5_8TaVT4y*d0%_uLn9tqv&X9LqYCt:;mWf,55666_@FC1Z
     depends_on:
       - db
+    restart: always
   db:
     image: postgres:13-alpine
     volumes:
-      - dev-db-data:/var/lib/postgresql/data
+      - db-data:/var/lib/postgresql/data
     environment:
       - POSTGRES_DB=devdb
       - POSTGRES_USER=devuser
       - POSTGRES_PASSWORD=changeme
-
+    restart: always
 volumes:
-  dev-db-data:
+  db-data:
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: ${VOLUME_PATH}/db
+  repository:
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: ${VOLUME_PATH}/files
