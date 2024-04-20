@@ -17,7 +17,8 @@ from rest_framework.permissions import IsAuthenticated
 from core import models
 
 from evidence_status.serializers import (
-    EvidenceStatusSerializer
+    EvidenceStatusSerializer,
+    SaveEvidenceStatusSerializer
 )
 
 class EvidenceStatusPermission(permissions.BasePermission):
@@ -109,6 +110,12 @@ class EvidenceStatusViewSet(viewsets.ModelViewSet):
     queryset = models.EvidenceStatus.objects.all()
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated, EvidenceStatusPermission]
+    
+    def get_serializer_class(self):
+        if self.action == 'create' or self.action == 'update':
+            return SaveEvidenceStatusSerializer
+        
+        return self.serializer_class
 
     def get_queryset(self):
         """Retrieve evidence status sorted by name"""
@@ -134,6 +141,10 @@ class EvidenceStatusViewSet(viewsets.ModelViewSet):
         stage = self.request.query_params.get('stage')
         if stage != None:
             queryset = queryset.filter(stage=stage)
+
+        group = self.request.query_params.get('group')
+        if group != None:
+            queryset = queryset.filter(group=group)
 
         type = self.request.query_params.get('type')
         if type != None:
