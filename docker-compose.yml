@@ -20,7 +20,7 @@ services:
       - DB_NAME=devdb
       - DB_USER=devuser
       - DB_PASSWORD=changeme
-      - MEDIA_ROOT=uploads/
+      - MEDIA_ROOT=/repo
       - SECRET_KEY=!crCG/e:iwYA{b5_8TaVT4y*d0%_uLn9tqv&X9LqYCt:;mWf,55666_@FC1Z
     depends_on:
       - db
