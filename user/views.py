@@ -20,6 +20,7 @@ from core import models
 
 from user.serializers import (
     FullUserProfileSerializer,
+    SaveUserProfileSerializer,
     UpdateUserGroupSerializer,
     AuthTokenSerializer,
     UserProfileSerializer,
@@ -164,7 +165,7 @@ class ManageUserView(views.APIView):
         user = get_user_model().objects.get(id=pk)
         profile = models.Profile.objects.get(user=user)
 
-        serializer = UserProfileSerializer(user, data=request.data)
+        serializer = SaveUserProfileSerializer(user, data=request.data)
         serializer.is_valid(raise_exception=True)
 
         serializer.save()
@@ -188,11 +189,11 @@ class CreateUserView(views.APIView):
 
     @extend_schema(
         description=_("[Protected | ChangeUser] Set user groups ny user id"),
-        request=UserProfileSerializer,
-        responses={200: UserProfileSerializer},
+        request= SaveUserProfileSerializer,
+        responses={200: FullUserProfileSerializer},
     )
     def post(self, request):
-        serializer = UserProfileSerializer(data=request.data)
+        serializer = SaveUserProfileSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
         if("password" not in request.data):
@@ -202,9 +203,8 @@ class CreateUserView(views.APIView):
         if len(user) != 0:
             return Response({"email": [_("User already exists")]}, status=status.HTTP_400_BAD_REQUEST)
         
-        serializer.save()
-
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        data = serializer.save()
+        return Response(data, status=status.HTTP_201_CREATED)
 
 @extend_schema(tags=['User management'])
 class ListCreateUserGroupView(views.APIView):
