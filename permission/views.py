@@ -37,7 +37,7 @@ class PermissionQuerySet(query.QuerySet):
         content_type14 = ContentType.objects.get_for_model(models.CustomField)
         content_type15 = ContentType.objects.get_for_model(models.Evidence)
         content_type16 = ContentType.objects.get_for_model(models.QualityControl)
-        content_type17 = ContentType.objects.get_for_model(models.EvidenceFinding)
+        content_type17 = ContentType.objects.get_for_model(models.EvidenceQualityControl)
         content_type18 = ContentType.objects.get_for_model(models.EvidenceComment)
         content_type19 = ContentType.objects.get_for_model(models.Division)
         

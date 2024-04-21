@@ -27,11 +27,14 @@ class EvidenceQualityControlPermission(permissions.BasePermission):
     def has_permission(self, request, view):
         """Validate user permissions depending on the request method"""
 
+        if view.action == 'create':
+            return request.user.has_perm('core.add_qualitycontrol') 
+
         if view.action == 'list' or view.action == 'retrieve':
-            return request.user.has_perm('core.view_evidence') 
+            return request.user.has_perm('core.view_qualitycontrol') 
         
         if view.action == 'partial_update':
-            return request.user.has_perm('core.change_evidence') 
+            return request.user.has_perm('core.change_qualitycontrol') 
 
         return False
     

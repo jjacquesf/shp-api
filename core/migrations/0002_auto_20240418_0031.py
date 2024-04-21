@@ -19,6 +19,63 @@ def force_create_permissions(apps, schema_editor):
         create_permissions(app_config, apps=apps, verbosity=0)
         app_config.models_module = None
 
+def remove_user_non_required_perms(apps, schema_editor):
+    """remove non required permissions"""
+    ContentType = apps.get_model('contenttypes.ContentType')
+    Permission = apps.get_model('auth.Permission')
+    content_type = ContentType.objects.get(
+        model='user',
+        app_label='core',
+    )
+    # This cascades to Group
+    Permission.objects.filter(
+        content_type=content_type,
+        codename__in=('delete_user'),
+    ).delete()
+
+def remove_evidence_non_required_perms(apps, schema_editor):
+    """remove non required permissions"""
+    ContentType = apps.get_model('contenttypes.ContentType')
+    Permission = apps.get_model('auth.Permission')
+    content_type = ContentType.objects.get(
+        model='evidence',
+        app_label='core',
+    )
+    # This cascades to Group
+    Permission.objects.filter(
+        content_type=content_type,
+        codename__in=('delete_evidence'),
+    ).delete()
+
+def remove_evidence_comment_non_required_perms(apps, schema_editor):
+    """remove non required permissions"""
+    ContentType = apps.get_model('contenttypes.ContentType')
+    Permission = apps.get_model('auth.Permission')
+    content_type = ContentType.objects.get(
+        model='evidencecomment',
+        app_label='core',
+    )
+    # This cascades to Group
+    Permission.objects.filter(
+        content_type=content_type,
+        codename__in=('delete_evidencecomment'),
+    ).delete()
+
+def remove_evidence_quality_control_non_required_perms(apps, schema_editor):
+    """remove non required permissions"""
+    ContentType = apps.get_model('contenttypes.ContentType')
+    Permission = apps.get_model('auth.Permission')
+    content_type = ContentType.objects.get(
+        model='evidencequalitycontrol',
+        app_label='core',
+    )
+    # This cascades to Group
+    Permission.objects.filter(
+        content_type=content_type,
+        codename__in=('delete_evidencequalitycontrol'),
+    ).delete()
+
+
 def default_admin(apps, schema_editor):
 
     ## Create default group
@@ -74,6 +131,10 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RunPython(force_create_permissions, migrations.RunPython.noop),
+        migrations.RunPython(remove_user_non_required_perms),
+        migrations.RunPython(remove_evidence_non_required_perms),
+        migrations.RunPython(remove_evidence_comment_non_required_perms),
+        migrations.RunPython(remove_evidence_quality_control_non_required_perms),
         migrations.RunPython(default_admin),
         migrations.RunPython(default_evidence_groups),
         migrations.RunPython(default_evidence_stage),

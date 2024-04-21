@@ -75,7 +75,7 @@ INSTALLED_APPS = [
     'evidence_type',
     'evidence_comment',
     'quality_control',
-    'evidence_finding',
+    # 'evidence_finding',
     'evidence_quality_control',
 ]
 
