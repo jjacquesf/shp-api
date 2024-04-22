@@ -386,14 +386,7 @@ class ModelTests(TestCase):
 
             ## Extend from TimeStampMixin
             etqc = models.EvidenceTypeQualityControl.objects.get(quality_control=qc.id)
-            evidence_finding = models.EvidenceFinding.objects.create(
-                  evidence=evidence,
-                  qc=etqc,
-                  version=1,
-                  status='PEN', # PEN | SEN | WAI | REV | COM
-                  comments="Comment details"
-            )
-            
+
             auth = models.EvidenceAuth.objects.create(
                   evidence=evidence,
                   user=user,

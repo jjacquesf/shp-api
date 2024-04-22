@@ -473,40 +473,6 @@ class Evidence(TimeStampMixin):
     def __str__(self):
         return f"Evidence: {self.id}"
 
-class EvidenceFinding(TimeStampMixin):
-    class Status(models.TextChoices):
-        PENDING = 'PEN', _('Pending')
-        SENT = 'SEN', _('Sent')
-        WAITING_FOR_REVIEW = 'WAI', _('Waiting for review')
-        REVIEWED = 'REV', _('Reviewed')
-        COMPLETED = 'COM', _('Completed')
-        REJECTED = 'REJ', _('Rejected')
-
-    evidence = models.ForeignKey(
-        Evidence,
-        on_delete=models.CASCADE
-    )
-    qc = models.ForeignKey(
-        EvidenceTypeQualityControl,
-        on_delete=models.CASCADE
-    )
-    status = models.CharField(
-        max_length=3,
-        choices=Status.choices,
-        default=Status.PENDING,
-    )
-    comments = models.TextField(
-        blank=True, 
-        null=True
-    )
-    version = models.IntegerField(default=1)
-    
-    class Meta:
-        unique_together = ('evidence', 'qc', 'version')
-
-    def __str__(self):
-        return f"EvidenceFinding: {self.id}"
-
 class EvidenceAuth(TimeStampMixin):
     class Status(models.TextChoices):
         PENDING = 'PEN', _('Pending')
