@@ -7,3 +7,17 @@ docker-compose run --rm app sh -c "python manage.py migrate"
 docker-compose run --rm app sh -c "python manage.py startapp evidence_finding"
 
 docker compose --env-file dev.env up --detach
+docker compose --env-file dev.env down
+docker volume ls
+docker volume rm api_db-data
+// Remove db local folder
+docker compose --env-file dev.env build
+docker compose --env-file dev.env up --detach
+
+sudo su
+docker compose --env-file prod.env down
+docker volume ls
+docker volume rm api_db-data
+// Remove db local folder
+docker compose --env-file prod.env build
+docker compose --env-file prod.env up --detach
