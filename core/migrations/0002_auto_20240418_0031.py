@@ -131,10 +131,10 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RunPython(force_create_permissions, migrations.RunPython.noop),
-        migrations.RunPython(remove_user_non_required_perms),
-        migrations.RunPython(remove_evidence_non_required_perms),
-        migrations.RunPython(remove_evidence_comment_non_required_perms),
-        migrations.RunPython(remove_evidence_quality_control_non_required_perms),
+        migrations.RunPython(remove_user_non_required_perms, migrations.RunPython.noop),
+        migrations.RunPython(remove_evidence_non_required_perms, migrations.RunPython.noop),
+        migrations.RunPython(remove_evidence_comment_non_required_perms, migrations.RunPython.noop),
+        migrations.RunPython(remove_evidence_quality_control_non_required_perms, migrations.RunPython.noop),
         migrations.RunPython(default_admin),
         migrations.RunPython(default_evidence_groups),
         migrations.RunPython(default_evidence_stage),
