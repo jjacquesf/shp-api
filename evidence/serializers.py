@@ -100,8 +100,9 @@ class EvidenceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model=models.Evidence
-        fields = ['id', 'owner', 'creator', 'status', 'group', 'type', 'parent', 'uploaded_file', 'authorizers', 'signers', 'eav', 'comments', 'logs', 
+        fields = ['id', 'version','owner', 'creator', 'status', 'group', 'type', 'parent', 'uploaded_file', 'authorizers', 'signers', 'eav', 'comments', 'logs', 
                   'quality_controls', 'division', 'created_at', 'updated_at']
+        read_only_fields = ['version']
 
     def get_authorizers(self, obj):
         rows = models.EvidenceAuth.objects.filter(evidence=obj)

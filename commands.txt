@@ -8,3 +8,5 @@ docker-compose run --rm app sh -c "python manage.py startapp evidence_finding"
 
 docker compose --env-file dev.env up --detach
 sudo docker compose --env-file prod.env up --detachdocker run -d -p 80:80 --restart=always shp-frontend
+
+sudo docker compose --env-file prod.env ps
