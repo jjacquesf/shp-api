@@ -211,5 +211,5 @@ EAV2_PRIMARY_KEY_FIELD = "django.db.models.BigAutoField"
 #     }
 # }
 
-# MEDIA_ROOT = os.environ.get('MEDIA_ROOT')
-MEDIA_ROOT = "uploads/"
+MEDIA_ROOT = os.environ.get('MEDIA_ROOT')
+# MEDIA_ROOT = "uploads/"
