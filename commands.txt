@@ -6,14 +6,20 @@ docker-compose run --rm app sh -c "python manage.py makemigrations"
 docker-compose run --rm app sh -c "python manage.py migrate"
 docker-compose run --rm app sh -c "python manage.py startapp evidence_finding"
 
-docker compose --env-file dev.env up --detach
 docker compose --env-file dev.env down
+docker compose --env-file dev.env build
+docker compose --env-file dev.env up
 
-
+# complety remove
 sudo docker compose --env-file prod.env down
 sudo docker volume ls
 sudo docker volume rm api_db-data
 // Remove db local folder
 git pull origin main
+sudo docker compose --env-file prod.env build
+sudo docker compose --env-file prod.env up --detach
+
+## Update
+sudo docker compose --env-file prod.env down
 sudo docker compose --env-file prod.env build
 sudo docker compose --env-file prod.env up --detach
