@@ -48,22 +48,6 @@ class EvidencePermission(permissions.BasePermission):
     
     def has_object_permission(self, request, view, obj):
         """Validate user access to a specific object if necessary"""
-
-        print('========')
-        print('========')
-        print('========')
-        print('========')
-        print('========')
-        print(view)
-        print('========')
-        print('========')
-        print('========')
-        print('========')
-        print(obj)
-        print('========')
-        print('========')
-        print('========')
-        print('========')
         return True
 
 @extend_schema(tags=[_('Catalogs')])
@@ -174,6 +158,7 @@ class EvidenceViewSet(viewsets.ModelViewSet):
         """Update a evidence"""
         
         instance = self.get_object() 
+        prev_status = instance.status
 
         custom_fields = models.EvidenceTypeCustomField.objects.filter(type=instance.type)
         eav = serializer.validated_data.get('eav')
@@ -202,6 +187,51 @@ class EvidenceViewSet(viewsets.ModelViewSet):
         instance.version = instance.version + 1
         instance.save()
 
+        instance.refresh_from_db()
+
+        # Handle status changes
+        if self.request.user.id != instance.owner.id:
+            
+            # Notify status change
+            if prev_status.id != instance.status.id:
+                models.Notification.objects.create(
+                    evidence=instance,
+                    user=instance.owner,
+                    content=f'{instance.type.name} [{prev_status.name} => {instance.status.name}]'
+                )
+
+                # Handle signatures
+                if instance.status.stage.name == 'WAITING_FOR_SIGNATURES':
+                    signers = models.EvidenceSignature.objects.filter(evidence=instance)
+                    for signer in signers:
+                        signer.status = "PEN"
+                        signer.save()
+
+                        models.Notification.objects.create(
+                            evidence=instance,
+                            user=signer.user,
+                            content=f'{instance.type.name} [{prev_status.name} => {instance.status.name}]'
+                        )
+
+                # Handle authorization
+                if instance.status.stage.name == 'WAITING_FOR_AUTHORIZATIONS':
+                    authorizers = models.EvidenceAuth.objects.filter(evidence=instance)
+                    for signer in authorizers:
+                        signer.status = "PEN"
+                        signer.save()
+
+                        models.Notification.objects.create(
+                            evidence=instance,
+                            user=signer.user,
+                            content=f'{instance.type.name} [{prev_status.name} => {instance.status.name}]'
+                        )
+
+
+        pending_signers = models.EvidenceSignature.objects.filter(evidence=instance, status="PEN").count()
+        pending_auths = models.EvidenceAuth.objects.filter(evidence=instance, status="PEN").count()
+
+        instance.dirty = (pending_signers + pending_auths) > 0
+        instance.save()
         instance.refresh_from_db()
 
         s = EvidenceSerializer(instance)
