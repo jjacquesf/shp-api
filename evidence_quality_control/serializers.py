@@ -46,30 +46,7 @@ class EvidenceQualityControlSerializer(serializers.ModelSerializer):
 
     def __str__(self):
         return f'EvidenceQualityControl: {self.id}'
-    
 
-# class UpdateEvidenceQualityControlSerializer(model.Serializer):
-#     """Serializer for user creation."""
-
-#     class Status(models.TextChoices):
-#         PENDING = 'PEN', _('Pending')
-#         COMPLETED = 'COM', _('Completed')
-#     status = serializers.IntegerField(required=True)
-#     resolution = serializers.CharField(required=True)
-
-#     def create(self, validated_data):
-#         status = validated_data.get('status')
-#         resolution = validated_data.get('resolution')
-        
-#         data = {
-#             "status": quality_control,
-#             "resolution": resolution
-#         }
-
-#         instance = models.EvidenceQualityControl.objects.create(**data)
-
-#         s = EvidenceQualityControlSerializer(instance)
-#         return s.data
     
 class UpdateEvidenceQualityControlSerializer(serializers.ModelSerializer):
     """Serializer for the evidence comment object"""
