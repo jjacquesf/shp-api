@@ -199,6 +199,12 @@ class CreateEvidenceSerializer(serializers.Serializer):
 
         evidence = models.Evidence.objects.create(**data)
 
+        if owner.id != creator.id:
+            models.Notification.objects.create(
+                evidence=evidence,
+                user=owner,
+                content=f'Nuevo documento tipo: {evidence.type.name}'
+            )
 
         custom_fields = models.EvidenceTypeCustomField.objects.filter(type=type)
         eav = validated_data.get('eav')

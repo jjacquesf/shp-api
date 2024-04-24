@@ -569,6 +569,18 @@ class EvidenceQualityControl(TimeStampMixin):
     comments = models.CharField(max_length=512)
     resolution = models.CharField(max_length=512, blank=True, null=True)
 
+class Notification(TimeStampMixin):
+    opened = models.BooleanField(default=False)
+    evidence = models.ForeignKey(
+        Evidence,
+        on_delete=models.CASCADE
+    )
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE
+    )
+    content = models.CharField(max_length=512)
+
 ## Register eav for models
 eav.register(Evidence)
 

@@ -77,6 +77,7 @@ INSTALLED_APPS = [
     'quality_control',
     # 'evidence_finding',
     'evidence_quality_control',
+    'notification',
 ]
 
 MIDDLEWARE = [
