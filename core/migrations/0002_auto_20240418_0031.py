@@ -113,13 +113,12 @@ def default_evidence_groups(apps, schema_editor):
         x.save()
 
 def default_evidence_stage(apps, schema_editor):
-    m1 = models.EvidenceStage(name="Pendiente", position=10, description="Pendiente")
-    m2 = models.EvidenceStage(name="En proceso", position=20, description="En proceso")
-    m3 = models.EvidenceStage(name="Firmas", position=30, description="Esperando firmas")
-    m3 = models.EvidenceStage(name="Authorizaciones", position=40, description="Esperando authorizaciones")
-    m3 = models.EvidenceStage(name="Terminado", position=50, description="Terminado")
-    m3 = models.EvidenceStage(name="Archivado", position=60, description="Archivado")
-    ms = [m1, m2, m3]
+    m1 = models.EvidenceStage(name="PENDING", position=10, description="Pendiente")
+    m2 = models.EvidenceStage(name="WORKING", position=20, description="En proceso")
+    m3 = models.EvidenceStage(name="WAITING_FOR_SIGNATURES", position=30, description="Esperando firmas")
+    m4 = models.EvidenceStage(name="WAITING_FOR_AUTHORIZATIONS", position=40, description="Esperando autorizaciones")
+    m5 = models.EvidenceStage(name="COMPLETED", position=50, description="Cerrada")
+    ms = [m1, m2, m3, m4, m5]
     for x in ms:
         x.save()
 

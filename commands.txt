@@ -3,7 +3,7 @@ docker-compose run --rm app sh -c "python manage.py test evidence_finding --verb
 docker-compose run --rm app sh -c "python manage.py makemigrations --empty core"
 docker-compose run --rm app sh -c "python manage.py createsuperuser"
 docker-compose run --rm app sh -c "python manage.py makemigrations"
-docker-compose run --rm app sh -c "python manage.py migrate"
+docker-compose run --rm app  sh -c "python manage.py migrate 0003" --env-file dev.env
 docker-compose run --rm app sh -c "python manage.py startapp evidence_finding"
 
 docker compose --env-file dev.env down
