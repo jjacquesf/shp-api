@@ -156,14 +156,6 @@ class SaveUserProfileSerializer(serializers.Serializer):
             profile_data.update({"division": division})
 
         models.Profile.objects.filter(user=instance).update(**profile_data)
-        
-
-        # profile = models.Profile.objects.get(user=instance)
-        # serializer = UserProfileSerializer({
-        #     "name": instance.name,
-        #     "email": instance.email,
-        #     "job_position": profile.job_position
-        # })
 
         serializer = serialize_user_profile(instance)
 
@@ -179,76 +171,6 @@ class UserProfileSerializer(serializers.Serializer):
     password = serializers.CharField(required=False, allow_blank=True, min_length=5, max_length=255)
     job_position = serializers.CharField(required=True, max_length=255)
     division = DivisionSerializer()
-
-    # def create(self, validated_data):
-    #     user_data = {
-    #         "email": validated_data.get("email"),
-    #         "name": validated_data.get("name"),
-    #         "password": validated_data.pop("password", None),
-    #     }
-
-    #     user = get_user_model().objects.create_user(**user_data)
-    #     division = models.Division.objects.get(id=validated_data.get('division'))
-
-    #     profile_data = {
-    #         "user": user.id,
-    #         "job_position": validated_data.get("job_position"),
-    #         "division": division
-    #     }
-
-    #     profile_serializer = ProfileSerializer(data=profile_data)
-    #     profile_serializer.is_valid(raise_exception=True)
-    #     profile_serializer.save()
-
-    #     validated_data.pop("password", None)
-
-    #     user.refresh_from_db()
-    #     profile = models.Profile.objects.get(user=user)
-
-    #     serializer = UserProfileSerializer({
-    #         "name": user.name,
-    #         "email": user.email,
-    #         "job_position": profile.job_position,
-    #         "division": profile.division
-    #     })
-    #     return serializer.data
-
-    # def update(self, instance, validated_data):
-    #     """Update and return user"""
-    #     password = validated_data.pop('password', None)
-    #     job_position = validated_data.pop('job_position', None)
-    #     division = validated_data.pop('division', None)
-
-    #     if password:
-    #         instance.set_password(password)
-    #         instance.save()
-
-    #     get_user_model().objects.filter(id=instance.pk).update(**validated_data)
-
-    #     instance.refresh_from_db()
-
-    #     profile_data = {}
-        
-    #     if(job_position != None):
-    #         profile_data.update({"job_position": job_position})
-
-    #     if(division != None):
-    #         profile_data.update({"division": division})
-
-    #     models.Profile.objects.filter(user=instance).update(**profile_data)
-        
-
-    #     # profile = models.Profile.objects.get(user=instance)
-    #     # serializer = UserProfileSerializer({
-    #     #     "name": instance.name,
-    #     #     "email": instance.email,
-    #     #     "job_position": profile.job_position
-    #     # })
-
-    #     serializer = serialize_user_profile(instance)
-
-    #     return serializer.data
-
 class FullUserProfileSerializer(serializers.Serializer):
     """Serializer for user creation."""
     id = serializers.EmailField(required=False)

@@ -88,25 +88,14 @@ class SelfManageUserView(views.APIView):
         request=UpdateUserGroupSerializer,
         responses={200: GroupSerializer(many=True)},
     )
-    def put(self, request):
+    def patch(self, request):
         """Update and return user"""
         user = get_user_model().objects.get(id=self.request.user.id)
-        # profile = models.Profile.objects.get(user=user)
 
-        serializer = UserProfileSerializer(user, data=request.data)
-        serializer.is_valid(raise_exception=True)
-
-        serializer.save()
-        
-        user.refresh_from_db()
-        # profile.refresh_from_db()
-
-        # upd_serializer = UserProfileSerializer({
-        #     "name": user.name,
-        #     "email": user.email,
-        #     "password": user.password,
-        #     "job_position": profile.job_position
-        # })
+        password = request.data.get("password")
+        if password != None:
+            user.set_password(password)
+            user.save()
 
         upd_serializer = serialize_user_profile(user)
 
@@ -125,12 +114,6 @@ class ListUserView(views.APIView):
         users = get_user_model().objects.filter(is_superuser=False).order_by('-id')
         result = []
         for user in users:
-            # profile = models.Profile.objects.get(user=user)
-            # serializer = UserProfileSerializer({
-            #     "name": user.name,
-            #     "email": user.email,
-            #     "job_position": profile.job_position
-            # })
             serializer = serialize_user_profile(user)
             result.append(serializer.data)
 
@@ -146,12 +129,6 @@ class ManageUserView(views.APIView):
     )
     def get(self, request, pk):
         user = get_user_model().objects.get(id=pk)
-        # profile = models.Profile.objects.get(user=user)
-        # serializer = UserProfileSerializer({
-        #     "name": user.name,
-        #     "email": user.email,
-        #     "job_position": profile.job_position
-        # })
         serializer = serialize_user_profile(user)
         return Response(serializer.data)
     
@@ -172,12 +149,7 @@ class ManageUserView(views.APIView):
         
         user.refresh_from_db()
         profile.refresh_from_db()
-
-        # upd_serializer = UserProfileSerializer({
-        #     "name": user.name,
-        #     "email": user.email,
-        #     "job_position": profile.job_position
-        # })
+        
         upd_serializer = serialize_user_profile(user)
         return Response(upd_serializer.data)
 
