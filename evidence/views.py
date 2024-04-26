@@ -154,9 +154,11 @@ class EvidenceViewSet(viewsets.ModelViewSet):
             # Owner
             q_owner = Q(owner=self.request.user)
 
-            bd_q = q_owner | q_evidences
-
-            queryset = queryset.filter(bd_q)
+            if q_evidences != None:
+                bd_q = Q(q_owner | q_evidences)
+                queryset = queryset.filter(bd_q)
+            else:
+                queryset = queryset.filter(q_owner)
 
         elif self.request.user.has_perm('core.view_evidence'):
             owner = self.request.query_params.get('owner')
