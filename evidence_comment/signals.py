@@ -10,5 +10,5 @@ def create(sender, instance, created, **kwargs):
         models.Notification.objects.create(
             evidence=instance.evidence,
             user=instance.evidence.owner,
-            content=f'Nuevo comentario en {instance.evidence.type.name}'
+            co=f'Nuevo comentario en {instance.evidence.type.name}'
         )

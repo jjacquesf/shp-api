@@ -4,7 +4,7 @@ docker-compose run --rm app sh -c "python manage.py makemigrations --empty core"
 docker-compose run --rm app sh -c "python manage.py createsuperuser"
 docker-compose run --rm app sh -c "python manage.py makemigrations" --env-file dev.env
 docker-compose run --rm app  sh -c "python manage.py migrate" --env-file dev.env
-docker-compose run --rm app sh -c "python manage.py startapp evidence_finding" --env-file dev.env
+docker-compose run --rm app sh -c "python manage.py startapp evidence_signature" --env-file dev.env
 
 docker compose --env-file dev.env down
 docker compose --env-file dev.env build

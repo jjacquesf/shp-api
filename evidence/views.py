@@ -2,6 +2,7 @@
 Views fro the evidence APIs
 """
 from datetime import datetime
+from django.db.models import Q
 import json
 from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter
 from drf_spectacular.types import OpenApiTypes
@@ -48,7 +49,28 @@ class EvidencePermission(permissions.BasePermission):
     
     def has_object_permission(self, request, view, obj):
         """Validate user access to a specific object if necessary"""
-        return True
+
+        if request.user.has_perm('core.view_evidence') or request.user.has_perm('core.add_evidence') or request.user.has_perm('core.change_evidence') or request.user.has_perm('core.delete_evidence'):
+            return True
+        
+        if request.user.has_perm('core.manage_evidence'):
+            return True
+
+        if request.user.has_perm('core.manage_evidence'):
+            if obj.owner.profile.division.id == request.user.profie.division.id:
+                return True
+
+        if request.user.has_perm('core.work_evidence'):
+            if obj.owner.id == request.user.id:
+                return True
+            
+            signers = models.EvidenceSignature.objects.filter(evidence=obj, user=request.user.id).count()
+            authorizers = models.EvidenceAuth.objects.filter(evidence=obj, user=request.user.id).count()
+
+            if (signers + authorizers )> 0:
+                return True
+
+        return False
 
 @extend_schema(tags=[_('Catalogs')])
 @extend_schema_view(
@@ -114,7 +136,28 @@ class EvidenceViewSet(viewsets.ModelViewSet):
                 owners.append(v.user)
             queryset = queryset.filter(owner__in=owners)
         elif self.request.user.has_perm('core.work_evidence'):
-            queryset = queryset.filter(owner=self.request.user)
+            # Signers
+            signers = models.EvidenceSignature.objects.filter(user=self.request.user)
+            evidences = []
+            for v in signers:
+                evidences.append(v.evidence.id)
+
+            # Authorizers
+            authorizers = models.EvidenceAuth.objects.filter(user=self.request.user)
+            for v in authorizers:
+                evidences.append(v.evidence.id)
+
+            q_evidences = None
+            if(len(evidences) > 0):
+                q_evidences = Q(id__in=evidences)
+
+            # Owner
+            q_owner = Q(owner=self.request.user)
+
+            bd_q = q_owner | q_evidences
+
+            queryset = queryset.filter(bd_q)
+
         elif self.request.user.has_perm('core.view_evidence'):
             owner = self.request.query_params.get('owner')
             if owner != None:

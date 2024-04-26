@@ -78,6 +78,8 @@ INSTALLED_APPS = [
     # 'evidence_finding',
     'evidence_quality_control',
     'notification',
+    'evidence_signature',
+    'evidence_auth'
 ]
 
 MIDDLEWARE = [

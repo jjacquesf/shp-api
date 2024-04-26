@@ -53,4 +53,6 @@ urlpatterns = [
     path('api/evidence-quality-control/', include('evidence_quality_control.urls')),
     path('api/division/', include('division.urls')),
     path('api/notification/', include('notification.urls')),
+    path('api/evidence-signature/', include('evidence_signature.urls')),
+    path('api/evidence-auth/', include('evidence_auth.urls')),
 ]

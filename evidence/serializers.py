@@ -59,14 +59,30 @@ class EvidenceAuthSerializer(serializers.ModelSerializer):
     user = BaseUserSerializer()
     class Meta:
         model=models.EvidenceAuth
-        fields = ['evidence', 'status', 'user', 'version']
+        fields = ['id', 'evidence', 'status', 'user', 'version']
+        read_only_fields = ['id']
+
+class UpdateEvidenceAuthSerializer(serializers.ModelSerializer):
+    """Serializer for evidence signature update."""
+    class Meta:
+        model=models.EvidenceAuth
+        fields = ['id', 'status', 'version']
+        read_only_fields = ['id', 'version']
 
 class EvidenceSignatureSerializer(serializers.ModelSerializer):
-    """Serializer for evidence auth creation."""
+    """Serializer for evidence signature."""
     user = BaseUserSerializer()
     class Meta:
         model=models.EvidenceSignature
-        fields = ['evidence', 'status', 'user', 'version']
+        fields = ['id', 'evidence', 'status', 'user', 'version']
+        read_only_fields = ['id']
+
+class UpdateEvidenceSignatureSerializer(serializers.ModelSerializer):
+    """Serializer for evidence signature update."""
+    class Meta:
+        model=models.EvidenceSignature
+        fields = ['id', 'status', 'version']
+        read_only_fields = ['id', 'version']
 
 class CRUDEventSerializer(serializers.ModelSerializer):
     user = BaseUserSerializer()
