@@ -79,7 +79,8 @@ INSTALLED_APPS = [
     'evidence_quality_control',
     'notification',
     'evidence_signature',
-    'evidence_auth'
+    'evidence_auth',
+    'app',
 ]
 
 MIDDLEWARE = [

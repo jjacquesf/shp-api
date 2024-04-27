@@ -55,4 +55,5 @@ urlpatterns = [
     path('api/notification/', include('notification.urls')),
     path('api/evidence-signature/', include('evidence_signature.urls')),
     path('api/evidence-auth/', include('evidence_auth.urls')),
+    path('api/report/', include('report.urls')),
 ]
