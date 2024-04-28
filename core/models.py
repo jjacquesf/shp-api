@@ -467,6 +467,10 @@ class Evidence(TimeStampMixin):
             (
                 "manage_evidence",
                 "Daily work for manager users"
+            ),
+            (
+                "generate_evidence_reports",
+                "Generate evidence reports"
             )
         ]
 

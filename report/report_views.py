@@ -11,7 +11,6 @@ from rest_framework import views, generics, authentication, permissions
 
 from report.serializers import EvidenceReportSerializer
 from rest_framework import views
-from rest_framework.response import Response
 
 from core import models
 
@@ -253,65 +252,65 @@ class EvidenceReportView(views.APIView):
                              val{idx + 1}.value_text""")
 
         with connection.cursor() as cursor:
-                fields_str = ''
-                if(len(fields) > 0):
-                    fields_str = ','.join(fields) + ","
+            fields_str = ''
+            if(len(fields) > 0):
+                fields_str = ','.join(fields) + ","
 
-                group_bys_str = ''
-                if(len(group_bys) > 0):
-                    group_bys_str = ',' + ','.join(group_bys)
+            group_bys_str = ''
+            if(len(group_bys) > 0):
+                group_bys_str = ',' + ','.join(group_bys)
 
-                query = f"""SELECT 
-                                        eg.id AS group_id,
-                                        et.id AS type_id,
-                                        d.id AS division_id,
-                                        {fields_str}
-                                        STRING_AGG(DISTINCT eg.name, '') AS group_name,
-                                        STRING_AGG(DISTINCT et.name, '') AS type_name,
-                                        STRING_AGG(DISTINCT d.name, '') AS division_name,
-                                        COUNT(eg.id) AS group_count,
-                                        COUNT(et.id) AS type_count,
-                                        COUNT(d.id) AS division_count,
-                                        JSON_AGG(JSONB_BUILD_OBJECT(
-                                            'id', e.id,
-                                            'created_at', e.created_at,
-                                            'updated_at', e.updated_at,
-                                            'user', u.name,
-                                            'job_position', p.job_position,
-                                            'status_name', es.name
-                                        )) AS evidences
-                                    FROM 
-                                        core_evidence AS e
-                                    LEFT JOIN
-                                        core_evidencestatus AS es
-                                        ON e.status_id = es.id
-                                    LEFT JOIN
-                                        core_evidencetype AS et
-                                        ON e.type_id = et.id
-                                    LEFT JOIN
-                                        core_evidencegroup AS eg
-                                        ON eg.id = et.group_id
-                                    LEFT JOIN
-                                        core_user AS u
-                                        ON e.owner_id = u.id
-                                    LEFT JOIN
-                                        core_profile AS p
-                                        ON u.id = p.user_id
-                                    LEFT JOIN
-                                        core_division AS d
-                                        ON p.division_id = d.id
-                                    {''.join(subqueries)}
-                                    GROUP BY
-                                        eg.id,
-                                        et.id,
-                                        d.id
-                                        {group_bys_str}
-                                    """
-                
-                cursor.execute(query)
+            query = f"""SELECT 
+                                    eg.id AS group_id,
+                                    et.id AS type_id,
+                                    d.id AS division_id,
+                                    {fields_str}
+                                    STRING_AGG(DISTINCT eg.name, '') AS group_name,
+                                    STRING_AGG(DISTINCT et.name, '') AS type_name,
+                                    STRING_AGG(DISTINCT d.name, '') AS division_name,
+                                    COUNT(eg.id) AS group_count,
+                                    COUNT(et.id) AS type_count,
+                                    COUNT(d.id) AS division_count,
+                                    JSON_AGG(JSONB_BUILD_OBJECT(
+                                        'id', e.id,
+                                        'created_at', e.created_at,
+                                        'updated_at', e.updated_at,
+                                        'user', u.name,
+                                        'job_position', p.job_position,
+                                        'status_name', es.name
+                                    )) AS evidences
+                                FROM 
+                                    core_evidence AS e
+                                LEFT JOIN
+                                    core_evidencestatus AS es
+                                    ON e.status_id = es.id
+                                LEFT JOIN
+                                    core_evidencetype AS et
+                                    ON e.type_id = et.id
+                                LEFT JOIN
+                                    core_evidencegroup AS eg
+                                    ON eg.id = et.group_id
+                                LEFT JOIN
+                                    core_user AS u
+                                    ON e.owner_id = u.id
+                                LEFT JOIN
+                                    core_profile AS p
+                                    ON u.id = p.user_id
+                                LEFT JOIN
+                                    core_division AS d
+                                    ON p.division_id = d.id
+                                {''.join(subqueries)}
+                                GROUP BY
+                                    eg.id,
+                                    et.id,
+                                    d.id
+                                    {group_bys_str}
+                                """
+            
+            cursor.execute(query)
 
-                columns = [col[0] for col in cursor.description]
-                data = [dict(zip(columns, row)) for row in cursor.fetchall()]
+            columns = [col[0] for col in cursor.description]
+            data = [dict(zip(columns, row)) for row in cursor.fetchall()]
 
         return enumerate(data)
     
