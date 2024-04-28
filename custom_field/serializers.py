@@ -36,6 +36,7 @@ class EvidenceTypeCustomFieldSerializer(serializers.ModelSerializer):
     """Serializer for the evidence type custom field object"""
     catalog = serializers.CharField(source='custom_field.catalog')
     description = serializers.CharField(source='custom_field.description')
+    attribute_id = serializers.CharField(source='custom_field.attribute.id')
     attribute_name = serializers.CharField(source='custom_field.attribute.name')
     attribute_slug = serializers.CharField(source='custom_field.attribute.slug')
     attribute_datatype = serializers.CharField(source='custom_field.attribute.datatype')
@@ -48,6 +49,7 @@ class EvidenceTypeCustomFieldSerializer(serializers.ModelSerializer):
             'catalog',
             'group',
             'description', 
+            'attribute_id',
             'attribute_name',
             'attribute_slug',
             'attribute_datatype',

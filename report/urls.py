@@ -8,7 +8,8 @@ from report import views
 app_name = 'report'
 
 urlpatterns = [
-    path('demo/', views.ReportView.as_view(), name='demo'),
+    # path('custom-field-options/<int:pk>/', views.CustomFieldOptions.as_view(), name='custom-field-options'),
+    path('evidences/', views.EvidenceReportView.as_view(), name='evidences'),
     # path('me/', views.SelfManageUserView.as_view(), name='me'),
     # path('create/', views.CreateUserView.as_view(), name='create'),
     # path('list/', views.ListUserView.as_view(), name='list'),
