@@ -176,19 +176,19 @@ class EvidenceTypeViewSet(viewsets.ModelViewSet):
         """Destroy a evidence type"""
         children = models.EvidenceType.objects.filter(parent=instance).count()
         if(children > 0):
-            raise serializers.ValidationError(_('Unable to delete parent records. Disable it instead.'))
+            raise serializers.ValidationError(_('No se puede eliminar porque hay registros que dependen de el. Puedes deshabilitarlo.'))
         
         children = models.EvidenceTypeCustomField.objects.filter(type=instance).count()
         if(children > 0):
-            raise serializers.ValidationError(_('Unable to delete this record, some others depends on it. Disable it instead.'))
+            raise serializers.ValidationError(_('No se puede eliminar porque hay registros que dependen de el. Puedes deshabilitarlo.'))
         
         children = models.EvidenceTypeQualityControl.objects.filter(type=instance).count()
         if(children > 0):
-            raise serializers.ValidationError(_('Unable to delete this record, some others depends on it. Disable it instead.'))
+            raise serializers.ValidationError(_('No se puede eliminar porque hay registros que dependen de el. Puedes deshabilitarlo.'))
         
         children = models.Evidence.objects.filter(type=instance).count()
         if(children > 0):
-            raise serializers.ValidationError(_('Unable to delete this record, some others depends on it. Disable it instead.'))
+            raise serializers.ValidationError(_('No se puede eliminar porque hay registros que dependen de el. Puedes deshabilitarlo.'))
 
         instance.delete()
 
@@ -243,7 +243,7 @@ class PatchDeleteCustomFieldView(views.APIView):
         """Delete evidence type custom fields"""
         evidence_type = models.EvidenceType.objects.get(id=pk)
 
-        raise serializers.ValidationError(_('Unable to delete this record, some others depends on it. Disable it instead.'))
+        raise serializers.ValidationError(_('No se puede eliminar porque hay registros que dependen de el. Puedes deshabilitarlo.'))
 
         # models.EvidenceTypeCustomField.objects.filter(id=cf_id, type=evidence_type.id).delete()
         # return Response(None, status=status.HTTP_204_NO_CONTENT)
@@ -320,7 +320,7 @@ class PatchDeleteQualityControlView(views.APIView):
         """Delete evidence type custom fields"""
         # evidence_type = models.EvidenceType.objects.get(id=pk)
 
-        raise serializers.ValidationError(_('Unable to delete this record, some others depends on it. Disable it instead.'))
+        raise serializers.ValidationError(_('No se puede eliminar porque hay registros que dependen de el. Puedes deshabilitarlo.'))
 
         # models.EvidenceTypeCustomField.objects.filter(id=qc_id, type=evidence_type.id).delete()
         # return Response(None, status=status.HTTP_204_NO_CONTENT)

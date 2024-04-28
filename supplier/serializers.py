@@ -21,6 +21,6 @@ class SupplierSerializer(serializers.ModelSerializer):
     
     def validate_tax_id(self, value):
         if not validate(value):
-            raise serializers.ValidationError(_('Tax Id does not match required format'))
+            raise serializers.ValidationError(_('El RFC no tiene el formato esperado'))
 
         return value

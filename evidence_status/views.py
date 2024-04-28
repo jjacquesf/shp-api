@@ -165,6 +165,6 @@ class EvidenceStatusViewSet(viewsets.ModelViewSet):
     #     """Destroy a evidencde status"""
     #     children = models.EvidenceStatus.objects.filter(parent=instance)
     #     if(len(children)):
-    #         raise serializers.ValidationError(_('Unable to delete parent records. Disable it instead.'))
+    #         raise serializers.ValidationError(_('No se puede eliminar porque hay registros que dependen de el. Puedes deshabilitarlo.'))
         
     #     instance.delete()

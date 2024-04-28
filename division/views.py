@@ -105,6 +105,6 @@ class DivisionViewSet(viewsets.ModelViewSet):
         """Destroy a division type"""
         children = get_user_model().objects.filter(division=instance).count()
         if(children > 0):
-            raise serializers.ValidationError(_('Unable to delete parent records. Disable it instead.'))
+            raise serializers.ValidationError(_('No se puede eliminar porque hay registros que dependen de el. Puedes deshabilitarlo.'))
 
         instance.delete()

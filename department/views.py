@@ -131,7 +131,7 @@ class DepartmentViewSet(viewsets.ModelViewSet):
         parent = serializer.validated_data.get('parent', None)
         current = self.queryset[0]
         if parent != None and parent.id == current.id:
-            raise serializers.ValidationError(_('Invalid parent record.'))
+            raise serializers.ValidationError(_('Debe especificar un registro padre diferente'))
         
         return self._update_level(serializer)
     
@@ -139,6 +139,6 @@ class DepartmentViewSet(viewsets.ModelViewSet):
         """Destroy a supplier"""
         children = models.Department.objects.filter(parent=instance).count()
         if(children > 0):
-            raise serializers.ValidationError(_('Unable to delete parent records. Disable it instead.'))
+            raise serializers.ValidationError(_('No se puede eliminar porque hay registros que dependen de el. Puedes deshabilitarlo.'))
         
         instance.delete()

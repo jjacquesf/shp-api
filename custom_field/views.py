@@ -133,7 +133,7 @@ class CustomFieldViewSet(viewsets.ModelViewSet):
         """Destroy a custom field"""
         evidence_types = models.EvidenceType.objects.filter(custom_fields__id = instance.id).count()
         if(evidence_types > 0):
-            raise serializers.ValidationError(_('Unable to delete record. It has evidence type dependant records. Disable it instead.'))
+            raise serializers.ValidationError(_('No se puede eliminar porque hay registros que dependen de el. Puedes deshabilitarlo.'))
         
         Attribute.objects.filter(id=instance.attribute_id).delete()
         

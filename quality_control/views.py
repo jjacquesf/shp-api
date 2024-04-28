@@ -106,6 +106,6 @@ class QualityControlViewSet(viewsets.ModelViewSet):
         """Destroy a evidence type"""
         children = models.EvidenceQualityControl.objects.filter(parent=instance).count()
         if(children > 0):
-            raise serializers.ValidationError(_('Unable to delete parent records. Disable it instead.'))
+            raise serializers.ValidationError(_('No se puede eliminar porque hay registros que dependen de el. Puedes deshabilitarlo.'))
 
         instance.delete()
