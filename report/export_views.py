@@ -113,7 +113,7 @@ class Print:
                     ('LINEBELOW', (3, 1), (3, -1), 0, colors.black),
                 ])
 
-
+            # Table head
             created_at = instance.created_at.strftime("%d/%m/%Y")
             updated_at = instance.updated_at.strftime("%d/%m/%Y")
 
@@ -128,8 +128,42 @@ class Print:
             data_table.setStyle(table_style)
             elements.append(data_table)
 
-
             elements.append(Spacer(1,0.1*inch))
+
+
+            # Table data
+
+            custom_fields = serializer.data.get('type').get('custom_fields')
+            eav = serializer.data.get('eav')
+            if len(custom_fields) > 0:
+
+                table_data = []
+                table_data.append(['Información de captura'])
+
+                # table_data.append(['Grupo', instance.group.name, 'Tipo', instance.type.name])
+                # table_data.append(['Estatus', instance.status.name, 'División', instance.owner.profile.division.name])
+                # table_data.append(['Creación', created_at, 'Actualizado', updated_at])
+                
+                cols = []
+                for custom_field in custom_fields:
+                    if len(cols) < 2:
+                        cols.append(custom_field.get('attribute_name'))
+                        cols.append(eav.get(custom_field.get('attribute_slug')))
+                    else:
+                        table_data.append(cols)
+                        cols = []
+                        cols.append(custom_field.get('attribute_name'))
+                        cols.append(eav.get(custom_field.get('attribute_slug')))
+
+                table_data.append(cols)
+                
+                data_table = Table(table_data, colWidths=[doc.width*25/100, doc.width*75/100], spaceBefore=doc.height*1/100, spaceAfter=doc.height*1/100)
+                data_table.setStyle(table_style)
+                elements.append(data_table)
+
+            # =====
+            elements.append(Spacer(1,0.1*inch))
+
 
             table_data = []
             table_data.append(['Hallazgos en el documento'])
@@ -169,7 +203,8 @@ class Print:
                         ('SPAN', (0, 3), (-1, 3)),
                     ])
 
-                data_table = Table(subtable_data, colWidths=[doc.width/4]*4, spaceBefore=doc.height*1/100, spaceAfter=doc.height*1/100)
+                # data_table = Table(subtable_data, colWidths=[doc.width/4]*4, spaceBefore=doc.height*1/100, spaceAfter=doc.height*1/100)
+                data_table = Table(subtable_data, colWidths=[doc.width*15/100, doc.width*28.33/100, doc.width*28.33/100, doc.width*28.33/100], spaceBefore=doc.height*1/100, spaceAfter=doc.height*1/100)
                 data_table.setStyle(table_style)
                 elements.append(data_table)
             else:
