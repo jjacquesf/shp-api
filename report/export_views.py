@@ -142,6 +142,8 @@ class Print:
             elements.append(data_table)
 
 
+            # Findings
+
             findings = serializer.data.get('quality_controls')
             table_data = []
             if(len(findings) > 0):
@@ -179,7 +181,87 @@ class Print:
             elements.append(Spacer(1,0.1*inch))
 
 
+            # Firmas
+            table_data = []
+            table_data.append(['Firmas requeridas'])
+            data_table = Table(table_data, colWidths=[doc.width], spaceBefore=doc.height*1/100, spaceAfter=doc.height*1/100)
+            data_table.setStyle([
+                ('SPAN', (0, 0), (-1, 0)),
+                ('FONTSIZE', (0, 0), (1, 0), 12), 
+                ('LEADING', (0, 0), (1, 0), 15), 
+            ])
+            elements.append(data_table)
 
+            signers = serializer.data.get('signers')
+            table_data = []
+            if(len(signers) > 0):
+                for signer in signers:
+                    subtable_data = []
+                    subtable_data.append(['Responsable', 'Estatus'])
+
+                    status = 'Pendiente'
+                    if signer.get('status') != 'PEN':
+                        status = 'Completado'
+                        
+                    subtable_data.append([ signer.get('user').get('name'), status])
+
+                table_style = TableStyle([
+                        ('FONTSIZE', (0, 0), (-1, -1), 10), 
+                        ('INNERGRID', (0, 0), (-1, -1), 0.25, colors.black),
+                        ('BOX', (0, 0), (-1, -1), 0.25, colors.black),
+                    ])
+
+                data_table = Table(subtable_data, colWidths=[doc.width/2]*2, spaceBefore=doc.height*1/100, spaceAfter=doc.height*1/100)
+                data_table.setStyle(table_style)
+                elements.append(data_table)
+            else:
+                table_data.append(['No se requieren firmas'])
+                data_table = Table(table_data, colWidths=[doc.width], spaceBefore=doc.height*1/100, spaceAfter=doc.height*1/100)
+
+                elements.append(data_table)
+
+            elements.append(Spacer(1,0.1*inch))
+
+
+            # Authorizaciones
+
+            table_data = []
+            table_data.append(['Autorizaciones requeridas'])
+            data_table = Table(table_data, colWidths=[doc.width], spaceBefore=doc.height*1/100, spaceAfter=doc.height*1/100)
+            data_table.setStyle([
+                ('SPAN', (0, 0), (-1, 0)),
+                ('FONTSIZE', (0, 0), (1, 0), 12), 
+                ('LEADING', (0, 0), (1, 0), 15), 
+            ])
+            elements.append(data_table)
+
+            authorizers = serializer.data.get('authorizers')
+            table_data = []
+            if(len(authorizers) > 0):
+                for authorizer in authorizers:
+                    subtable_data = []
+                    subtable_data.append(['Responsable', 'Estatus'])
+
+                    status = 'Pendiente'
+                    if authorizer.get('status') != 'PEN':
+                        status = 'Completado'
+                        
+                    subtable_data.append([ authorizer.get('user').get('name'), status])
+
+                table_style = TableStyle([
+                        ('FONTSIZE', (0, 0), (-1, -1), 10), 
+                        ('INNERGRID', (0, 0), (-1, -1), 0.25, colors.black),
+                        ('BOX', (0, 0), (-1, -1), 0.25, colors.black),
+                    ])
+
+                data_table = Table(subtable_data, colWidths=[doc.width/2]*2, spaceBefore=doc.height*1/100, spaceAfter=doc.height*1/100)
+                data_table.setStyle(table_style)
+                elements.append(data_table)
+            else:
+                table_data.append(['No se requieren autorizaciones'])
+                data_table = Table(table_data, colWidths=[doc.width], spaceBefore=doc.height*1/100, spaceAfter=doc.height*1/100)
+
+                elements.append(data_table)
 
 
             elements.append(Spacer(1,2*inch))
