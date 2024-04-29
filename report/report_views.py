@@ -106,7 +106,7 @@ class Print:
         # Release the canvas
         canvas.restoreState()
     
-    def print_report(self, items, cf_ids):
+    def build(self, items, cf_ids):
             buffer = self.buffer
             doc = SimpleDocTemplate(buffer,
                                     rightMargin=inch/4,
@@ -325,6 +325,6 @@ class EvidenceReportView(views.APIView):
         print = Print(buf, 'Letter')
 
         data = self.query(serializer.data)
-        buf = print.print_report(data, cf_ids)
+        buf = print.build(data, cf_ids)
 
         return FileResponse(buf, as_attachment=True, filename="report.pdf")
