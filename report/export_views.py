@@ -78,7 +78,8 @@ class Print:
                                     leftMargin=inch/4,
                                     topMargin=inch/2,
                                     bottomMargin=inch/4,
-                                    pagesize=self.pagesize)
+                                    pagesize=self.pagesize,
+                                    title='Detall de entregable')
 
             # Our container for 'Flowable' objects
             elements = []
@@ -97,7 +98,7 @@ class Print:
             printed_at = PS(name='topright', fontSize=10, alignment=TA_RIGHT)
             today = datetime.datetime.now()
             elements.append(Paragraph('Fecha de impresión', printed_at))
-            elements.append(Paragraph(f"{today.strftime('%d/%m/%Y %H:%M hrs')}", printed_at))
+            elements.append(Paragraph(f"{today.strftime('%d/%m/%Y')}", printed_at))
             elements.append(Spacer(1,0.1*inch))
 
             elements.append(Paragraph(f"Versión: {instance.version}", printed_at))
@@ -119,10 +120,10 @@ class Print:
 
             table_data = []
             table_data.append(['Acerca del entregable'])
+            table_data.append(['Responsable', instance.owner.name, 'Creado por', instance.owner.name])
             table_data.append(['Grupo', instance.group.name, 'Tipo', instance.type.name])
             table_data.append(['Estatus', instance.status.name, 'División', instance.owner.profile.division.name])
             table_data.append(['Creación', created_at, 'Actualizado', updated_at])
-            
             
             data_table = Table(table_data, colWidths=[doc.width*12/100, doc.width*38/100]*2, spaceBefore=doc.height*1/100, spaceAfter=doc.height*1/100)
             data_table.setStyle(table_style)
