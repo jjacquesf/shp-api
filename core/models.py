@@ -588,3 +588,11 @@ class Notification(TimeStampMixin):
 ## Register eav for models
 eav.register(Evidence)
 
+
+class ResetPassword(TimeStampMixin):
+    token = models.CharField(max_length=512)
+    used = models.BooleanField(default=False)
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE
+    )

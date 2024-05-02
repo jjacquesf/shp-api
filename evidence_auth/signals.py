@@ -4,6 +4,6 @@ from django.dispatch import receiver
 
 from core import models
 
-@receiver(pre_save, sender=models.EvidenceAuth) 
+@receiver(pre_save, sender=models.EvidenceSignature) 
 def update(sender, instance, **kwargs):
     instance.version = instance.version + 1

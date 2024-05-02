@@ -20,6 +20,11 @@ services:
       - DB_PASSWORD=changeme
       - MEDIA_ROOT=/repo/files
       - SECRET_KEY=!crCG/e:iwYA{b5_8TaVT4y*d0%_uLn9tqv&X9LqYCt:;mWf,55666_@FC1Z
+      - EMAIL_HOST=mail.lava.mx
+      - EMAIL_PORT=587
+      - EMAIL_USE_TLS=True
+      - EMAIL_HOST_USER=noresponder@sisoftware.mx
+      - EMAIL_HOST_PASSWORD=Ta1ute8ozjgA@zH
     depends_on:
       - db
     restart: always

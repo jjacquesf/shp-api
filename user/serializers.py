@@ -214,3 +214,11 @@ def serialize_full_user_profile(user):
     return serializer
 
 
+class ResetPasswordRequestSerializer(serializers.Serializer):
+    """Serializer for reset password feature"""
+    email = serializers.EmailField(required=True)
+
+class ResetPasswordSerializer(serializers.Serializer):
+    """Serializer for reset password feature"""
+    token = serializers.CharField(required=True, max_length=512)
+    password =serializers.CharField(required=True)
