@@ -92,6 +92,7 @@ class ProfileSerializer(serializers.ModelSerializer):
 
 class SaveUserProfileSerializer(serializers.Serializer):
     """Serializer for user creation."""
+    is_active = serializers.BooleanField(required=True)
     id = serializers.EmailField(required=False)
     email = serializers.EmailField(required=True)
     name = serializers.CharField(required=True, max_length=255)
@@ -100,7 +101,9 @@ class SaveUserProfileSerializer(serializers.Serializer):
     division = serializers.IntegerField(required=True)
 
     def create(self, validated_data):
+
         user_data = {
+            "is_active": validated_data.get("is_active"),
             "email": validated_data.get("email"),
             "name": validated_data.get("name"),
             "password": validated_data.pop("password", None),
@@ -165,6 +168,7 @@ class SaveUserProfileSerializer(serializers.Serializer):
 
 class UserProfileSerializer(serializers.Serializer):
     """Serializer for user creation."""
+    is_active = serializers.BooleanField(required=False)
     id = serializers.EmailField(required=False)
     email = serializers.EmailField(required=True)
     name = serializers.CharField(required=True, max_length=255)
@@ -173,6 +177,7 @@ class UserProfileSerializer(serializers.Serializer):
     division = DivisionSerializer()
 class FullUserProfileSerializer(serializers.Serializer):
     """Serializer for user creation."""
+    is_active = serializers.BooleanField(required=False)
     id = serializers.EmailField(required=False)
     email = serializers.EmailField(required=True)
     name = serializers.CharField(required=True, max_length=255)
@@ -190,6 +195,7 @@ class BaseUserSerializer(serializers.ModelSerializer):
 def serialize_user_profile(user):
     profile = models.Profile.objects.get(user=user)
     serializer = UserProfileSerializer({
+        "is_active": user.is_active,
         "id": user.id,
         "name": user.name,
         "email": user.email,
@@ -203,6 +209,7 @@ def serialize_user_profile(user):
 def serialize_full_user_profile(user):
     profile = models.Profile.objects.get(user=user)
     serializer = FullUserProfileSerializer({
+        "is_active": user.is_active,
         "id": user.id,
         "name": user.name,
         "email": user.email,

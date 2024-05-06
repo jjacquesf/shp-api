@@ -5,6 +5,7 @@ from django.utils.translation import gettext as _
 from django.shortcuts import render
 from rest_framework import views, generics, authentication, permissions
 from rest_framework.response import Response
+from rest_framework import serializers
 
 from django.contrib.auth.models import Permission
 
@@ -79,6 +80,15 @@ class ManageGroupView(generics.RetrieveUpdateDestroyAPIView):
     # )
     # def retrieve(request, *args, **kwargs):
     #     return super().get(request, *args, **kwargs)
+
+    def perform_destroy(self, instance):
+        """Destroy a custom field"""
+        if(instance.user_set.count()):
+            raise serializers.ValidationError(_('No se puede eliminar porque hay usuarios asigandos a este grupo.'))
+        
+        instance.delete()
+
+
 
 @extend_schema(tags=[_('Groups and Permissions')])
 @extend_schema_view(
