@@ -129,8 +129,8 @@ class DepartmentViewSet(viewsets.ModelViewSet):
         """Update a supplier"""
         
         parent = serializer.validated_data.get('parent', None)
-        current = self.queryset[0]
-        if parent != None and parent.id == current.id:
+        instance = self.get_object()
+        if parent != None and parent.id == instance.id:
             raise serializers.ValidationError(_('Debe especificar un registro padre diferente'))
         
         return self._update_level(serializer)

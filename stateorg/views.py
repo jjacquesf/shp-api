@@ -128,7 +128,8 @@ class StateOrgViewSet(viewsets.ModelViewSet):
         """Update a supplier"""
         
         parent = serializer.validated_data.get('parent', None)
-        current = self.queryset[0]
+        current = self.get_object()
+
         if parent != None and parent.id == current.id:
             raise serializers.ValidationError(_('Debe especificar un registro padre diferente'))
         

@@ -103,8 +103,11 @@ class DivisionViewSet(viewsets.ModelViewSet):
     
     def perform_destroy(self, instance):
         """Destroy a division type"""
-        children = get_user_model().objects.filter(division=instance).count()
-        if(children > 0):
-            raise serializers.ValidationError(_('No se puede eliminar porque hay registros que dependen de el. Puedes deshabilitarlo.'))
+        profiles = models.Profile.objects.filter(division=instance)
+        if len(profiles):
+            users_id = map(lambda x: x.user_id, profiles)
+            children = get_user_model().objects.filter(id__in=users_id).count()
+            if(children > 0):
+                raise serializers.ValidationError(_('No se puede eliminar porque hay registros que dependen de el. Puedes deshabilitarlo.'))
 
         instance.delete()
