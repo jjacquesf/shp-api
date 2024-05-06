@@ -260,6 +260,9 @@ class EvidenceReportView(views.APIView):
             if(len(group_bys) > 0):
                 group_bys_str = ',' + ','.join(group_bys)
 
+
+            # to_char(e.created_at, 'YYYY-MM-DD"T"HH24:MI:SSOF'),
+            # to_char(e.updated_at, 'YYYY-MM-DD"T"HH24:MI:SSOF'),
             query = f"""SELECT 
                                     eg.id AS group_id,
                                     et.id AS type_id,
@@ -273,8 +276,8 @@ class EvidenceReportView(views.APIView):
                                     COUNT(d.id) AS division_count,
                                     JSON_AGG(JSONB_BUILD_OBJECT(
                                         'id', e.id,
-                                        'created_at', e.created_at,
-                                        'updated_at', e.updated_at,
+                                        'created_at', to_char(e.created_at, 'YYYY-MM-DD"T"HH24:MI'), --e.created_at,
+                                        'updated_at', to_char(e.updated_at, 'YYYY-MM-DD"T"HH24:MI'), --e.updated_at,
                                         'user', u.name,
                                         'job_position', p.job_position,
                                         'status_name', es.name
