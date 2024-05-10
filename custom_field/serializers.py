@@ -58,10 +58,11 @@ class EvidenceTypeCustomFieldSerializer(serializers.ModelSerializer):
         read_only_fields = ['id']
 
 class UpdateCustomFieldSerializer(CustomFieldSerializer):
-    attribute_name = serializers.CharField()
-    attribute_slug = serializers.CharField()
-    attribute_datatype = serializers.CharField()
-    class Meta(CustomFieldSerializer.Meta):
+    # attribute_name = serializers.CharField()
+    # attribute_slug = serializers.CharField()
+    # attribute_datatype = serializers.CharField()
+    # catalog = serializers.CharField(required=False)
+    class Meta:
         model= models.CustomField
         fields = ['id', 'is_active', 'description']
 
