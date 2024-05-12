@@ -6,6 +6,7 @@ from django.urls import (
     include
 )
 
+from stateorg import import_views
 from rest_framework.routers import DefaultRouter
 
 from stateorg import views
@@ -16,5 +17,6 @@ router.register('', views.StateOrgViewSet)
 app_name = 'stateorg'
 
 urlpatterns = [
+    path('import/<slug:filename>/', import_views.ImportView.as_view(), name='import'),
     path('', include(router.urls)),
 ]

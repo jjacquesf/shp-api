@@ -22,7 +22,7 @@ class ImportCatalogPermission(permissions.BasePermission):
     def has_permission(self, request, view):
         """Validate user permissions depending on the request method"""
         if request.method == 'POST':
-            return request.user.has_perm('core.add_department')
+            return request.user.has_perm('core.add_stateorg')
     
         return False
     
@@ -36,7 +36,7 @@ class ImportView(views.APIView):
                           ]
 
     @extend_schema(
-        description=_("[Protected | ImportDepartment] Import records"),
+        description=_("[Protected | ImportStateOrg] Import records"),
     )
     def post(self, request, filename, format=None):
         file = request.FILES['file']
@@ -64,13 +64,13 @@ class ImportView(views.APIView):
                             parent_name = row[3]
                         parent = None
                         if parent_name != None:
-                            parent = models.Department.objects.filter(name=parent_name)
+                            parent = models.StateOrg.objects.filter(name=parent_name)
                             if len(parent):
                                 parent = parent[0]
 
                         if id != None:
                             try:
-                                instance = models.Department.objects.get(id=id)
+                                instance = models.StateOrg.objects.get(id=id)
 
                                 level = 0
                                 if parent != None:
@@ -93,7 +93,7 @@ class ImportView(views.APIView):
                             if parent != None:
                                 level = parent.level + 1
 
-                            models.Department.objects.create(
+                            models.StateOrg.objects.create(
                                 is_active=is_active,
                                 name=name,
                                 level=level,
