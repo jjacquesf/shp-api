@@ -8,7 +8,7 @@ from django.urls import (
 
 from rest_framework.routers import DefaultRouter
 
-from institution import views
+from institution import views, import_views
 
 router = DefaultRouter()
 router.register('', views.InstitutionViewSet)
@@ -16,5 +16,6 @@ router.register('', views.InstitutionViewSet)
 app_name = 'institution'
 
 urlpatterns = [
+    path('import/<slug:filename>/', import_views.ImportView.as_view(), name='import'),
     path('', include(router.urls)),
 ]

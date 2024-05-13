@@ -1,5 +1,4 @@
 # import xlrd
-import re
 from pyexcel_xlsx import get_data
 from rest_framework.parsers import FileUploadParser
 
@@ -24,7 +23,7 @@ class ImportCatalogPermission(permissions.BasePermission):
     def has_permission(self, request, view):
         """Validate user permissions depending on the request method"""
         if request.method == 'POST':
-            return request.user.has_perm('core.add_stateorg')
+            return request.user.has_perm('core.add_department')
     
         return False
     
@@ -38,7 +37,7 @@ class ImportView(views.APIView):
                           ]
 
     @extend_schema(
-        description=_("[Protected | ImportSianUser] Import records"),
+        description=_("[Protected | ImportDpe] Import records"),
     )
     def post(self, request, filename, format=None):
         file = request.FILES['file']
@@ -61,50 +60,28 @@ class ImportView(views.APIView):
 
                         name = row[2]
 
-                        stateorg_name = None
-                        if len(row) > 3:
-                            stateorg_name = row[3]
-                        stateorg = None
-                        if stateorg_name != None:
-                            stateorg = models.StateOrg.objects.filter(name=stateorg_name)
-                            if len(stateorg):
-                                stateorg = stateorg[0]
-                            else:
-                                messages.append(f"No se encontró la dependencia estatal: {stateorg_name}")
-                                continue
-
                         if id != None:
                             try:
-                                instance = models.SianUser.objects.get(id=id)
-
+                                instance = models.Dpe.objects.get(id=id)
 
                                 instance.is_active = is_active
                                 instance.name = name
-                                instance.stateorg = stateorg
 
                                 instance.save()
 
                             except ObjectDoesNotExist:
                                 messages.append(f"No existe un registro con el id: {id}")
-                            except IntegrityError as e:
-                                if re.search('stateorg_id', str(e)):
-                                    messages.append(f"Organización estatal es obligatoria")
-
-                                if re.search('name', str(e)):
-                                    messages.append(f"Registro duplicado: {name}")
+                            except IntegrityError:
+                                messages.append(f"Registro duplicado: {name}")
                         else:
                             try:
-                                models.SianUser.objects.create(
+                                models.Dpe.objects.create(
                                     is_active=is_active,
                                     name=name,
-                                    stateorg=stateorg
                                 )
-                            except IntegrityError as e:
-                                if re.search('stateorg_id', str(e)):
-                                    messages.append(f"Organización estatal es obligatoria")
 
-                                if re.search('name', str(e)):
-                                    messages.append(f"Registro duplicado: {name}")
+                            except IntegrityError:
+                                messages.append(f"Registro duplicado: {name}")
             else:
                 messages.append('Debe especificar al menos un registro para crear o actualizar.')
         else:

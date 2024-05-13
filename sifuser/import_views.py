@@ -77,16 +77,9 @@ class ImportView(views.APIView):
                             try:
                                 instance = models.SifUser.objects.get(id=id)
 
-                                level = 0
-                                if stateorg != None:
-                                    if stateorg.id == instance.id:
-                                        stateorg = None
-                                    level = stateorg.level + 1
-
                                 instance.is_active = is_active
                                 instance.name = name
                                 instance.stateorg = stateorg
-                                instance.level = level
 
                                 instance.save()
 
@@ -99,15 +92,10 @@ class ImportView(views.APIView):
                                 if re.search('name', str(e)):
                                     messages.append(f"Registro duplicado: {name}")
                         else:
-                            level = 0
-                            if stateorg != None:
-                                level = stateorg.level + 1
-
                             try:
                                 models.SifUser.objects.create(
                                     is_active=is_active,
                                     name=name,
-                                    level=level,
                                     stateorg=stateorg
                                 )
                             except IntegrityError as e:

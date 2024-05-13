@@ -8,7 +8,7 @@ from django.urls import (
 
 from rest_framework.routers import DefaultRouter
 
-from supplier import views
+from supplier import views, import_views
 
 router = DefaultRouter()
 router.register('', views.SupplierViewSet)
@@ -16,5 +16,6 @@ router.register('', views.SupplierViewSet)
 app_name = 'supplier'
 
 urlpatterns = [
+    path('import/<slug:filename>/', import_views.ImportView.as_view(), name='import'),
     path('', include(router.urls)),
 ]
