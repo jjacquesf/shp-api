@@ -24,7 +24,7 @@ class ImportCatalogPermission(permissions.BasePermission):
     def has_permission(self, request, view):
         """Validate user permissions depending on the request method"""
         if request.method == 'POST':
-            return request.user.has_perm('core.add_department')
+            return request.user.has_perm('core.import_supplier')
     
         return False
     

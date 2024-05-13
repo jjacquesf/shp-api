@@ -88,6 +88,13 @@ class Municipality(TimeStampMixin):
         verbose_name = _('Municipality')
         verbose_name_plural = _('Municipalities')
 
+        permissions = [
+            (
+                "import_municipality",
+                "Import Municipalities"
+            )
+        ]
+
     def __str__(self):
         return f"Municipality: {self.id}"
 
@@ -107,6 +114,13 @@ class Dpe(TimeStampMixin):
         verbose_name = _('Decentralized public entity')
         verbose_name_plural = _('Decentralized public entities')
 
+        permissions = [
+            (
+                "import_dpe",
+                "Import Dpes"
+            )
+        ]
+
     def __str__(self):
         return f"Dpe: {self.id}"
 
@@ -117,6 +131,13 @@ class Supplier(TimeStampMixin):
     tax_name = models.CharField(max_length=255,unique=True)
     class Meta:
         verbose_name = _('Supplier')
+
+        permissions = [
+            (
+                "import_supplier",
+                "Import Suppliers"
+            )
+        ]
 
     def __str__(self):
         return f"Supplier: {self.id}"
@@ -135,6 +156,13 @@ class Department(TimeStampMixin):
         verbose_name = _('SHP Department')
         verbose_name_plural = _('SHP Departments')
 
+        permissions = [
+            (
+                "import_department",
+                "Import departments"
+            )
+        ]
+
     def __str__(self):
         return f"Department: {self.id}"
 
@@ -151,6 +179,14 @@ class Entity(TimeStampMixin):
     class Meta:
         verbose_name = _('Entity')
         verbose_name_plural = _('Entities')
+
+        permissions = [
+            (
+                "import_entity",
+                "Import Entities"
+            )
+        ]
+
 
     def __str__(self):
         return f"Entity: {self.id}"
@@ -169,6 +205,14 @@ class StateOrg(TimeStampMixin):
         verbose_name = _('State Organization')
         verbose_name_plural = _('State organizations')
 
+
+        permissions = [
+            (
+                "import_stateorg",
+                "Import State Orgs"
+            )
+        ]
+
     def __str__(self):
         return f"StateOrg: {self.id}"
 
@@ -183,6 +227,13 @@ class SifUser(TimeStampMixin):
         verbose_name = _('SIF user')
         verbose_name_plural = _('SIF users')
 
+        permissions = [
+            (
+                "import_sifuser",
+                "Import SIIF"
+            )
+        ]
+
     def __str__(self):
         return f"SifUser: {self.id}"
 
@@ -196,6 +247,13 @@ class SianUser(TimeStampMixin):
     class Meta:
         verbose_name = _('SIAN user')
         verbose_name_plural = _('SIAN users')
+
+        permissions = [
+            (
+                "import_sianuser",
+                "Import SIAN"
+            )
+        ]
 
     def __str__(self):
         return f"SianUser: {self.id}"
