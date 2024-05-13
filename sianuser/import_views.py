@@ -1,4 +1,5 @@
 # import xlrd
+import re
 from pyexcel_xlsx import get_data
 from rest_framework.parsers import FileUploadParser
 
@@ -37,7 +38,7 @@ class ImportView(views.APIView):
                           ]
 
     @extend_schema(
-        description=_("[Protected | ImportStateOrg] Import records"),
+        description=_("[Protected | ImportSianUser] Import records"),
     )
     def post(self, request, filename, format=None):
         file = request.FILES['file']
@@ -60,53 +61,61 @@ class ImportView(views.APIView):
 
                         name = row[2]
 
-                        parent_name = None
+                        stateorg_name = None
                         if len(row) > 3:
-                            parent_name = row[3]
-                        parent = None
-                        if parent_name != None:
-                            parent = models.StateOrg.objects.filter(name=parent_name)
-                            if len(parent):
-                                parent = parent[0]
+                            stateorg_name = row[3]
+                        stateorg = None
+                        if stateorg_name != None:
+                            stateorg = models.StateOrg.objects.filter(name=stateorg_name)
+                            if len(stateorg):
+                                stateorg = stateorg[0]
                             else:
-                                messages.append(f"No se encontró el registro padre: {parent_name}")
+                                messages.append(f"No se encontró la dependencia estatal: {stateorg_name}")
                                 continue
-                            
+
                         if id != None:
                             try:
-                                instance = models.StateOrg.objects.get(id=id)
+                                instance = models.SianUser.objects.get(id=id)
 
                                 level = 0
-                                if parent != None:
-                                    if parent.id == instance.id:
-                                        parent = None
-                                    level = parent.level + 1
+                                if stateorg != None:
+                                    if stateorg.id == instance.id:
+                                        stateorg = None
+                                    level = stateorg.level + 1
 
                                 instance.is_active = is_active
                                 instance.name = name
-                                instance.parent = parent
+                                instance.stateorg = stateorg
                                 instance.level = level
 
                                 instance.save()
 
                             except ObjectDoesNotExist:
                                 messages.append(f"No existe un registro con el id: {id}")
-                            except IntegrityError:
-                                messages.append(f"Registro duplicado: {name}")
+                            except IntegrityError as e:
+                                if re.search('stateorg_id', str(e)):
+                                    messages.append(f"Organización estatal es obligatoria")
+
+                                if re.search('name', str(e)):
+                                    messages.append(f"Registro duplicado: {name}")
                         else:
                             level = 0
-                            if parent != None:
-                                level = parent.level + 1
+                            if stateorg != None:
+                                level = stateorg.level + 1
 
                             try:
-                                models.StateOrg.objects.create(
+                                models.SianUser.objects.create(
                                     is_active=is_active,
                                     name=name,
                                     level=level,
-                                    parent=parent
+                                    stateorg=stateorg
                                 )
-                            except IntegrityError:
-                                messages.append(f"Registro duplicado: {name}")
+                            except IntegrityError as e:
+                                if re.search('stateorg_id', str(e)):
+                                    messages.append(f"Organización estatal es obligatoria")
+
+                                if re.search('name', str(e)):
+                                    messages.append(f"Registro duplicado: {name}")
             else:
                 messages.append('Debe especificar al menos un registro para crear o actualizar.')
         else:

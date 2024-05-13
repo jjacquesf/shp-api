@@ -4,6 +4,7 @@ from rest_framework.parsers import FileUploadParser
 
 
 from django.core.exceptions import ObjectDoesNotExist
+from django.db import IntegrityError
 
 from django.utils.translation import gettext as _
 
@@ -67,7 +68,10 @@ class ImportView(views.APIView):
                             parent = models.Department.objects.filter(name=parent_name)
                             if len(parent):
                                 parent = parent[0]
-
+                            else:
+                                messages.append(f"No se encontró el registro padre: {parent_name}")
+                                continue
+                            
                         if id != None:
                             try:
                                 instance = models.Department.objects.get(id=id)
@@ -87,18 +91,23 @@ class ImportView(views.APIView):
 
                             except ObjectDoesNotExist:
                                 messages.append(f"No existe un registro con el id: {id}")
-                                pass
+                            except IntegrityError:
+                                messages.append(f"Registro duplicado: {name}")
                         else:
                             level = 0
                             if parent != None:
                                 level = parent.level + 1
 
-                            models.Department.objects.create(
-                                is_active=is_active,
-                                name=name,
-                                level=level,
-                                parent=parent
-                            )
+                            try:
+                                models.Department.objects.create(
+                                    is_active=is_active,
+                                    name=name,
+                                    level=level,
+                                    parent=parent
+                                )
+
+                            except IntegrityError:
+                                messages.append(f"Registro duplicado: {name}")
             else:
                 messages.append('Debe especificar al menos un registro para crear o actualizar.')
         else:

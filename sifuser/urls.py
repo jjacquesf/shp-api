@@ -8,7 +8,7 @@ from django.urls import (
 
 from rest_framework.routers import DefaultRouter
 
-from sifuser import views
+from sifuser import views, import_views
 
 router = DefaultRouter()
 router.register('', views.SifUserViewSet)
@@ -16,5 +16,6 @@ router.register('', views.SifUserViewSet)
 app_name = 'sifuser'
 
 urlpatterns = [
+    path('import/<slug:filename>/', import_views.ImportView.as_view(), name='import'),
     path('', include(router.urls)),
 ]

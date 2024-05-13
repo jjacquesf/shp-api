@@ -37,7 +37,7 @@ class ImportView(views.APIView):
                           ]
 
     @extend_schema(
-        description=_("[Protected | ImportStateOrg] Import records"),
+        description=_("[Protected | ImportEntity] Import records"),
     )
     def post(self, request, filename, format=None):
         file = request.FILES['file']
@@ -65,7 +65,7 @@ class ImportView(views.APIView):
                             parent_name = row[3]
                         parent = None
                         if parent_name != None:
-                            parent = models.StateOrg.objects.filter(name=parent_name)
+                            parent = models.Entity.objects.filter(name=parent_name)
                             if len(parent):
                                 parent = parent[0]
                             else:
@@ -74,7 +74,7 @@ class ImportView(views.APIView):
                             
                         if id != None:
                             try:
-                                instance = models.StateOrg.objects.get(id=id)
+                                instance = models.Entity.objects.get(id=id)
 
                                 level = 0
                                 if parent != None:
@@ -99,7 +99,7 @@ class ImportView(views.APIView):
                                 level = parent.level + 1
 
                             try:
-                                models.StateOrg.objects.create(
+                                models.Entity.objects.create(
                                     is_active=is_active,
                                     name=name,
                                     level=level,
