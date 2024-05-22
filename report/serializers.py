@@ -12,3 +12,4 @@ class EvidenceReportSerializer(serializers.Serializer):
     cf_ids = IntegerListField()
     from_date = serializers.DateField(format="%Y-%m-%d", required=False)
     to_date = serializers.DateField(format="%Y-%m-%d", required=False)
+    format = serializers.CharField(required=False)

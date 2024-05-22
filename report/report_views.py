@@ -2,10 +2,13 @@
 import os
 import io
 import datetime
-
+import tempfile
+import uuid
+import zipfile
 from platform import python_version
 from django.db import connection
 from django.http import FileResponse
+from rest_framework.response import Response
 
 from rest_framework import views, generics, authentication, permissions
 
@@ -25,6 +28,11 @@ from reportlab.lib.units import inch
 
 from reportlab.pdfgen import canvas
 from reportlab.lib.units import mm
+
+from openpyxl import Workbook
+from openpyxl.writer.excel import save_virtual_workbook
+from rest_framework import status
+
 
 class CustomImage(Image):
     """
@@ -214,6 +222,44 @@ class Print:
             return buffer
 
 
+class Excel:
+    # def __init__(self, buffer):
+    #     self.buffer = buffer
+
+    def build(self, items, cf_ids):
+        buffer = io.BytesIO()
+
+        workbook = Workbook()
+        sheet = workbook.active
+        sheet.title = "Sample Sheet"
+
+        # Add some data to the sheet.
+        data = [
+            ['Header1', 'Header2', 'Header3'],
+            [1, 2, 3],
+            [4, 5, 6],
+            [7, 8, 9]
+        ]
+        for row in data:
+            sheet.append(row)
+
+        # Save the workbook to the BytesIO object
+        
+        # with tempfile.TemporaryDirectory() as temp_dir:
+        #     name = f"{uuid.uuid4()}.xlsx"
+        #     tmp_file = os.path.join(temp_dir, name)
+        #     workbook.save(tmp_file)
+        
+        # tmp_file = "./tmpreport.xlsx"
+        # workbook.save(tmp_file)
+
+        workbook.save(buffer)
+
+        # Rewind the buffer
+        buffer.seek(0)
+        # return tmp_file 
+        return buffer
+
 # @extend_schema(tags=['User management'])
 class EvidenceReportView(views.APIView):
     authentication_classes = [authentication.TokenAuthentication]
@@ -320,14 +366,35 @@ class EvidenceReportView(views.APIView):
     def post(self, request):
         serializer = EvidenceReportSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+        
+        data = self.query(serializer.data)
 
+        format = serializer.validated_data.get("format")
         cf_ids = serializer.validated_data.get("cf_ids")
 
-        buf = io.BytesIO()
-         
-        print = Print(buf, 'Letter')
+        if format == None or format == "pdf":
+            buf = io.BytesIO()
+            pdf = Print(buf, 'Letter')
+            buf = pdf.build(data, cf_ids)
 
-        data = self.query(serializer.data)
-        buf = print.build(data, cf_ids)
+            return FileResponse(buf, as_attachment=True, filename="report.pdf")
+        else:
+            
+            excel = Excel()
+            buf = excel.build(data, cf_ids)
 
-        return FileResponse(buf, as_attachment=True, filename="report.pdf")
+            # return FileResponse(buf, as_attachment=True, filename="report.xlsx")
+
+            # if not os.path.exists(file_path):
+            #     return Response({'error': 'File not found'}, status=status.HTTP_404_NOT_FOUND)
+
+            return FileResponse(buf, as_attachment=True, filename="report.xlsx")
+            # response['Content-Disposition'] = f'attachment; filename="{os.path.basename(file_path)}"'
+        
+        # return response
+        
+        # buf = io.BytesIO()
+        # pdf = Print(buf, 'Letter')
+        # buf = pdf.build(data, cf_ids)
+
+        # return FileResponse(buf, as_attachment=True, filename="report.pdf")
