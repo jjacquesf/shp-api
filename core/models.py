@@ -643,9 +643,14 @@ class Notification(TimeStampMixin):
     )
     content = models.CharField(max_length=512)
 
+class Theme(TimeStampMixin):
+    primary = models.TextField()
+    secondary = models.TextField()
+    terciary = models.TextField()
+    quaternary = models.TextField()
+
 ## Register eav for models
 eav.register(Evidence)
-
 
 class ResetPassword(TimeStampMixin):
     token = models.CharField(max_length=512)

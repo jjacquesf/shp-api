@@ -1,6 +1,6 @@
 docker-compose run --rm app sh -c "python manage.py test --verbosity=2"
 docker-compose run --rm app sh -c "python manage.py test evidence_finding --verbosity=2"
-docker-compose run --rm app sh -c "python manage.py makemigrations --empty core"
+docker-compose run --rm app sh -c "python manage.py makemigrations --empty core" --env-file dev.env
 docker-compose run --rm app sh -c "python manage.py createsuperuser"
 docker-compose run --rm app sh -c "python manage.py makemigrations" --env-file dev.env
 docker-compose run --rm app  sh -c "python manage.py migrate" --env-file dev.env

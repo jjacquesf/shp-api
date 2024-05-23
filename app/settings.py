@@ -80,6 +80,7 @@ INSTALLED_APPS = [
     'notification',
     'evidence_signature',
     'evidence_auth',
+    'theme',
     'app',
 ]
 
