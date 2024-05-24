@@ -2,9 +2,6 @@
 import os
 import io
 import datetime
-import tempfile
-import uuid
-import zipfile
 import csv
 
 from platform import python_version
