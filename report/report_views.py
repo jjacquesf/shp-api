@@ -5,9 +5,12 @@ import datetime
 import tempfile
 import uuid
 import zipfile
+import csv
+
 from platform import python_version
 from django.db import connection
-from django.http import FileResponse
+from django.http import FileResponse, HttpResponse
+
 from rest_framework.response import Response
 
 from rest_framework import views, generics, authentication, permissions
@@ -138,18 +141,18 @@ class Print:
             elements.append(Spacer(1,0.5*inch))
 
 
-            printed_at = PS(name='topright', fontSize=10, alignment=TA_RIGHT)
+            printed_at = PS(name='topright', fontSize=8, alignment=TA_RIGHT)
             today = datetime.datetime.now()
             elements.append(Paragraph('Fecha de impresión', printed_at))
             elements.append(Paragraph(f"{today.strftime('%d/%m/%Y %H:%M hrs')}", printed_at))
 
 
-            bolder = PS(name='bolder', fontSize=12, leading=14)
-            normal = PS(name='normal', fontSize=10, leading=12)
+            bolder = PS(name='bolder', fontSize=10, leading=10)
+            normal = PS(name='normal', fontSize=8, leading=10)
 
 
             group_table_style = TableStyle([
-                    ('FONTSIZE', (0, 0), (-1, -1), 10), 
+                    ('FONTSIZE', (0, 0), (-1, -1), 8), 
                     ('INNERGRID', (0, 0), (-1, -1), 0.25, colors.white),
                     ('BOX', (0, 0), (-1, -1), 0.25, colors.white),
                     ('LEFTPADDING', (0, 0), (-1, -1), 0),
@@ -207,7 +210,7 @@ class Print:
 
                 # Create the table
                 data_table = Table(table_data, colWidths=[doc.width/5.0]*5, spaceBefore=doc.height*1/100, spaceAfter=doc.height*1/100)
-                data_table.setStyle(TableStyle([('FONTSIZE', (0, 0), (-1, -1), 10), 
+                data_table.setStyle(TableStyle([('FONTSIZE', (0, 0), (-1, -1), 8), 
                                                 ('INNERGRID', (0, 0), (-1, -1), 0.25, colors.black),
                                                 ('BOX', (0, 0), (-1, -1), 0.25, colors.black)]))
                 elements.append(data_table)
@@ -220,45 +223,51 @@ class Print:
             buffer.seek(0)
 
             return buffer
-
-
-class Excel:
-    # def __init__(self, buffer):
-    #     self.buffer = buffer
-
+    
+class CSV:
     def build(self, items, cf_ids):
-        buffer = io.BytesIO()
+        buffer = io.StringIO()
 
-        workbook = Workbook()
-        sheet = workbook.active
-        sheet.title = "Sample Sheet"
-
-        # Add some data to the sheet.
-        data = [
-            ['Header1', 'Header2', 'Header3'],
-            [1, 2, 3],
-            [4, 5, 6],
-            [7, 8, 9]
-        ]
-        for row in data:
-            sheet.append(row)
-
-        # Save the workbook to the BytesIO object
+        # with open('profiles1.csv', 'w', newline='') as file:
+        writer = csv.writer(buffer)
         
-        # with tempfile.TemporaryDirectory() as temp_dir:
-        #     name = f"{uuid.uuid4()}.xlsx"
-        #     tmp_file = os.path.join(temp_dir, name)
-        #     workbook.save(tmp_file)
+        writer.writerow(["Secretaría de la Hacienda Pública"])
+        writer.writerow(["Reporte de estatus de evidencias"])
         
-        # tmp_file = "./tmpreport.xlsx"
-        # workbook.save(tmp_file)
+        writer.writerow([""])
+        
+        writer.writerow(["Fecha de impresión"])
+        today = datetime.datetime.now()
+        writer.writerow([f"{today.strftime('%d/%m/%Y %H:%M hrs')}"])
+        writer.writerow([""])
 
-        workbook.save(buffer)
+        for i, item in items:
+            headers = ["Grupo de evidencias", "Tipo de evidencias", "División"]
+            values = [item.get('group_name'), item.get('type_name'), item.get('division_name')]
 
-        # Rewind the buffer
-        buffer.seek(0)
-        # return tmp_file 
-        return buffer
+            cf_id_count = len(cf_ids)
+            if cf_id_count > 0:
+
+                if cf_id_count == 1:
+                    for j, cf_id in enumerate(cf_ids):
+                        headers.append(item.get(f'attr{j + 1}_name'))
+                        values.append(item.get(f'gf{j + 1}'))
+            
+            writer.writerow(headers)
+            writer.writerow(values)
+            writer.writerow(['Creado', 'Actualizado', 'Responsable', 'Puesto', 'Estatus'])
+            for k, evidence in enumerate(item.get('evidences')):
+                created_at = datetime.datetime.fromisoformat(evidence.get('created_at')).strftime("%d/%m/%Y")
+                updated_at = datetime.datetime.fromisoformat(evidence.get('updated_at')).strftime("%d/%m/%Y")
+                writer.writerow([created_at, updated_at, evidence.get('user'), evidence.get('job_position'), evidence.get('status_name')])
+            
+            writer.writerow([""])
+
+        content = buffer.getvalue()
+        buffer.close()
+
+        return content
+
 
 # @extend_schema(tags=['User management'])
 class EvidenceReportView(views.APIView):
@@ -379,22 +388,7 @@ class EvidenceReportView(views.APIView):
 
             return FileResponse(buf, as_attachment=True, filename="report.pdf")
         else:
-            
-            excel = Excel()
-            buf = excel.build(data, cf_ids)
+            csv = CSV()
+            content = csv.build(data, cf_ids)
 
-            # return FileResponse(buf, as_attachment=True, filename="report.xlsx")
-
-            # if not os.path.exists(file_path):
-            #     return Response({'error': 'File not found'}, status=status.HTTP_404_NOT_FOUND)
-
-            return FileResponse(buf, as_attachment=True, filename="report.xlsx")
-            # response['Content-Disposition'] = f'attachment; filename="{os.path.basename(file_path)}"'
-        
-        # return response
-        
-        # buf = io.BytesIO()
-        # pdf = Print(buf, 'Letter')
-        # buf = pdf.build(data, cf_ids)
-
-        # return FileResponse(buf, as_attachment=True, filename="report.pdf")
+            return FileResponse(content, as_attachment=True, filename="report.csv")
